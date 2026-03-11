@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Reset Nation | Recovery Audit Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0b0f1a;
+            --card-glass: rgba(23, 31, 51, 0.75);
+            --emerald: #10b981;
+            --coral: #ff5757;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at top left, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at bottom right, rgba(255, 87, 87, 0.08) 0%, transparent 40%);
+            color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+        }
+
+        .coral-glow {
+            color: var(--coral);
+            text-shadow: 0 0 20px rgba(255, 87, 87, 0.4);
+        }
+
+        .emerald-glow {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Mobile Optimization & Reset */
+        input, select, textarea, button {
+            -webkit-appearance: none;
+            font-size: 16px !important; /* Prevents iOS auto-zoom */
+        }
+
+        /* Custom Sliders */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--emerald);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            transition: transform 0.2s ease;
+        }
+
+        /* Custom radio styles */
+        .custom-radio:checked + div {
+            border-color: var(--emerald);
+            background: rgba(16, 185, 129, 0.15);
+            box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.1);
+        }
+
+        .custom-radio:checked + div span {
+            color: var(--emerald);
+        }
+
+        .custom-radio-declining:checked + div {
+            border-color: var(--coral);
+            background: rgba(255, 87, 87, 0.15);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bento-grid {
+            display: grid;
+            gap: 0.75rem;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (min-width: 768px) {
+            .bento-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header Section - Tightened for Mobile -->
+    <header class="pt-10 pb-8 px-4 text-center">
+        <h1 class="text-3xl md:text-5xl font-black tracking-tighter mb-2 coral-glow uppercase">RESET NATION</h1>
+        <p class="text-gray-500 text-[10px] font-black tracking-[0.3em] uppercase">Recovery Audit Engine</p>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center px-4 pb-12">
+        <div class="w-full max-w-lg">
+            
+            <!-- Input Card - Optimized Padding -->
+            <div id="input-card" class="glass-card p-6 md:p-10 mb-8 fade-in">
+                <div class="mb-10 text-center">
+                    <h2 class="text-lg font-black tracking-tight uppercase mb-1">System Audit</h2>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Identify Adaptation Phase</p>
+                </div>
+
+                <form id="audit-form" class="space-y-10">
+                    <!-- Step 1: Recovery Ratings -->
+                    <div class="space-y-9">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <span class="flex items-center justify-center w-5 h-5 rounded bg-emerald-500 text-bg-deep text-[9px] font-black">01</span>
+                            <h3 class="text-[11px] font-black tracking-widest uppercase text-gray-400">Recovery Metrics</h3>
+                        </div>
+
+                        <!-- Sleep -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-end">
+                                <label class="text-[9px] font-black uppercase tracking-widest text-gray-500">Sleep Quality</label>
+                                <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest slider-val" data-type="sleep">6–7 hrs inconsistent</span>
+                            </div>
+                            <input type="range" name="sleep" min="1" max="3" value="2">
+                            <div class="flex justify-between text-[8px] text-gray-600 font-bold uppercase tracking-tight">
+                                <span>Poor</span>
+                                <span>Inconsistent</span>
+                                <span>Stable</span>
+                            </div>
+                        </div>
+
+                        <!-- Daily Energy -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-end">
+                                <label class="text-[9px] font-black uppercase tracking-widest text-gray-500">Energy Level</label>
+                                <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest slider-val" data-type="energy">Stable but flat</span>
+                            </div>
+                            <input type="range" name="energy" min="1" max="3" value="2">
+                            <div class="flex justify-between text-[8px] text-gray-600 font-bold uppercase tracking-tight">
+                                <span>Fatigued</span>
+                                <span>Stable</span>
+                                <span>Focused</span>
+                            </div>
+                        </div>
+
+                        <!-- Muscle Soreness -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-end">
+                                <label class="text-[9px] font-black uppercase tracking-widest text-gray-500">Muscle Fatigue</label>
+                                <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest slider-val" data-type="soreness">Moderate tightness</span>
+                            </div>
+                            <input type="range" name="soreness" min="1" max="3" value="2">
+                            <div class="flex justify-between text-[8px] text-gray-600 font-bold uppercase tracking-tight">
+                                <span>Severe</span>
+                                <span>Moderate</span>
+                                <span>Minimal</span>
+                            </div>
+                        </div>
+
+                        <!-- Stress Impact -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-end">
+                                <label class="text-[9px] font-black uppercase tracking-widest text-gray-500">System Stress</label>
+                                <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest slider-val" data-type="stress">Manageable</span>
+                            </div>
+                            <input type="range" name="stress" min="1" max="3" value="2">
+                            <div class="flex justify-between text-[8px] text-gray-600 font-bold uppercase tracking-tight">
+                                <span>Impacted</span>
+                                <span>Manageable</span>
+                                <span>Minimal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Intake & Metabolism -->
+                    <div class="space-y-9 pt-2">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <span class="flex items-center justify-center w-5 h-5 rounded bg-emerald-500 text-bg-deep text-[9px] font-black">02</span>
+                            <h3 class="text-[11px] font-black tracking-widest uppercase text-gray-400">Metabolic Support</h3>
+                        </div>
+
+                        <!-- Protein Intake -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-end">
+                                <label class="text-[9px] font-black uppercase tracking-widest text-gray-500">Protein Density</label>
+                                <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest slider-val" data-type="protein">0.8–1.2 g/kg</span>
+                            </div>
+                            <input type="range" name="protein" min="1" max="4" value="2">
+                            <div class="flex justify-between text-[8px] text-gray-600 font-bold uppercase tracking-tight">
+                                <span>&lt;0.8</span>
+                                <span>0.8–1.2</span>
+                                <span>1.2–1.6</span>
+                                <span>1.6–2.2</span>
+                            </div>
+                        </div>
+
+                        <!-- Calorie Deficit Toggle -->
+                        <div class="space-y-3">
+                            <label class="text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1 block">Energy Availability (Calorie Deficit)</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="deficit" value="yes" class="hidden custom-radio">
+                                    <div class="bg-[#0a0f1c] border border-white/5 py-3 rounded-xl text-center transition-all">
+                                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Yes</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="deficit" value="no" checked class="hidden custom-radio">
+                                    <div class="bg-[#0a0f1c] border border-white/5 p-3 rounded-xl text-center transition-all">
+                                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">No</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="deficit" value="sure" class="hidden custom-radio">
+                                    <div class="bg-[#0a0f1c] border border-white/5 p-3 rounded-xl text-center transition-all">
+                                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">?</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Performance Trend -->
+                    <div class="pt-2">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="flex items-center justify-center w-5 h-5 rounded bg-emerald-500 text-bg-deep text-[9px] font-black">03</span>
+                            <h3 class="text-[11px] font-black tracking-widest uppercase text-gray-400">Trend Analysis</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="trend" value="Improving" required class="hidden custom-radio">
+                                <div class="bg-[#0a0f1c] border border-white/5 py-4 rounded-xl text-center transition-all">
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Improving</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="trend" value="Stable" required class="hidden custom-radio">
+                                <div class="bg-[#0a0f1c] border border-white/5 py-4 rounded-xl text-center transition-all">
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Stable</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="trend" value="Declining" required class="hidden custom-radio custom-radio-declining">
+                                <div class="bg-[#0a0f1c] border border-white/5 py-4 rounded-xl text-center transition-all">
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Declining</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 pt-4">
+                        <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-700 text-white py-5 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] emerald-glow hover:opacity-90 transition-all transform active:scale-[0.98]">
+                            Run Phase Audit
+                        </button>
+                        
+                        <div class="space-y-1 opacity-40">
+                            <p class="text-[8px] text-center font-bold uppercase tracking-widest leading-tight">Phase Diagnostic Engine v2.5</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Result Card - Bento Grid Optimized -->
+            <div id="result-card" class="hidden glass-card p-6 md:p-12 text-center mb-8 fade-in">
+                <div class="mb-4">
+                    <p class="text-[9px] font-black text-emerald-400 uppercase tracking-[0.3em]">Analysis Complete</p>
+                </div>
+                
+                <h2 id="result-decision" class="text-2xl md:text-5xl font-black tracking-tighter mb-8 transition-all uppercase leading-tight">BUILD PHASE</h2>
+                
+                <div class="bento-grid mb-8">
+                    <div class="bg-[#0a0f1c] p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
+                        <p class="text-[7px] font-black text-gray-500 uppercase tracking-widest mb-1">Readiness</p>
+                        <p class="text-lg font-black leading-none"><span id="result-score">14</span><span class="text-gray-600 text-[10px]">/15</span></p>
+                    </div>
+                    <div class="bg-[#0a0f1c] p-4 rounded-2xl border border-white/5 flex flex-col justify-center overflow-hidden">
+                        <p class="text-[7px] font-black text-gray-500 uppercase tracking-widest mb-1">Limit</p>
+                        <p id="result-limiting-factor" class="text-[10px] font-black uppercase tracking-tight truncate">None</p>
+                    </div>
+                    <div class="bg-[#0a0f1c] p-4 rounded-2xl border border-white/5 col-span-2">
+                        <p class="text-[7px] font-black text-gray-500 uppercase tracking-widest mb-1">Re-evaluate</p>
+                        <p id="result-reevaluation" class="text-[10px] font-black uppercase tracking-tight">Timeline goes here.</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#0a0f1c] rounded-2xl p-5 md:p-8 text-left space-y-6 border border-white/5">
+                    <div>
+                        <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-2">Diagnostic Summary</p>
+                        <p id="result-message" class="text-gray-300 font-semibold text-xs leading-relaxed italic">Explanation text.</p>
+                    </div>
+
+                    <div class="pt-5 border-t border-white/5">
+                        <div class="flex items-start space-x-3">
+                            <div id="action-icon" class="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
+                            <div class="flex-grow">
+                                <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1.5">Prescription</p>
+                                <p id="result-action" class="text-xs font-black text-white leading-snug">Prescription details.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="reset-btn" class="mt-10 w-full bg-transparent border border-white/10 text-white/50 py-4 rounded-xl text-[9px] font-black uppercase tracking-widest hover:text-white transition-all">
+                    Reset Engine
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer - Reduced Vertical Spacing -->
+    <footer class="pb-8 pt-4 text-center border-t border-white/5">
+        <div class="flex justify-center space-x-8 mb-6">
+            <a href="https://www.instagram.com/resetnation.in/" target="_blank" class="text-[#ff5757] text-[9px] font-black uppercase tracking-widest">Instagram</a>
+            <a href="https://www.youtube.com/@reset.nation" target="_blank" class="text-[#ff5757] text-[9px] font-black uppercase tracking-widest">YouTube</a>
+        </div>
+        <p class="text-[8px] font-black text-gray-700 uppercase tracking-[0.4em]">© RESET NATION | PERFORMANCE SYSTEMS</p>
+    </footer>
+
+    <script>
+        const form = document.getElementById('audit-form');
+        const inputCard = document.getElementById('input-card');
+        const resultCard = document.getElementById('result-card');
+        const resetBtn = document.getElementById('reset-btn');
+
+        const labelsSleep = ["Poor / disturbed", "6–7 hrs inconsistent", "7–9 hrs stable & uninterrupted"];
+        const labelsEnergy = ["Fatigued most of day", "Stable but flat", "Energetic & focused"];
+        const labelsSoreness = ["Severe soreness", "Moderate tightness", "Minimal soreness"];
+        const labelsStress = ["Affecting sleep", "Manageable", "Minimal interference"];
+        const labelsProtein = ["<0.8 g/kg", "0.8–1.2 g/kg", "1.2–1.6 g/kg", "1.6–2.2 g/kg"];
+
+        const EMERALD = "#10b981";
+        const AMBER = "#f59e0b";
+        const CORAL = "#ff5757";
+
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                const labelDisplay = e.target.parentElement.querySelector('.slider-val');
+                if (!labelDisplay) return;
+
+                if(e.target.name === 'sleep') labelDisplay.textContent = labelsSleep[val-1];
+                if(e.target.name === 'energy') labelDisplay.textContent = labelsEnergy[val-1];
+                if(e.target.name === 'soreness') labelDisplay.textContent = labelsSoreness[val-1];
+                if(e.target.name === 'stress') labelDisplay.textContent = labelsStress[val-1];
+                if(e.target.name === 'protein') labelDisplay.textContent = labelsProtein[val-1];
+            });
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const sleep = parseInt(formData.get('sleep'));
+            const energy = parseInt(formData.get('energy'));
+            const soreness = parseInt(formData.get('soreness'));
+            const stress = parseInt(formData.get('stress'));
+            const protein = parseInt(formData.get('protein'));
+            const deficit = formData.get('deficit');
+            const trend = formData.get('trend');
+
+            const recoveryIndex = sleep + energy + soreness + stress; 
+            const proteinScore = protein - 1; 
+            let deficitPenalty = 0;
+            if (deficit === 'yes') deficitPenalty = 2;
+            else if (deficit === 'sure') deficitPenalty = 1;
+            
+            const adaptiveReadiness = recoveryIndex + (proteinScore - deficitPenalty);
+            const result = calculateDiagnosis(recoveryIndex, adaptiveReadiness, trend, protein, sleep, stress, deficit);
+            displayResult(result, adaptiveReadiness);
+        });
+
+        function calculateDiagnosis(recovery, readiness, trend, proteinRaw, sleepRaw, stressRaw, deficitRaw) {
+            let res = { phase: "", limitingFactor: "None", explanation: "", prescription: "", reevaluation: "", color: EMERALD };
+
+            if (readiness >= 10) {
+                if (trend === 'Improving') {
+                    res.phase = "BUILD PHASE";
+                    res.explanation = "System readiness is optimal. High recovery markers and adequate nutrition are supporting positive performance trends.";
+                    res.prescription = "Increase weekly volume by 5–10% OR add load to main lifts.";
+                    res.reevaluation = "7 Days";
+                } else if (trend === 'Stable') {
+                    res.phase = "STABILIZATION";
+                    res.explanation = "Readiness is high and system is stable. You are managing current stress levels effectively.";
+                    res.prescription = "Continue current workload. Focus on technical refinement.";
+                    res.reevaluation = "7 Days";
+                } else {
+                    res.phase = "STIMULUS MISMATCH";
+                    res.limitingFactor = "Stimulus Quality";
+                    res.explanation = "Readiness is high but performance is declining. Likely not providing enough effective stimulus.";
+                    res.prescription = "Review training intensity. Ensure sets are near failure.";
+                    res.reevaluation = "3 Sessions";
+                    res.color = AMBER;
+                }
+            }
+            else if (readiness >= 7) {
+                if (trend === 'Improving') {
+                    res.phase = "STABILIZATION";
+                    res.explanation = "Progress is visible, but system readiness is moderate. Caution advised to prevent overreaching.";
+                    res.prescription = "Maintain current volume. Do not add sets or load this week.";
+                    res.reevaluation = "5 Days";
+                } else if (trend === 'Stable') {
+                    res.phase = "ACCUMULATION";
+                    res.limitingFactor = "Fatigue";
+                    res.explanation = "System stable but readiness average. Fatigue is likely beginning to mask fitness gains.";
+                    res.prescription = "Reduce total weekly sets by 10% for one week to refresh.";
+                    res.reevaluation = "3 Sessions";
+                    res.color = AMBER;
+                } else {
+                    res.phase = "ACCUMULATION";
+                    res.limitingFactor = "Mismatch";
+                    res.explanation = "Performance declining with moderate readiness. Fatigue accumulation is exceeding recovery rate.";
+                    res.prescription = "Reduce weekly sets by 15% immediately.";
+                    res.reevaluation = "7 Days";
+                    res.color = AMBER;
+                }
+            }
+            else if (readiness >= 4) {
+                if (trend === 'Improving') {
+                    res.phase = "FUNCTIONAL OVERREACH";
+                    res.limitingFactor = "Capacity";
+                    res.explanation = "Performance rising despite low readiness. You are 'borrowing' from future adaptive capacity.";
+                    res.prescription = "Mandatory maintenance week. Prioritize sleep/protein. No progression.";
+                    res.reevaluation = "72 Hours";
+                    res.color = AMBER;
+                } else if (trend === 'Stable') {
+                    res.phase = "RECOVERY MISMATCH";
+                    res.limitingFactor = "Capacity";
+                    res.explanation = "Low readiness and stalled performance. Lifestyle factors are not supporting current training load.";
+                    res.prescription = "Reduce volume by 20%. Increase protein and sleep duration.";
+                    res.reevaluation = "7 Days";
+                    res.color = AMBER;
+                } else {
+                    res.phase = "SYSTEM OVERLOAD";
+                    res.limitingFactor = "Fatigue";
+                    res.explanation = "Low readiness and declining performance. Accumulated fatigue is impairing adaptive responses.";
+                    res.prescription = "Structured 5–7 day deload week at 50% volume.";
+                    res.reevaluation = "Post-Deload";
+                    res.color = CORAL;
+                }
+            }
+            else {
+                res.phase = "SYSTEM OVERLOAD";
+                res.limitingFactor = "Critical Deficit";
+                res.explanation = "System readiness is critically low. High risk of burnout or injury.";
+                res.prescription = "Full 7-day deload required. Focus entirely on recovery protocols.";
+                res.reevaluation = "7 Days";
+                res.color = CORAL;
+            }
+
+            if (deficitRaw === 'yes' && recovery < 7) {
+                if (res.phase === "BUILD PHASE" || res.phase === "FUNCTIONAL OVERREACH") res.phase = "STABILIZATION";
+                res.limitingFactor = "Energy Availability";
+                res.color = AMBER;
+            }
+
+            return res;
+        }
+
+        function displayResult(result, score) {
+            const decEl = document.getElementById('result-decision');
+            document.getElementById('result-score').textContent = score;
+            document.getElementById('result-limiting-factor').textContent = result.limitingFactor;
+            document.getElementById('result-limiting-factor').style.color = result.color === EMERALD ? '#ffffff' : result.color;
+            document.getElementById('result-message').textContent = result.explanation;
+            document.getElementById('result-action').textContent = result.prescription;
+            document.getElementById('result-reevaluation').textContent = result.reevaluation;
+            document.getElementById('action-icon').style.backgroundColor = result.color;
+            decEl.textContent = result.phase;
+            decEl.style.color = result.color;
+            inputCard.classList.add('hidden');
+            resultCard.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        resetBtn.addEventListener('click', () => {
+            resultCard.classList.add('hidden');
+            inputCard.classList.remove('hidden');
+            form.reset();
+            document.querySelectorAll('.slider-val').forEach(s => {
+                const type = s.dataset.type;
+                if(type === 'sleep') s.textContent = labelsSleep[1];
+                if(type === 'energy') s.textContent = labelsEnergy[1];
+                if(type === 'soreness') s.textContent = labelsSoreness[1];
+                if(type === 'stress') s.textContent = labelsStress[1];
+                if(type === 'protein') s.textContent = labelsProtein[1];
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

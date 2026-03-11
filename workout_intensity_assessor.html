@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Nation Lifting Intensity Guidance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Custom styling for the primary "Reset" button color */
+        .btn-reset {
+            background-color: #10b981; /* Emerald 500 */
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .btn-reset:hover {
+            background-color: #059669; /* Emerald 600 */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .card {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .result-box {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom colors for goal feedback */
+        .goal-fatloss { color: #f59e0b; } 
+        .goal-muscle { color: #5b21b6; } /* Violet 700 */
+        .goal-strength { color: #059669; } /* Emerald 600 */
+
+        /* NEW Reset Nation Branding Colors */
+        .text-reset-nation {
+            color: #ff5757; /* Custom red/coral color for title */
+        }
+        .text-reset-link {
+            color: #ff5757; /* Match title color for links */
+            font-weight: 600;
+        }
+        .text-reset-link:hover {
+            color: #d13d3d; /* Darker red for hover effect */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 min-h-screen flex items-center justify-center">
+
+    <div class="w-full max-w-xl bg-white card rounded-2xl p-6 sm:p-10">
+        <!-- Header -->
+        <!-- Applied Reset Nation Color -->
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-reset-nation mb-2">Reset Nation</h1>
+        <p class="text-xl text-gray-500 mb-8">Lifting Intensity & Target Coach</p>
+
+        <!-- Input Section -->
+        <div class="space-y-6">
+
+            <p class="text-gray-600">Enter a recent set you completed to find your maximum strength and get targeted weights for your goal.</p>
+            
+            <!-- Exercise Selection -->
+            <div>
+                <label for="exercise" class="block text-sm font-medium text-gray-700">Select Exercise / Body Part</label>
+                <select id="exercise" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 border focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="">Select a Compound Lift</option>
+                    <option value="bench">Chest (Bench Press)</option>
+                    <option value="squat">Legs (Squat)</option>
+                    <option value="deadlift">Back/Legs (Deadlift)</option>
+                    <option value="ohp">Shoulders (Overhead Press)</option>
+                    <option value="row">Back (Barbell Row)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Weight Lifted -->
+                <div>
+                    <label for="weight-lifted" class="block text-sm font-medium text-gray-700">Weight Lifted (kg)</label>
+                    <input type="number" id="weight-lifted" min="5" placeholder="e.g., 80" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 border focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+
+                <!-- Reps Completed -->
+                <div>
+                    <!-- UPDATED: Max reps increased to 12 -->
+                    <label for="reps-completed" class="block text-sm font-medium text-gray-700">Reps Completed (Max 12)</label>
+                    <input type="number" id="reps-completed" min="1" max="12" placeholder="e.g., 10" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 border focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+            </div>
+
+            <!-- Primary Goal -->
+            <div>
+                <label for="goal" class="block text-sm font-medium text-gray-700">Your Primary Training Goal</label>
+                <select id="goal" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 border focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="">Select Training Goal</option>
+                    <option value="fatloss">Tone / Fat Loss (High Reps, Moderate Intensity)</option>
+                    <option value="muscle">Muscle Gain / Hypertrophy (Medium Reps, Medium Intensity)</option>
+                    <option value="strength">Pure Strength (Low Reps, High Intensity)</option>
+                </select>
+            </div>
+            
+        </div>
+
+        <!-- Calculate Button -->
+        <button id="calculate-btn" onclick="prescribeIntensity()" class="w-full btn-reset text-white font-bold py-3 mt-8 rounded-xl shadow-md uppercase tracking-wider">
+            Get My Target Intensity
+        </button>
+
+        <!-- Message Box for Errors -->
+        <div id="message-box" class="mt-4 hidden p-4 text-sm font-medium text-red-700 bg-red-100 rounded-lg"></div>
+
+        <!-- Results Section -->
+        <div id="results-container" class="mt-10 result-box hidden">
+            <h2 class="text-2xl font-extrabold text-gray-900 mb-4 text-center" id="goal-title"></h2>
+            
+            <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-200 mb-6 text-center">
+                <p class="text-lg font-semibold text-gray-700">Target Rep Range:</p>
+                <p id="target-reps" class="text-4xl sm:text-5xl font-extrabold text-emerald-600 mt-1"></p>
+                <p class="text-lg font-semibold text-gray-700 mt-4">Ideal Weight Range (kg):</p>
+                <p id="target-weight" class="text-4xl sm:text-5xl font-extrabold text-emerald-600 mt-1"></p>
+            </div>
+
+            <h3 class="text-xl font-bold text-gray-800 mb-3 text-center">Foundation Strength Metrics</h3>
+            <div class="grid grid-cols-2 gap-4 text-center">
+                <!-- Estimated 1RM -->
+                <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-blue-400">
+                    <p class="text-lg font-semibold text-blue-600" id="estimated-1rm"></p>
+                    <p class="text-xs text-gray-500 uppercase">Estimated 1RM (Max Strength)</p>
+                </div>
+                <!-- Percentage Load -->
+                <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-gray-400">
+                    <p class="text-lg font-semibold text-gray-600" id="percentage-load"></p>
+                    <p class="text-xs text-gray-500 uppercase">Load % of 1RM</p>
+                </div>
+            </div>
+
+            <p class="mt-6 text-center text-sm text-gray-500 italic">
+                Use this to guide your next 3 working sets for this exercise.
+            </p>
+        </div>
+        
+        <!-- Social Media Integration Links (Mandatory Constraint Applied) -->
+        <div class="mt-10 pt-6 border-t border-gray-200 text-center">
+            <h4 class="text-lg font-bold text-gray-800 mb-3">Join the Reset Nation Community</h4>
+            <div class="flex justify-center space-x-6">
+                <!-- Applying new link color class -->
+                <a href="https://www.instagram.com/resetnation.in/" target="_blank" class="text-reset-link transition duration-150">Instagram</a>
+                <a href="https://www.youtube.com/@reset.nation" target="_blank" class="text-reset-link transition duration-150">YouTube</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showMessage(message) {
+            const msgBox = document.getElementById('message-box');
+            msgBox.textContent = message;
+            msgBox.classList.remove('hidden');
+            document.getElementById('results-container').classList.add('hidden');
+        }
+
+        function hideMessage() {
+            document.getElementById('message-box').classList.add('hidden');
+        }
+
+        function getGoalParams(goal) {
+            // These ranges represent the percentage of 1RM needed for the specified goal.
+            switch (goal) {
+                case 'fatloss':
+                    // High Reps, Moderate Load (focus on volume/time under tension)
+                    return { title: 'Fat Loss & Toning Target', repMin: 12, repMax: 15, loadMin: 0.50, loadMax: 0.60, className: 'goal-fatloss' };
+                case 'muscle':
+                    // Hypertrophy (Muscle Gain)
+                    return { title: 'Muscle Gain (Hypertrophy) Target', repMin: 8, repMax: 12, loadMin: 0.60, loadMax: 0.75, className: 'goal-muscle' };
+                case 'strength':
+                    // Pure Strength
+                    return { title: 'Pure Strength Target', repMin: 3, repMax: 5, loadMin: 0.85, loadMax: 0.90, className: 'goal-strength' };
+                default:
+                    return null;
+            }
+        }
+
+        function prescribeIntensity() {
+            hideMessage();
+
+            const exercise = document.getElementById('exercise').value;
+            const weight = parseFloat(document.getElementById('weight-lifted').value);
+            const reps = parseFloat(document.getElementById('reps-completed').value);
+            const goal = document.getElementById('goal').value;
+
+            // 1. Validate inputs
+            if (!exercise || !weight || !reps || !goal) {
+                showMessage("Please select the exercise, enter the weight/reps you did, AND choose your primary goal.");
+                return;
+            }
+            // UPDATED: Rep limit validation changed from 10 to 12
+            if (weight < 5 || reps < 1 || reps > 12) {
+                 showMessage("Please enter a weight > 5 kg and reps between 1 and 12 for an accurate calculation. Accuracy drops significantly above 12 reps.");
+                return;
+            }
+
+            // 2. Calculate Estimated 1RM (Epley Formula)
+            // 1RM = Weight * (1 + (0.0333 * Reps))
+            const oneRM = weight * (1 + (0.0333 * reps));
+            // Round 1RM to nearest 2.5 kg for practical gym plates
+            const rounded1RM = Math.round(oneRM / 2.5) * 2.5;
+
+            // Calculate the percentage load the user performed
+            const performedLoadPercent = ((weight / rounded1RM) * 100).toFixed(1);
+
+
+            // 3. Get Goal Targets
+            const goalParams = getGoalParams(goal);
+            if (!goalParams) {
+                showMessage("Invalid goal selected.");
+                return;
+            }
+
+            // 4. Calculate Prescribed Weight Range for the Goal
+            
+            // Target Weight Min/Max = Rounded 1RM * Load Range (min/max)
+            const targetWeightMin = Math.round((rounded1RM * goalParams.loadMin) / 2.5) * 2.5;
+            const targetWeightMax = Math.round((rounded1RM * goalParams.loadMax) / 2.5) * 2.5;
+
+
+            // 5. Display Results
+            document.getElementById('goal-title').textContent = goalParams.title;
+            
+            // Target Reps
+            document.getElementById('target-reps').textContent = `${goalParams.repMin} - ${goalParams.repMax} Reps`;
+            
+            // Target Weight
+            document.getElementById('target-weight').textContent = `${targetWeightMin} - ${targetWeightMax} kg`;
+            
+            // Foundation Metrics
+            document.getElementById('estimated-1rm').textContent = `${rounded1RM} kg`;
+            document.getElementById('percentage-load').textContent = `${performedLoadPercent}%`;
+
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.classList.remove('hidden');
+
+            // Scroll to results for better UX on mobile
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>

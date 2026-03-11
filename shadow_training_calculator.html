@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3YSCPTW1C"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-V3YSCPTW1C');
+    </script>
+
+    <!-- CRITICAL: Refined viewport tag to force proper mobile scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Reset Nation | Shadow Training Calculator</title>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,800;1,900&display=swap');
+        
+        :root {
+            --emerald: #10b981;
+            --rose: #ff5757;
+            --bg-dark: #0b0f1a;
+        }
+
+        /* HARD LOCK: Prevents mobile browsers from zooming out */
+        html, body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-dark);
+            margin: 0;
+            padding: 0;
+            max-width: 100vw;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* Custom range slider styling for mobile touch */
+        input[type='range'] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 99px;
+            outline: none;
+        }
+
+        input[type='range']::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            background: var(--emerald);
+            border: 4px solid var(--bg-dark);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(16,185,129,0.4);
+        }
+
+        input[type='number'] {
+            font-size: 16px !important; /* Prevents iOS auto-zoom on focus */
+        }
+
+        .coral-glow {
+            color: var(--rose);
+            text-shadow: 0 0 20px rgba(255, 87, 87, 0.4);
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+        }
+
+        /* Animation for results */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-results {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        /* Prevent background orbs from causing scroll */
+        .orb-wrapper {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const Icon = ({ name, className = "w-5 h-5" }) => {
+            const icons = {
+                activity: <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>,
+                dumbbell: <g><path d="M14.4 6.7 17.3 3.8a2 2 0 1 1 2.8 2.8l-2.9 2.9"/><path d="m7.9 13.2-2.9 2.9a2 2 0 1 1-2.8-2.8l2.9-2.9"/><path d="m17.3 3.8 3.5 3.5"/><path d="m3.2 16.7 3.5 3.5"/><path d="M6 10l8 8"/><path d="M10 6l8 8"/></g>,
+                target: <g><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></g>,
+                'rotate-ccw': <g><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></g>,
+                'copy': <g><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g>
+            };
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    {icons[name]}
+                </svg>
+            );
+        };
+
+        const App = () => {
+            const [view, setView] = useState('input');
+            const [weight, setWeight] = useState('');
+            const [copyStatus, setCopyStatus] = useState('Copy Result');
+            const [metrics, setMetrics] = useState({
+                tempo: 2, rom: 2, momentum: 2, focus: 2, rir: 2
+            });
+            const [results, setResults] = useState(null);
+
+            const labels = {
+                tempo: ['Fast / Uncontrolled', 'Controlled / Inconsistent', 'Fully Controlled'],
+                rom: ['Partial Range', 'Near Full Range', 'Full Stretch & Squeeze'],
+                momentum: ['Heavy Body Swing', 'Slight Assistance', 'Strict Form'],
+                focus: ['External Only', 'Moderate Awareness', 'Strong MMC'],
+                rir: ['Low Effort (4+ RIR)', 'Moderate (2-3 RIR)', 'Maximum (0-1 RIR)']
+            };
+
+            const subLabels = {
+                tempo: ['Fast', 'Inconsistent', 'Fully Controlled'],
+                rom: ['Partial', 'Near Full', 'Full Stretch'],
+                momentum: ['Body Swing', 'Slight Assist', 'Strict'],
+                focus: ['No Focus', 'Moderate', 'Strong Focus'],
+                rir: ['4+ RIR', '2-3 RIR', '0-1 RIR']
+            };
+
+            const calculateResults = () => {
+                const w = parseFloat(weight);
+                if (!w || w <= 0) return;
+
+                const executionQuality = (metrics.tempo + metrics.rom + metrics.momentum + metrics.focus) / 12;
+                const effortMultipliers = { 1: 0.7, 2: 0.85, 3: 1.0 };
+                const effortMultiplier = effortMultipliers[metrics.rir];
+                
+                const stimulus = executionQuality * effortMultiplier;
+                const signalKg = w * stimulus;
+                
+                let status = '', decision = '', colorClass = '', interpretation = '';
+
+                if (stimulus >= 0.75) {
+                    status = "ENGINEERED STIMULUS";
+                    interpretation = "You train like an engineer. Most people are just moving weight.";
+                    decision = "Execution is elite. Focus on progressive overload next session.";
+                    colorClass = "text-emerald-400";
+                } else if (stimulus >= 0.55) {
+                    status = "CLEAN BUT UNDERLOADED";
+                    interpretation = "Your technique is clean. Now earn the weight.";
+                    decision = "Form is solid, but effort or weight is too low to drive adaptation.";
+                    colorClass = "text-blue-400";
+                } else if (stimulus >= 0.35) {
+                    status = "INEFFICIENT STIMULUS";
+                    interpretation = "You lifted the weight. The muscle didn’t.";
+                    decision = "Significant 'noise' detected. Tighten execution before adding weight.";
+                    colorClass = "text-yellow-400";
+                } else {
+                    status = "SHADOW SET";
+                    interpretation = "This set looked hard. It didn’t build anything.";
+                    decision = "This set provided more fatigue than stimulus. Re-evaluate technique.";
+                    colorClass = "text-rose-500";
+                }
+
+                setResults({
+                    status, interpretation, decision, colorClass,
+                    signalKg: signalKg.toFixed(1),
+                    executionPercent: Math.round(executionQuality * 100),
+                    stimulusPercent: Math.round(stimulus * 100),
+                    effortLevel: metrics.rir === 3 ? "High" : (metrics.rir === 2 ? "Moderate" : "Low")
+                });
+
+                setView('results');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const handleCopy = () => {
+                if (!results) return;
+                const text = `My set audit:\nStimulus: ${results.stimulusPercent}%\nSignal Load: ${results.signalKg}kg\nStatus: ${results.status}\n\nTest yours:\n${window.location.href}`;
+                
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        setCopyStatus('Copied!');
+                        setTimeout(() => setCopyStatus('Copy Result'), 2000);
+                    });
+                } else {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    setCopyStatus('Copied!');
+                    setTimeout(() => setCopyStatus('Copy Result'), 2000);
+                }
+            };
+
+            const handleReset = () => {
+                setWeight('');
+                setView('input');
+                setResults(null);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            return (
+                <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden flex flex-col items-center">
+                    <div className="orb-wrapper">
+                        <div className="absolute top-[-5%] left-[-5%] w-[50%] h-[50%] bg-emerald-500/10 blur-[100px] rounded-full" />
+                        <div className="absolute bottom-[-5%] right-[-5%] w-[50%] h-[50%] bg-rose-500/10 blur-[100px] rounded-full" />
+                    </div>
+
+                    <div className="w-full max-w-2xl px-4 md:px-6 py-10 md:py-16">
+                        <header className="text-center mb-10 w-full overflow-hidden">
+                            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter coral-glow italic uppercase leading-none mb-3 px-2">
+                                RESET NATION
+                            </h1>
+                            <p className="text-[9px] md:text-[10px] font-bold tracking-widest md:tracking-[0.3em] text-slate-500 uppercase max-w-[280px] md:max-w-none mx-auto leading-relaxed">
+                                Performance Architecture // Shadow Auditor
+                            </p>
+                        </header>
+
+                        {view === 'input' ? (
+                            <div className="glass-card rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-2xl">
+                                <div className="flex items-center gap-3 mb-8 pb-5 border-b border-white/5">
+                                    <Icon name="activity" className="w-5 h-5 text-emerald-400" />
+                                    <h2 className="text-lg md:text-xl font-black uppercase italic tracking-tight text-white">Audit Last Set</h2>
+                                </div>
+
+                                <div className="space-y-8 md:space-y-10">
+                                    <div>
+                                        <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">
+                                            <Icon name="dumbbell" className="w-3 h-3" /> 01. Load on the Bar (KG)
+                                        </label>
+                                        <input 
+                                            id="weight-input"
+                                            type="number"
+                                            inputMode="decimal"
+                                            min="1" max="500"
+                                            placeholder="0.0"
+                                            value={weight}
+                                            onChange={(e) => setWeight(e.target.value)}
+                                            onFocus={(e) => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                                            className="w-full bg-slate-950/40 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-2xl md:text-3xl font-black text-white outline-none focus:border-emerald-500/50 transition-all placeholder:text-slate-800"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-10">
+                                        <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                            <Icon name="target" className="w-3 h-3" /> 02. Execution Variables
+                                        </label>
+
+                                        {[
+                                            { key: 'tempo', label: 'Tempo & Control' },
+                                            { key: 'rom', label: 'Range of Motion' },
+                                            { key: 'momentum', label: 'Stability / Momentum' },
+                                            { key: 'focus', label: 'Internal Focus (MMC)' },
+                                            { key: 'rir', label: 'Effort (RIR)' }
+                                        ].map((item) => (
+                                            <div key={item.key} className="relative w-full">
+                                                <div className="flex justify-between items-start md:items-end mb-4 gap-2">
+                                                    <span className="text-[10px] md:text-[11px] font-bold text-slate-300 uppercase tracking-wide w-1/2 break-words leading-tight">{item.label}</span>
+                                                    <span className="text-[8px] md:text-[9px] font-black text-emerald-400 uppercase tracking-tight md:tracking-tighter bg-emerald-500/10 px-2 py-1 rounded text-right whitespace-normal leading-tight shrink">
+                                                        {labels[item.key][metrics[item.key] - 1]}
+                                                    </span>
+                                                </div>
+                                                <input 
+                                                    type="range" 
+                                                    min="1" max="3" step="1"
+                                                    value={metrics[item.key]}
+                                                    onChange={(e) => setMetrics({...metrics, [item.key]: parseInt(e.target.value)})}
+                                                    onTouchStart={() => document.getElementById('weight-input')?.blur()}
+                                                    onMouseDown={() => document.getElementById('weight-input')?.blur()}
+                                                />
+                                                <div className="flex justify-between text-[8px] md:text-[9px] text-slate-400 font-black uppercase mt-3 tracking-wide">
+                                                    <span className="text-left w-1/3 leading-tight pr-1">{subLabels[item.key][0]}</span>
+                                                    <span className="text-center w-1/3 leading-tight px-1">{subLabels[item.key][1]}</span>
+                                                    <span className="text-right w-1/3 leading-tight pl-1">{subLabels[item.key][2]}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <button 
+                                        onClick={calculateResults}
+                                        disabled={!weight}
+                                        className={`w-full py-5 md:py-6 rounded-xl md:rounded-2xl text-xs md:text-sm font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all shadow-lg mt-4 ${
+                                            weight 
+                                            ? 'bg-emerald-500 text-[#0b0f1a] active:scale-[0.98]' 
+                                            : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        Calculate Signal
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="animate-results space-y-6">
+                                <div className="glass-card rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 text-center relative overflow-hidden">
+                                    {/* Screenshot Friendly Badge */}
+                                    <div className="inline-block px-4 md:px-5 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 mb-8">
+                                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">
+                                            Shadow Training Score: <span className="text-white text-sm ml-1 font-black">{results.stimulusPercent}%</span>
+                                        </p>
+                                    </div>
+
+                                    <p className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.4em] mb-4">Audit Finalized</p>
+                                    
+                                    <div className="mb-8 px-2">
+                                        <h2 className={`text-2xl sm:text-3xl md:text-5xl font-black italic uppercase tracking-tighter mb-3 leading-tight break-words ${results.colorClass}`}>
+                                            {results.status}
+                                        </h2>
+                                        <p className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest italic max-w-sm mx-auto leading-relaxed">
+                                            "{results.interpretation}"
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-10">
+                                        <div className="bg-white/5 p-3 md:p-4 rounded-xl border border-white/5">
+                                            <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Signal Load</p>
+                                            <p className="text-lg md:text-xl font-black text-white">{results.signalKg}kg</p>
+                                        </div>
+                                        <div className="bg-white/5 p-3 md:p-4 rounded-xl border border-white/5">
+                                            <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Stimulus %</p>
+                                            <p className="text-lg md:text-xl font-black text-white">{results.stimulusPercent}%</p>
+                                        </div>
+                                        <div className="bg-white/5 p-3 md:p-4 rounded-xl border border-white/5">
+                                            <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Execution</p>
+                                            <p className="text-lg md:text-xl font-black text-white">{results.executionPercent}%</p>
+                                        </div>
+                                        <div className="bg-white/5 p-3 md:p-4 rounded-xl border border-white/5">
+                                            <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Effort</p>
+                                            <p className="text-base md:text-lg font-black text-emerald-400 uppercase italic">{results.effortLevel}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-10 text-left px-1 md:px-2">
+                                        <div className="flex justify-between text-[9px] md:text-[10px] font-black uppercase mb-3">
+                                            <span className="text-emerald-400">Signal: Effective Load</span>
+                                            <span className="text-slate-500">Noise: Waste</span>
+                                        </div>
+                                        <div className="w-full h-4 bg-slate-950 rounded-full flex overflow-hidden p-0.5 border border-white/5">
+                                            <div 
+                                                className="h-full bg-emerald-500 rounded-full transition-all duration-1000" 
+                                                style={{ width: `${results.stimulusPercent}%` }}
+                                            />
+                                        </div>
+                                        <p className="text-[8px] md:text-[9px] text-slate-500 mt-5 font-bold uppercase italic leading-tight text-center max-w-sm mx-auto">
+                                            Signal is the actual tension received by the muscle. Noise is momentum, poor ROM, and fatigue without stimulus.
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-emerald-500/5 border-l-4 border-emerald-500 p-5 md:p-6 text-left rounded-r-2xl mb-10 mx-1 md:mx-2">
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white mb-2">Protocol Decision:</h4>
+                                        <p className="text-slate-200 text-xs md:text-sm font-bold leading-relaxed">{results.decision}</p>
+                                    </div>
+
+                                    <div className="space-y-6 px-2">
+                                        <button 
+                                            onClick={handleCopy}
+                                            className="w-full py-4 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 hover:bg-white/5 transition-all"
+                                        >
+                                            <Icon name="copy" className="w-3 h-3" /> {copyStatus}
+                                        </button>
+
+                                        <button 
+                                            onClick={handleReset}
+                                            className="flex items-center justify-center gap-2 mx-auto text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-white transition-colors"
+                                        >
+                                            <Icon name="rotate-ccw" className="w-3 h-3" /> Reset Auditor
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <footer className="mt-20 pt-10 border-t border-white/5 text-center w-full overflow-hidden">
+                            <div className="flex justify-center gap-8 mb-8">
+                                <a href="https://www.instagram.com/resetnation.in/" target="_blank" rel="noopener noreferrer" className="text-[11px] font-black uppercase text-[#ff5757]">Instagram</a>
+                                <a href="https://www.youtube.com/@reset.nation" target="_blank" rel="noopener noreferrer" className="text-[11px] font-black uppercase text-[#ff5757]">YouTube</a>
+                            </div>
+                            <p className="text-[8px] md:text-[9px] font-black text-slate-600 uppercase tracking-widest md:tracking-[0.4em] max-w-[280px] md:max-w-none mx-auto leading-relaxed">
+                                &copy; 2025 RESET NATION | PERFORMANCE SYSTEMS
+                            </p>
+                        </footer>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

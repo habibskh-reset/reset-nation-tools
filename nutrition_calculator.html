@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3YSCPTW1C"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-V3YSCPTW1C');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Lock Visual Consistency Meta Tags -->
+    <meta name="color-scheme" content="dark only">
+    <meta name="supported-color-schemes" content="dark">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Reset Nation | Performance Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        /* NORMALIZE & LOCK BROWSER OVERRIDES */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0b0f1a;
+            --card-bg: rgba(23, 31, 51, 0.85);
+            --accent-emerald: #10b981;
+            --accent-coral: #ff5757;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            background-color: var(--bg-dark) !important;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(255, 87, 87, 0.12) 0%, transparent 40%) !important;
+            color: #f8fafc !important;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            color-scheme: dark !important;
+            overflow-x: hidden;
+        }
+
+        /* FORM ELEMENT NORMALIZATION */
+        input, select, button, textarea {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            font-family: inherit !important;
+            font-size: 16px !important; 
+            outline: none !important;
+        }
+
+        .input-field {
+            background: rgba(10, 15, 28, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            border-radius: 0.75rem !important;
+            width: 100% !important;
+            padding: 1rem !important;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-emerald) !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.3) !important;
+            background: rgba(15, 23, 42, 1) !important;
+        }
+
+        select.input-field {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 1rem center !important;
+            background-size: 1.2em !important;
+            padding-right: 2.5rem !important;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, var(--accent-emerald) 0%, #059669 100%) !important;
+            color: white !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.15em !important;
+            border: none !important;
+            border-radius: 1rem !important;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-action:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-action:active { transform: scale(0.98); }
+
+        /* LAYOUT & GLASSMAPPING */
+        .glass-panel {
+            background: var(--card-bg) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 1.25rem !important;
+        }
+
+        /* Title Glow */
+        .text-glow-coral {
+            text-shadow: 0 0 20px rgba(255, 87, 87, 0.6), 0 0 40px rgba(255, 87, 87, 0.2) !important;
+            color: #ff5757 !important;
+        }
+
+        .text-glow-emerald {
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+        }
+
+        @media screen and (max-width: 768px) {
+            input, select { font-size: 16px !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-3 sm:p-8 flex flex-col items-center">
+
+    <div class="w-full max-w-4xl glass-panel rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-12 mb-8 mt-2">
+        
+        <!-- HEADER -->
+        <div class="text-center mb-10 sm:mb-14">
+            <h1 class="text-4xl sm:text-6xl font-black tracking-tighter uppercase leading-none mb-2 text-glow-coral">RESET NATION</h1>
+            <p class="text-gray-300 text-[10px] sm:text-xs font-bold tracking-[0.25em] uppercase opacity-90">Personalized Macro & Micro Calculator</p>
+        </div>
+
+        <!-- INPUT SECTION -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
+            <!-- Left Side: Core Metrics -->
+            <div class="space-y-6">
+                <div class="flex items-center space-x-3 mb-2">
+                    <div class="w-1.5 h-6 bg-[#ff5757] rounded-full" style="box-shadow: 0 0 10px #ff5757;"></div>
+                    <h2 class="text-lg font-bold uppercase tracking-widest text-white">Your Metrics</h2>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">Age (Years)</label>
+                        <input type="number" id="age" placeholder="e.g. 30" class="input-field">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">Gender</label>
+                        <select id="gender" class="input-field">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">Height (cm)</label>
+                        <input type="number" id="height" placeholder="e.g. 175" class="input-field">
+                    </div>
+                </div>
+            </div>
+            <!-- Right Side: Goals -->
+            <div class="space-y-6">
+                <div class="flex items-center space-x-3 mb-2">
+                    <div class="w-1.5 h-6 bg-[#10b981] rounded-full" style="box-shadow: 0 0 10px #10b981;"></div>
+                    <h2 class="text-lg font-bold uppercase tracking-widest text-white">Your Goals</h2>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">Weight (kg)</label>
+                        <input type="number" id="weight" placeholder="e.g. 75" class="input-field">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">Activity Level</label>
+                        <select id="activity" class="input-field">
+                            <option value="">Select Activity Level</option>
+                            <option value="1.2">Sedentary (little or no exercise)</option>
+                            <option value="1.375">Lightly Active (1-3 days/week)</option>
+                            <option value="1.55">Moderately Active (3-5 days/week)</option>
+                            <option value="1.725">Very Active (6-7 days/week)</option>
+                            <option value="1.9">Extremely Active (physical job + exercise)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">Goal</label>
+                        <select id="goal" class="input-field">
+                            <option value="">Select Goal</option>
+                            <option value="loss">Aggressive Fat Loss (20% Deficit)</option>
+                            <option value="maintain">Maintenance (Current Weight)</option>
+                            <option value="gain">Muscle Gain (10% Surplus)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="calculateMacros()" class="w-full btn-action py-5 mt-10 shadow-lg text-sm sm:text-base">
+            Calculate My Reset Plan
+        </button>
+
+        <div id="error-box" class="mt-6 hidden p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold rounded-xl text-center"></div>
+
+        <!-- RESULTS ENGINE -->
+        <div id="results-area" class="mt-16 hidden">
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-black uppercase tracking-tighter text-white">Your Reset Nation Plan</h3>
+                <div class="h-1 w-20 bg-[#10b981] mx-auto mt-2 rounded-full shadow-[0_0_10px_#10b981]"></div>
+            </div>
+
+            <!-- Bento Foundation Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
+                <div class="dashboard-card p-5 text-center">
+                    <p id="res-bmr" class="text-xl sm:text-2xl font-black text-white"></p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">BMR</p>
+                </div>
+                <div class="dashboard-card p-5 text-center">
+                    <p id="res-tdee" class="text-xl sm:text-2xl font-black text-white"></p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">TDEE</p>
+                </div>
+                <div class="dashboard-card p-5 text-center">
+                    <p id="res-bmi" class="text-xl sm:text-2xl font-black"></p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1" id="res-bmi-label">BMI Status</p>
+                </div>
+                <div class="dashboard-card p-5 text-center">
+                    <p id="res-ibw" class="text-xl sm:text-2xl font-black text-white"></p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Ideal Weight (kg)</p>
+                </div>
+            </div>
+
+            <!-- Main Calorie Display -->
+            <div class="bg-emerald-500/10 border border-emerald-500/20 p-8 rounded-[2rem] text-center mb-8 relative overflow-hidden">
+                <div class="absolute -top-6 -right-6 opacity-10 text-emerald-500">
+                    <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                </div>
+                <p class="text-[11px] font-black text-emerald-400 uppercase tracking-[0.4em] mb-2">Daily Calorie Goal</p>
+                <p id="res-calories" class="text-5xl sm:text-7xl font-black text-white tracking-tighter text-glow-emerald"></p>
+                <p class="text-gray-300 text-xs mt-4 font-bold opacity-80 uppercase tracking-widest">Balanced Protocol</p>
+            </div>
+
+            <!-- Macro Cards with integrated calories -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                <div class="bg-blue-500/10 border border-blue-500/20 p-6 rounded-3xl text-center">
+                    <p id="res-protein" class="text-3xl font-black text-blue-400"></p>
+                    <p class="text-[11px] font-bold text-blue-300 uppercase tracking-widest mt-1">Protein (g)</p>
+                    <p id="res-protein-cals" class="text-[10px] font-bold text-blue-400/60 uppercase mt-2"></p>
+                </div>
+                <div class="bg-yellow-500/10 border border-yellow-500/20 p-6 rounded-3xl text-center">
+                    <p id="res-fat" class="text-3xl font-black text-yellow-400"></p>
+                    <p class="text-[11px] font-bold text-yellow-300 uppercase tracking-widest mt-1">Fat (g)</p>
+                    <p id="res-fat-cals" class="text-[10px] font-bold text-yellow-400/60 uppercase mt-2"></p>
+                </div>
+                <div class="bg-red-500/10 border border-red-500/20 p-6 rounded-3xl text-center">
+                    <p id="res-carbs" class="text-3xl font-black text-red-400"></p>
+                    <p class="text-[11px] font-bold text-red-300 uppercase tracking-widest mt-1">Carbs (g)</p>
+                    <p id="res-carbs-cals" class="text-[10px] font-bold text-red-400/60 uppercase mt-2"></p>
+                </div>
+            </div>
+
+            <!-- Summary Bar -->
+            <div class="flex justify-center mb-10">
+                <div class="bg-white/5 p-4 rounded-2xl flex items-center space-x-4 px-10 border border-white/5">
+                    <span class="text-[11px] font-bold uppercase text-gray-400 tracking-widest">Fiber Target:</span>
+                    <span id="res-fiber" class="text-emerald-400 font-black text-xl"></span>
+                </div>
+            </div>
+
+            <!-- Comprehensive Micronutrient Matrix -->
+            <div class="space-y-6">
+                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                    <h4 class="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6 text-center">Essential Micronutrient Targets</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-white/5 rounded-2xl border border-white/10 transition hover:border-emerald-500/30">
+                            <p id="m-mag" class="text-sm font-black text-emerald-400"></p>
+                            <p class="text-[10px] uppercase text-gray-300 font-black mt-1">Magnesium</p>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-2xl border border-white/10 transition hover:border-emerald-500/30">
+                            <p id="m-vitd" class="text-sm font-black text-emerald-400"></p>
+                            <p class="text-[10px] uppercase text-gray-300 font-black mt-1">Vitamin D</p>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-2xl border border-white/10 transition hover:border-emerald-500/30">
+                            <p id="m-iod" class="text-sm font-black text-emerald-400"></p>
+                            <p class="text-[10px] uppercase text-gray-300 font-black mt-1">Iodine</p>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-2xl border border-white/10 transition hover:border-emerald-500/30">
+                            <p id="m-iron" class="text-sm font-black text-emerald-400"></p>
+                            <p class="text-[10px] uppercase text-gray-300 font-black mt-1">Iron</p>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-2xl border border-white/10 transition hover:border-emerald-500/30">
+                            <p id="m-omg" class="text-sm font-black text-emerald-400"></p>
+                            <p class="text-[10px] uppercase text-gray-300 font-black mt-1">Omega-3</p>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-2xl border border-white/10 transition hover:border-emerald-500/30">
+                            <p id="m-b12" class="text-sm font-black text-emerald-400"></p>
+                            <p class="text-[10px] uppercase text-gray-300 font-black mt-1">Vitamin B12</p>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-2xl border border-white/10 transition hover:border-emerald-500/30">
+                            <p id="m-pot" class="text-sm font-black text-emerald-400"></p>
+                            <p class="text-[10px] uppercase text-gray-300 font-black mt-1">Potassium</p>
+                        </div>
+                        <div class="text-center p-4 bg-white/5 rounded-2xl border border-white/10 transition hover:border-emerald-500/30">
+                            <p id="m-water-grid" class="text-sm font-black text-emerald-400"></p>
+                            <p class="text-[10px] uppercase text-gray-300 font-black mt-1">Daily Hydration</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-500/10 border-l-4 border-blue-500 p-6 rounded-r-3xl">
+                    <p class="text-[11px] font-black text-blue-400 uppercase tracking-widest mb-2">Personalized Coaching Insight</p>
+                    <p id="insight-text" class="text-blue-50 text-xs sm:text-sm font-semibold leading-relaxed"></p>
+                </div>
+
+                <div class="bg-amber-500/10 border border-amber-500/30 rounded-3xl p-6">
+                    <p class="text-[11px] font-black text-amber-500 uppercase tracking-widest mb-3 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                        Indian Health Awareness
+                    </p>
+                    <ul class="text-[11px] text-amber-100 font-medium space-y-2.5">
+                        <li class="flex items-start">
+                            <span class="text-amber-500 mr-2">▹</span>
+                            <span>Vitamin D deficiency is prevalent in 80% of urban India. Seek early morning sunlight or supplementation.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-500 mr-2">▹</span>
+                            <span>Vegetarians must prioritize B12 and iron bioavailability (combine with Vitamin C foods like lemon).</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-500 mr-2">▹</span>
+                            <span>Monitor iodine and selenium levels for optimal metabolic/thyroid performance.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-12 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Calculated via Mifflin-St Jeor Equation | Evidence-Based Guidelines</p>
+            </div>
+        </div>
+        
+        <!-- FOOTER -->
+        <div class="mt-16 pt-10 border-t border-white/10 text-center">
+            <h5 class="text-[11px] font-black text-gray-400 uppercase tracking-[0.4em] mb-6">Join the Reset Nation Community</h5>
+            <div class="flex justify-center space-x-12 mb-10">
+                <a href="https://www.instagram.com/resetnation.in/" target="_blank" class="no-detection text-[#ff5757] text-[12px] font-black uppercase tracking-widest hover:brightness-125 transition">Instagram</a>
+                <a href="https://www.youtube.com/@reset.nation" target="_blank" class="no-detection text-[#ff5757] text-[12px] font-black uppercase tracking-widest hover:brightness-125 transition">YouTube</a>
+            </div>
+            <p class="text-[10px] text-gray-600 font-black uppercase tracking-[0.5em]">
+                &copy; RESET NATION | PERFORMANCE SYSTEMS
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function safeSetText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
+
+        function getBmiTier(bmi) {
+            if (bmi < 18.5) return { text: 'Underweight', class: 'text-red-400' };
+            if (bmi < 25) return { text: 'Optimal/Healthy', class: 'text-emerald-400' };
+            if (bmi < 30) return { text: 'Overweight', class: 'text-amber-400' };
+            if (bmi < 35) return { text: 'Obese Class 1', class: 'text-red-400' };
+            if (bmi < 40) return { text: 'Obese Class 2', class: 'text-red-400' };
+            return { text: 'Obese Class 3', class: 'text-red-400' };
+        }
+
+        function calculateMacros() {
+            const err = document.getElementById('error-box');
+            if (err) err.classList.add('hidden');
+
+            const ageInput = document.getElementById('age');
+            const genderInput = document.getElementById('gender');
+            const heightInput = document.getElementById('height');
+            const weightInput = document.getElementById('weight');
+            const activityInput = document.getElementById('activity');
+            const goalInput = document.getElementById('goal');
+
+            if (!ageInput || !genderInput || !heightInput || !weightInput || !activityInput || !goalInput) return;
+
+            const age = parseFloat(ageInput.value);
+            const gender = genderInput.value;
+            const height = parseFloat(heightInput.value);
+            const weight = parseFloat(weightInput.value);
+            const activity = parseFloat(activityInput.value);
+            const goal = goalInput.value;
+
+            // 1. INPUT VALIDATION
+            if (!age || !gender || !height || !weight || !activity || !goal) {
+                if (err) { err.textContent = "REQUIRED: Complete all fields."; err.classList.remove('hidden'); }
+                return;
+            }
+            if (age < 15 || age > 80 || height < 120 || height > 230 || weight < 35 || weight > 250) {
+                if (err) { err.textContent = "VALIDATION ERROR: Use standard human metrics."; err.classList.remove('hidden'); }
+                return;
+            }
+
+            // BMR (Mifflin-St Jeor)
+            let bmr = (gender === 'male') ? (10 * weight) + (6.25 * height) - (5 * age) + 5 : (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            const tdee = bmr * activity;
+            const bmi = weight / ((height / 100) ** 2);
+            let ibw = (gender === 'male') ? (height - 100) : (height - 105);
+            if (ibw < 1) ibw = weight;
+
+            // 2. CALORIE GOAL calculation
+            let calorieGoal = (goal === 'loss') ? tdee * 0.8 : (goal === 'gain') ? tdee * 1.1 : tdee;
+            const floor = (gender === 'female') ? 1200 : 1500;
+            if (calorieGoal < floor) calorieGoal = floor;
+            if (calorieGoal > 4500 && !(bmi < 22 && activity >= 1.725)) calorieGoal = 4500;
+
+            calorieGoal = Math.round(calorieGoal);
+
+            // 3. PROTEIN LOGIC (BMI ADJUSTED)
+            const pMult = (goal === 'loss') ? 2.2 : (goal === 'gain') ? 1.8 : 1.6;
+            const proteinBaseWeight = (bmi > 30) ? ibw : weight;
+            let pGrams = Math.round(proteinBaseWeight * pMult);
+
+            if ((pGrams * 4) > (calorieGoal * 0.35)) pGrams = Math.floor((calorieGoal * 0.35) / 4);
+
+            // 4. FAT LOGIC (BMI ADJUSTED MINIMUM)
+            const fatBaseWeight = (bmi > 30) ? ibw : weight;
+            const minFat = Math.round(fatBaseWeight * 0.6);
+            let fGrams = Math.round((calorieGoal * 0.25) / 9);
+            if (fGrams < minFat) fGrams = minFat;
+
+            // 5. CARBS & HIERARCHY
+            let cGrams = Math.round((calorieGoal - (pGrams * 4) - (fGrams * 9)) / 4);
+            const carbFloor = 100;
+            if (cGrams < carbFloor) {
+                cGrams = carbFloor;
+                let adjustedFat = Math.round((calorieGoal - (pGrams * 4) - (carbFloor * 4)) / 9);
+                if (adjustedFat < minFat) {
+                    fGrams = minFat;
+                    cGrams = Math.round((calorieGoal - (pGrams * 4) - (fGrams * 9)) / 4);
+                } else {
+                    fGrams = adjustedFat;
+                }
+            }
+
+            // 6. FINAL HIERARCHY SYNC (Air-tight calibration)
+            let totalMacroCals = (pGrams * 4) + (fGrams * 9) + (cGrams * 4);
+            let diff = calorieGoal - totalMacroCals;
+            
+            if (Math.abs(diff) >= 1) {
+                if (diff > 0) {
+                    cGrams += Math.round(diff / 4);
+                } else {
+                    let carbAdjustment = Math.round(diff / 4);
+                    cGrams += carbAdjustment;
+                    if (cGrams < 0) {
+                        let excessCarbDeficit = Math.abs(cGrams * 4);
+                        cGrams = 0;
+                        fGrams = Math.max(minFat, fGrams - Math.round(excessCarbDeficit / 9));
+                    }
+                }
+            }
+
+            pGrams = Math.max(0, pGrams); fGrams = Math.max(0, fGrams); cGrams = Math.max(0, cGrams);
+
+            // UI UPDATES
+            safeSetText('res-bmr', Math.round(bmr));
+            safeSetText('res-tdee', Math.round(tdee));
+            safeSetText('res-ibw', ibw.toFixed(1));
+            safeSetText('res-calories', calorieGoal);
+            
+            safeSetText('res-protein', pGrams);
+            safeSetText('res-protein-cals', `${pGrams * 4} CAL`);
+            safeSetText('res-fat', fGrams);
+            safeSetText('res-fat-cals', `${fGrams * 9} CAL`);
+            safeSetText('res-carbs', cGrams);
+            safeSetText('res-carbs-cals', `${cGrams * 4} CAL`);
+            
+            const waterVal = (((weight * 35) / 1000) + (activity >= 1.55 ? 0.5 : 0)).toFixed(1);
+            safeSetText('res-fiber', Math.round((calorieGoal / 1000) * 14) + 'g');
+            safeSetText('m-water-grid', waterVal + ' L');
+
+            const bmiTier = getBmiTier(bmi);
+            const bmiEl = document.getElementById('res-bmi');
+            if (bmiEl) {
+                bmiEl.textContent = bmi.toFixed(1);
+                bmiEl.className = `text-xl sm:text-2xl font-black ${bmiTier.class}`;
+                safeSetText('res-bmi-label', `BMI: ${bmiTier.text}`);
+            }
+
+            safeSetText('m-mag', (gender === 'male' ? '420 mg' : '320 mg'));
+            safeSetText('m-vitd', '800 IU');
+            safeSetText('m-iod', '150 mcg');
+            safeSetText('m-iron', (gender === 'female' && age < 50 ? '18 mg' : '8 mg'));
+            safeSetText('m-omg', '1.6 g');
+            safeSetText('m-b12', '2.4 mcg');
+            safeSetText('m-pot', (gender === 'male' ? '3.4 g' : '2.6 g'));
+
+            let insight = (bmi < 18.5) ? "Focus on a consistent calorie surplus + heavy resistance training." : 
+                          (bmi < 25) ? "You are at an optimal weight. Focus on body recomposition and intensity." : 
+                          (bmi < 30) ? "Aim for fat loss. Prioritize 10k daily steps and follow your target deficit." : 
+                          "Medically sensitive weight loss required. Macros are based on IBW for metabolic safety. Focus on consistency.";
+            safeSetText('insight-text', insight);
+
+            document.getElementById('results-area').classList.remove('hidden');
+            document.getElementById('results-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>

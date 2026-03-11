@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Nation Air Quality Exposure Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Custom styling for the primary "Reset" button color */
+        .btn-reset {
+            background-color: #10b981; /* Emerald 500 */
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .btn-reset:hover {
+            background-color: #059669; /* Emerald 600 */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .card {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .result-box {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* NEW Reset Nation Branding Colors */
+        .text-reset-nation {
+            color: #ff5757; /* Custom red/coral color for title */
+        }
+        .text-reset-link {
+            color: #ff5757; /* Match title color for links */
+            font-weight: 600;
+        }
+        .text-reset-link:hover {
+            color: #d13d3d; /* Darker red for hover effect */
+        }
+        /* ERS Result Styling */
+        .risk-low { border-left-color: #10b981; color: #059669; }
+        .risk-moderate { border-left-color: #f59e0b; color: #d97706; }
+        .risk-high { border-left-color: #ef4444; color: #dc2626; }
+        .risk-severe { border-left-color: #6d28d9; color: #4c1d95; }
+
+        /* Custom Progress Bar Styling */
+        .progress-bar-container {
+            height: 24px;
+            background-color: #e5e7eb;
+            border-radius: 9999px; /* rounded-full */
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            transition: width 0.6s ease-in-out;
+            background-color: #ff5757; /* Reset Nation Risk Color */
+        }
+        .progress-bar-safe {
+            position: absolute;
+            height: 100%;
+            width: 5%; /* 5 ERS is 5% of the 100 scale */
+            background-color: #10b981; /* Safe zone color */
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 min-h-screen flex items-center justify-center">
+
+    <div class="w-full max-w-xl bg-white card rounded-2xl p-6 sm:p-10">
+        <!-- Header -->
+        <div class="text-center mb-6"> 
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-reset-nation mb-0 leading-tight">RESET NATION</h1>
+            <p class="text-lg text-gray-500 mt-1">Air Quality Exposure Risk Assessor</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="space-y-6">
+
+            <p class="text-sm text-gray-600 border-l-4 border-gray-300 pl-3">
+                Estimate your local pollution dose based on official AQI, local hotspot effects, and activity level.
+                <span class="block font-semibold mt-1">Model assumes PM2.5-dominant urban pollution.</span>
+            </p>
+            
+            <!-- Official AQI Input -->
+            <div>
+                <label for="official-aqi" class="block text-sm font-medium text-gray-700">1. Official City AQI Reading</label>
+                <input type="number" id="official-aqi" min="1" placeholder="e.g., 200" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 border focus:ring-emerald-500 focus:border-emerald-500">
+            </div>
+
+            <!-- Local Multiplier Selector (Simplified & Amplified) -->
+            <div>
+                <label for="local-multiplier" class="block text-sm font-medium text-gray-700">2. Local Pollution Hotspot Effect</label>
+                <select id="local-multiplier" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 border focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="1.8">City Reality / Moderate Traffic (Amplified Multiplier 1.8)</option>
+                    <option value="3.0">Industrial Zone / Heavy Traffic Hotspot (Amplified Multiplier 3.0)</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Multipliers intentionally reflect worst-case street exposure (curbside data).</p>
+            </div>
+
+            <!-- Duration Input -->
+            <div>
+                <label for="duration-hours" class="block text-sm font-medium text-gray-700">3. Outdoor Duration (Hours)</label>
+                <input type="number" id="duration-hours" min="0.1" step="0.1" placeholder="e.g., 2.5 hours" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 border focus:ring-emerald-500 focus:border-emerald-500">
+            </div>
+
+            <!-- Exertion Factor Selector (Simplified & Amplified) -->
+            <div>
+                <label for="exertion-factor" class="block text-sm font-medium text-gray-700">4. Physical Exertion Level</label>
+                <select id="exertion-factor" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 border focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="1.2">Light Pace / Moderate Commute (Amplified Factor 1.2)</option>
+                    <option value="3.0">High Intensity / Sports / Children Playing (Amplified Factor 3.0)</option>
+                </select>
+            </div>
+            
+        </div>
+
+        <!-- Calculate Button -->
+        <button id="calculate-btn" onclick="calculateERS()" class="w-full btn-reset text-white font-bold py-3 mt-8 rounded-xl shadow-md uppercase tracking-wider">
+            Calculate Exposure Risk Score
+        </button>
+
+        <!-- Message Box for Errors -->
+        <div id="message-box" class="mt-4 hidden p-4 text-sm font-medium text-red-700 bg-red-100 rounded-lg"></div>
+
+        <!-- Results Section -->
+        <div id="results-container" class="mt-10 result-box hidden">
+            
+            <h3 class="text-xl font-bold text-gray-800 mb-3 text-center border-b pb-1">Exposure Results</h3>
+
+            <div class="grid grid-cols-2 gap-4 text-center mb-6">
+                
+                <!-- Local AQI -->
+                <div class="bg-gray-50 p-3 rounded-xl shadow border-t-2 border-gray-300">
+                    <p id="local-aqi-result" class="text-xl font-bold text-gray-800"></p>
+                    <p class="text-xs text-gray-500 uppercase">Estimated Local AQI</p>
+                </div>
+
+                <!-- Safe AQI Comparison -->
+                <div class="bg-gray-50 p-3 rounded-xl shadow border-t-2 border-gray-300">
+                    <p id="safe-aqi-comparison" class="text-xl font-bold text-emerald-600"></p>
+                    <p class="text-xs text-gray-500 uppercase">Safe Local AQI Target (50)</p>
+                </div>
+            </div>
+
+            <!-- ERS SCORE & BAR -->
+            <div id="ers-section" class="mb-6 p-4 rounded-xl border-l-4">
+                <p id="ers-score-text" class="text-4xl font-extrabold mb-3"></p>
+                
+                <!-- Visual Bar -->
+                <div class="progress-bar-container">
+                    <div class="progress-bar-safe"></div>
+                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 text-right">0% Risk Score - 100% Risk Score</p>
+            </div>
+
+
+            <!-- Risk Interpretation -->
+            <div id="risk-interpretation" class="bg-white p-4 rounded-xl border-l-4 border-gray-400">
+                <p id="risk-title" class="text-lg font-bold mb-1"></p>
+                <p id="risk-message" class="text-sm text-gray-700"></p>
+            </div>
+
+            <p class="mt-6 text-center text-sm text-gray-500 italic">
+                Disclaimer: This score is a model for awareness. Consult official sources for immediate health advice.
+            </p>
+        </div>
+        
+        <!-- Social Media Integration Links -->
+        <div class="mt-10 pt-6 border-t border-gray-200 text-center">
+            <h4 class="text-lg font-bold text-gray-800 mb-3">Join the Reset Nation Community</h4>
+            <div class="flex justify-center space-x-6">
+                <a href="https://www.instagram.com/resetnation.in/" target="_blank" class="text-reset-link transition duration-150">Instagram</a>
+                <a href="https://www.youtube.com/@reset.nation" target="_blank" class="text-reset-link transition duration-150">YouTube</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SCIENTIFIC ADJUSTMENTS (Per user feedback) ---
+        // 1. AQI Risk is non-linear. The damage accelerates at higher AQI levels.
+        // 2. MAX_ERS_FOR_BAR is raised to 100 to prevent premature 100% fill.
+        const MAX_ERS_FOR_BAR = 100; 
+        const SAFE_AQI = 50; // Constant for Safe AQI level
+
+        /**
+         * Converts the linear AQI scale into a non-linear risk factor multiplier.
+         * This aligns the model better with epidemiological findings that health impacts 
+         * accelerate significantly at high AQI levels.
+         * * @param {number} aqi - The local estimated AQI value.
+         * @returns {number} The risk factor multiplier.
+         */
+        function aqiRiskFactor(aqi) {
+            // Original: aqi / 100 (Linear scaling)
+            
+            // New Piecewise Scaling (based on suggested breakpoints)
+            if (aqi <= 50) {
+                // Good to Moderate, use standard scaling
+                return aqi / 100; // e.g., AQI 50 -> 0.5 risk factor
+            }
+            if (aqi <= 150) {
+                // Moderate to Unhealthy for Sensitive Groups: Risk accelerates faster
+                return aqi / 70; // e.g., AQI 150 -> 2.14 risk factor (vs 1.5 linear)
+            }
+            if (aqi <= 300) {
+                // Unhealthy to Very Unhealthy: Risk accelerates even faster
+                return aqi / 50; // e.g., AQI 300 -> 6.0 risk factor (vs 3.0 linear)
+            }
+            // Hazardous: Highest acceleration
+            return aqi / 35; // e.g., AQI 500 -> 14.28 risk factor (vs 5.0 linear)
+        }
+
+        function showMessage(message) {
+            const msgBox = document.getElementById('message-box');
+            msgBox.textContent = message;
+            msgBox.classList.remove('hidden');
+            document.getElementById('results-container').classList.add('hidden');
+        }
+
+        function hideMessage() {
+            document.getElementById('message-box').classList.add('hidden');
+        }
+
+        function getRiskInterpretation(ers) {
+            // Thresholds adjusted slightly for the new, non-linear ERS scale
+            if (ers <= 5) {
+                return { 
+                    title: "Risk Level: Low (Good)", 
+                    message: "Short-term health effects are highly unlikely. Focus on long-term prevention strategies.",
+                    class: "risk-low" 
+                };
+            } else if (ers <= 25) { // Raised from 15
+                return { 
+                    title: "Risk Level: Moderate (Caution)", 
+                    message: "Symptoms like throat/eye irritation are possible, especially for sensitive groups. Minimize outdoor duration.", 
+                    class: "risk-moderate" 
+                };
+            } else if (ers <= 60) { // Raised from 30
+                return { 
+                    title: "Risk Level: High (DANGER ZONE)", 
+                    message: "Significant risk of reduced lung function and cardiovascular strain. Strongly consider avoiding heavy exertion and wearing an N95 mask.", 
+                    class: "risk-high" 
+                };
+            } else {
+                return { 
+                    title: "Risk Level: Severe (CRITICAL HEALTH EMERGENCY)", 
+                    message: "Exposure may cause serious, long-term damage to vital organs. Avoid outdoor exposure entirely. This is a critical scenario.", 
+                    class: "risk-severe" 
+                };
+            }
+        }
+
+        function calculateERS() {
+            hideMessage();
+
+            const officialAqi = parseFloat(document.getElementById('official-aqi').value);
+            const localMultiplier = parseFloat(document.getElementById('local-multiplier').value);
+            const durationHours = parseFloat(document.getElementById('duration-hours').value);
+            const exertionFactor = parseFloat(document.getElementById('exertion-factor').value);
+
+            // 1. Validate inputs
+            if (isNaN(officialAqi) || isNaN(localMultiplier) || isNaN(durationHours) || isNaN(exertionFactor)) {
+                showMessage("Please fill out all four fields with valid numbers to calculate your Exposure Risk Score.");
+                return;
+            }
+            if (officialAqi < 1 || durationHours <= 0) {
+                 showMessage("AQI must be 1 or greater, and duration must be more than 0 hours.");
+                return;
+            }
+
+            // --- CALCULATIONS ---
+
+            // 2. Calculate Local AQI (Ground-level amplification)
+            const localAqi = officialAqi * localMultiplier;
+
+            // 3. Calculate Exposure Risk Score (ERS)
+            // ERS = AQI Risk Factor (non-linear) * Duration (Hours) * Exertion Factor
+            const riskFactor = aqiRiskFactor(localAqi);
+            const ers = riskFactor * durationHours * exertionFactor;
+            const roundedErs = ers.toFixed(1);
+
+            // 4. Get Risk Interpretation
+            const riskData = getRiskInterpretation(ers);
+
+            // --- DISPLAY RESULTS ---
+            
+            // Display Local AQI
+            document.getElementById('local-aqi-result').textContent = Math.round(localAqi);
+            
+            // Display Safe AQI Comparison
+            const safeAqiComparisonElement = document.getElementById('safe-aqi-comparison');
+            if (localAqi > SAFE_AQI) {
+                const percentHigher = (((localAqi - SAFE_AQI) / SAFE_AQI) * 100).toFixed(0);
+                safeAqiComparisonElement.textContent = `${percentHigher}% Higher`;
+                safeAqiComparisonElement.classList.remove('text-emerald-600');
+                safeAqiComparisonElement.classList.add('text-red-500');
+            } else {
+                safeAqiComparisonElement.textContent = `Safe Level`;
+                safeAqiComparisonElement.classList.add('text-emerald-600');
+                safeAqiComparisonElement.classList.remove('text-red-500');
+            }
+
+
+            // Display ERS Score
+            const ersBox = document.getElementById('ers-section');
+            ersBox.className = `mb-6 p-4 rounded-xl border-l-4 ${riskData.class}`;
+            document.getElementById('ers-score-text').textContent = `Exposure Risk Score (ERS): ${roundedErs}`;
+
+            // Update Progress Bar
+            const progressBarFill = document.getElementById('progress-bar-fill');
+            // Cap the percentage at 100% even if ERS exceeds MAX_ERS_FOR_BAR (now 100)
+            let percentage = Math.min(100, (ers / MAX_ERS_FOR_BAR) * 100); 
+            progressBarFill.style.width = `${percentage}%`;
+
+
+            // Display Risk Interpretation
+            const riskInterpretationBox = document.getElementById('risk-interpretation');
+            // Update border color based on riskData.class
+            riskInterpretationBox.classList.remove('risk-low', 'risk-moderate', 'risk-high', 'risk-severe', 'border-gray-400');
+            riskInterpretationBox.classList.add(riskData.class);
+            
+            // A small hack to ensure the border color is picked up correctly from the risk classes
+            const riskClassMap = {
+                'risk-low': '#10b981',
+                'risk-moderate': '#f59e0b',
+                'risk-high': '#ef4444',
+                'risk-severe': '#6d28d9',
+            };
+            const borderColor = riskClassMap[riskData.class] || 'currentColor';
+            riskInterpretationBox.style.borderLeftColor = borderColor;
+
+
+            document.getElementById('risk-title').textContent = riskData.title;
+            document.getElementById('risk-message').textContent = riskData.message;
+
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.classList.remove('hidden');
+
+            // Scroll to results for better UX on mobile
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>

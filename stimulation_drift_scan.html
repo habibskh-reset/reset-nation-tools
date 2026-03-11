@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Nation - Stimulation Drift Scan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Button style matching previous file */
+        .btn-reset {
+            background-color: #10b981; /* Emerald 500 */
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .btn-reset:hover {
+            background-color: #059669; /* Emerald 600 */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .card {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .question-block {
+            border-left: 4px solid #10b981;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        input[type="radio"] {
+            accent-color: #10b981;
+        }
+        .result-container {
+            display: none;
+            animation: fadeIn 0.8s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .share-cta-button {
+            background-color: #3b82f6; /* Blue 500 for share */
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .share-cta-button:hover {
+            background-color: #2563eb; /* Blue 600 */
+        }
+        .score-display {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        .social-link-text {
+            color: #ff5757; 
+            font-weight: 600;
+            transition: color 0.2s;
+            text-decoration: none;
+        }
+        .social-link-text:hover {
+            color: #e04c4c;
+            text-decoration: underline;
+        }
+        .community-prompt {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .bullet-list {
+            list-style: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .bullet-list li {
+            margin-bottom: 0.5rem;
+        }
+        .community-links-block {
+            padding-top: 1rem;
+            margin-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .confidence-button {
+            padding: 0.5rem 1rem;
+            border: 2px solid #ccc;
+            border-radius: 0.5rem;
+            margin: 0.25rem;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .confidence-button:hover {
+            border-color: #ff5757;
+        }
+        /* Styles for RN Logo Block (FIX 4) */
+        .rn-logo-text {
+            font-size: 1.5rem;
+            font-weight: 900; /* Extra bold for impact */
+            color: white;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            padding: 0.3rem;
+        }
+        .rn-logo-bg {
+            background-color: #ef4444; /* Use the red from your logo/branding */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 min-h-screen flex items-center justify-center">
+
+    <div class="w-full max-w-2xl bg-white card rounded-2xl p-6 sm:p-10">
+        <!-- HEADER: Matching Style -->
+        <div class="flex items-center space-x-4 mb-6">
+            <!-- FIX 4: Re-introduced RN Logo Block -->
+            <div class="rn-logo-bg">
+                <span class="rn-logo-text">RN</span>
+            </div>
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-[#ff5757]">Reset Nation System Read</h1>
+                <p class="text-xl text-gray-500">Pattern Check 2: Stimulation Drift Scan</p>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <form id="diagnosis-form" onsubmit="event.preventDefault(); showResult();">
+            
+            <!-- SECTION: QUESTIONS -->
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Invisible Junk Diagnostics (7 Questions)</h2>
+
+            <div id="question-area" class="space-y-6">
+
+                <!-- Q1: Scrolling beyond intention -->
+                <div class="question-block" data-question-id="q1">
+                    <p class="font-semibold text-gray-700 mb-2">Q1. When picking up your phone, you usually:</p>
+                    <label class="block mb-2"><input type="radio" name="q1" value="A" data-bns="2" class="mr-2"> Open an app mindlessly, then realize you forgot why you opened it.</label>
+                    <label class="block mb-2"><input type="radio" name="q1" value="B" data-bns="1" class="mr-2"> Have a vague goal, but quickly get pulled into content.</label>
+                    <label class="block mb-2"><input type="radio" name="q1" value="C" data-bns="0" class="mr-2"> Know exactly what you need and leave quickly.</label>
+                </div>
+
+                <!-- Q2: Restlessness after scrolling -->
+                <div class="question-block" data-question-id="q2">
+                    <p class="font-semibold text-gray-700 mb-2">Q2. After 10 minutes of scrolling short videos, you feel:</p>
+                    <label class="block mb-2"><input type="radio" name="q2" value="A" data-bns="3" class="mr-2"> Energetic but restless, needing to move or switch tasks immediately.</label>
+                    <label class="block mb-2"><input type="radio" name="q2" value="B" data-bns="1" class="mr-2"> A little frazzled, but can return to a task with effort.</label>
+                    <label class="block mb-2"><input type="radio" name="q2" value="C" data-bns="0" class="mr-2"> Calm, satisfied, and ready to focus on a slow task.</label>
+                </div>
+
+                <!-- Q3: Boredom intolerance -->
+                <div class="question-block" data-question-id="q3">
+                    <p class="font-semibold text-gray-700 mb-2">Q3. Waiting in line (3-5 minutes) usually leads you to:</p>
+                    <label class="block mb-2"><input type="radio" name="q3" value="A" data-bns="3" class="mr-2"> Pull out your phone instinctively, needing immediate input.</label>
+                    <label class="block mb-2"><input type="radio" name="q3" value="B" data-bns="2" class="mr-2"> Try to wait, but feel strong physical discomfort/tension.</label>
+                    <label class="block mb-2"><input type="radio" name="q3" value="C" data-bns="0" class="mr-2"> Relax, notice the environment, or mentally organize thoughts.</label>
+                </div>
+
+                <!-- Q4: Task-switching behavior -->
+                <div class="question-block" data-question-id="q4">
+                    <p class="font-semibold text-gray-700 mb-2">Q4. When working on a deep task, how often do you check unnecessary apps?</p>
+                    <label class="block mb-2"><input type="radio" name="q4" value="A" data-bns="2" class="mr-2"> Every 5-10 minutes, feeling a physical pull toward the phone.</label>
+                    <label class="block mb-2"><input type="radio" name="q4" value="B" data-bns="1" class="mr-2"> Once or twice an hour, usually during a difficult moment.</label>
+                    <label class="block mb-2"><input type="radio" name="q4" value="C" data-bns="0" class="mr-2"> Rarely check, staying locked into the primary task.</label>
+                </div>
+
+                <!-- Q5: Motivation inconsistency -->
+                <div class="question-block" data-question-id="q5">
+                    <p class="font-semibold text-gray-700 mb-2">Q5. You struggle most with tasks that are:</p>
+                    <label class="block mb-2"><input type="radio" name="q5" value="A" data-bns="2" class="mr-2"> Boring, repetitive, or require sustained effort over 30+ minutes.</label>
+                    <label class="block mb-2"><input type="radio" name="q5" value="B" data-bns="1" class="mr-2"> Mentally engaging but require a slow, long ramp-up period.</label>
+                    <label class="block mb-2"><input type="radio" name="q5" value="C" data-bns="0" class="mr-2"> Equally motivated by both fast and slow tasks.</label>
+                </div>
+
+                <!-- Q6: Discipline breakdown -->
+                <div class="question-block" data-question-id="q6">
+                    <p class="font-semibold text-gray-700 mb-2">Q6. When you decide to stop scrolling, you find yourself:</p>
+                    <label class="block mb-2"><input type="radio" name="q6" value="A" data-bns="3" class="mr-2"> Immediately pulled back by an unconscious impulse within minutes.</label>
+                    <label class="block mb-2"><input type="radio" name="q6" value="B" data-bns="1" class="mr-2"> Stopping, but needing to replace the time with another high-stimulation activity.</label>
+                    <label class="block mb-2"><input type="radio" name="q6" value="C" data-bns="0" class="mr-2"> Stopping easily and transitioning to a lower-stimulation activity.</label>
+                </div>
+
+                <!-- Q7: Breathing pattern during scrolling -->
+                <div class="question-block" data-question-id="q7">
+                    <p class="font-semibold text-gray-700 mb-2">Q7. When you are intensely focused on fast content, your breath is:</p>
+                    <label class="block mb-2"><input type="radio" name="q7" value="A" data-bns="2" class="mr-2"> Often held, erratic, or fast and shallow in your chest.</label>
+                    <label class="block mb-2"><input type="radio" name="q7" value="B" data-bns="1" class="mr-2"> Sometimes shallow, but usually normal.</label>
+                    <label class="block mb-2"><input type="radio" name="q7" value="C" data-bns="0" class="mr-2"> Always slow, deep, and steady.</label>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full btn-reset text-white font-bold py-3 mt-8 rounded-xl shadow-md uppercase tracking-wider">
+                Get My Stimulation Load Index
+            </button>
+        </form>
+
+        <!-- Result Section (Initially hidden) -->
+        <div id="result-container" class="result-container mt-10 p-6 rounded-2xl border-4 border-gray-300 bg-white shadow-2xl text-center">
+            
+            <!-- A. Score Label -->
+            <p class="text-center text-lg font-semibold text-gray-600 mb-2">Stimulation Load Index:</p>
+            
+            <!-- Score Display -->
+            <p id="score-percentage" class="score-display text-red-500"></p>
+            
+            <!-- Disclaimer -->
+            <p class="text-sm text-gray-500 mb-2 italic">This scan reflects stimulation patterns, not medical or psychological conditions.</p>
+            <p class="text-md font-semibold text-gray-700 mb-6">This score reflects how often your attention defaults to speed.</p>
+
+            <h2 id="result-label" class="text-2xl font-extrabold mb-6 result-title"></h2>
+            
+            <div id="result-content" class="text-left">
+                
+                <!-- B. Mirror Moment -->
+                <h3 class="text-xl font-bold mb-2 border-b pb-1 text-gray-800">How This Shows Up in Your Daily Life</h3>
+                <ul id="result-mirror" class="bullet-list"></ul>
+
+                <!-- C. What’s Actually Happening -->
+                <h3 class="text-xl font-bold mb-2 border-b pb-1 text-gray-800">What’s Actually Happening</h3>
+                <ul id="result-diagnosis" class="bullet-list"></ul>
+                
+                <!-- D. Why Discipline Feels Broken -->
+                <h3 class="text-xl font-bold mb-2 border-b pb-1 text-gray-800">Why Discipline Feels Broken</h3>
+                <ul id="result-why" class="bullet-list"></ul>
+
+                <!-- E. The Reset Direction -->
+                <h3 class="text-xl font-bold mb-2 border-b pb-1 text-red-700">The Reset Direction</h3>
+                <p id="result-reset" class="text-gray-700 mb-6 font-semibold"></p>
+                
+                <!-- 5. TRANSPARENCY BLOCK (Trust Layer) -->
+                <div class="community-links-block text-center mb-6 bg-gray-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">How This Scan Works (In Simple Terms)</h4>
+                    <ul class="list-none text-sm text-gray-600 space-y-1 text-center">
+                        <li>We look for repeated behavioral patterns, not screen-time minutes.</li>
+                        <li>No single answer determines your result; your overall pattern matters most.</li>
+                        <li>The goal is pattern recognition, which is the first step toward control.</li>
+                    </ul>
+                </div>
+
+                <!-- 6. CONFIDENCE LAYER -->
+                <div class="text-center mb-8">
+                    <h4 class="text-lg font-bold text-gray-800 mb-3">How Accurate Does This Feel to You?</h4>
+                    <div class="flex justify-center space-x-2">
+                        <button class="confidence-button">Very accurate</button>
+                        <button class="confidence-button">Somewhat accurate</button>
+                        <button class="confidence-button">Not accurate</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">This does not change your score. It helps us understand pattern recognition.</p>
+                </div>
+                
+                <!-- 8. COMMUNITY LINKS BLOCK (Matches Footer Style) -->
+                <div class="community-links-block text-center mb-6">
+                    <p class="community-prompt">Join the Reset Nation Community</p>
+                    <div class="flex justify-center space-x-4 mt-[-1rem]">
+                         <a href="https://www.instagram.com/resetnation.in/" target="_blank" class="social-link-text transition">
+                            Instagram
+                        </a>
+                        <a href="https://www.youtube.com/@reset.nation" target="_blank" class="social-link-text transition">
+                            YouTube
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 7. SHARE CTA -->
+                <p class="text-center mt-4">
+                    <button id="share-cta" class="share-cta-button w-full py-3 rounded-xl uppercase tracking-wider">
+                        Share with Friends You Care About
+                    </button>
+                </p>
+                <p class="text-center text-sm text-gray-500 mt-2">
+                    *The share message has been copied to your clipboard. Start the conversation.*
+                </p>
+                <!-- END SHARE CTA -->
+            </div>
+        </div>
+        
+        <!-- FOOTER: Matching Style -->
+        <div class="mt-8 pt-4 border-t border-gray-300 text-center text-sm text-gray-600">
+            <p>Built by Reset Nation</p>
+        </div>
+    </div>
+
+    <script>
+        // FIX 1: Renamed scoring constant from MAX_BNS_SCORE to MAX_STIMULATION_SCORE
+        const MAX_STIMULATION_SCORE = 17; 
+        const INSTA_HANDLE = "@resetnation.in"; 
+
+        // Helper function to create a bullet list from an array of strings
+        function createBulletList(containerId, contentArray) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ''; 
+            contentArray.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                container.appendChild(li);
+            });
+        }
+        
+        // Function to calculate the score (used by showResult)
+        function calculateScore() {
+            let nsScore = 0;
+            let answeredCount = 0;
+
+            const questions = document.querySelectorAll('.question-block');
+
+            questions.forEach(qBlock => {
+                const selected = qBlock.querySelector('input[type="radio"]:checked');
+                if (selected) {
+                    answeredCount++;
+                    // Use data-bns attribute for NS score
+                    nsScore += Number(selected.dataset.bns || 0);
+                }
+            });
+
+            return { nsScore, answeredCount, totalQuestions: questions.length };
+        }
+
+        // --- STIMULATION DRIFT PROFILE CONTENT ---
+        
+        // Tier 3: High Drift (FIX 3: Identity Lock-In added to reset paragraph)
+        const HIGH_DRIFT_PROFILE = {
+            title: "Severe Stimulation Drift (Attention is Fragmented)",
+            color: 'text-red-600',
+            mirror: [
+                "You feel mentally exhausted after just 5 minutes of scrolling, yet find it hard to stop.",
+                "Discipline feels like a battle because deep tasks feel physically uncomfortable.",
+                "You frequently experience restlessness and shallow breathing while sitting still.",
+                "Your motivation is inconsistent, only showing up for high-reward, fast feedback loops.",
+                "You find yourself constantly picking up your phone without conscious thought."
+            ],
+            diagnosis: [
+                "Your brain is being trained for speed, not depth. You are adapted to expect novelty every 3 seconds.",
+                "Dopamine is released primarily as anticipation for the next 'hit,' leading to constant impulse drive, not satisfaction.",
+                "Your tolerance for boredom—the necessary ingredient for discipline—is critically low.",
+                "Shallow breathing during fast content locks your nervous system in a low-grade state of alert, draining energy."
+            ],
+            why: [
+                "Most people don’t have a discipline problem. They have a stimulation problem.",
+                "This is mechanical conditioning, not a character failure.",
+                "Your reward center favors micro-tasks, making the slow, essential tasks of real life feel disproportionately difficult and unrewarding.",
+                "The frequent task-switching erodes your brain’s ability to build sustained focus."
+            ],
+            // FIX 3: Added mandatory identity lock-in line
+            reset: `Regaining depth requires reducing unconscious stimulation and rebuilding tolerance for slowness. This is not about quitting social media. It’s about controlling stimulation instead of being shaped by it. The first step is simply noticing the pull. Your attention was trained this way — it can be retrained.`
+        };
+
+        // Tier 2: Moderate Drift
+        const MODERATE_DRIFT_PROFILE = {
+            title: "Moderate Stimulation Drift (Habitual Disconnection)",
+            color: 'text-yellow-600',
+            mirror: [
+                "You frequently get pulled away from your intended goal when using your phone.",
+                "You experience noticeable anxiety or tension when waiting without a screen.",
+                "Deep work often involves task-switching and checking quick apps for mental relief.",
+                "Motivation for complex tasks requires a significant, frustrating mental ramp-up.",
+                "Resting often feels unproductive or leads to a feeling of 'wired but tired.'"
+            ],
+            diagnosis: [
+                "Your attention economy is shifting towards speed over quality. Your brain is conditioned to seek frequent, small rewards.",
+                "Your motivation is inconsistent because slow tasks can't compete with the constant, immediate dopamine availability of fast content.",
+                "When you are exposed to fast content, your nervous system interprets the hyper-vigilance as a necessary state."
+            ],
+            why: [
+                "Most people don’t have a discipline problem. They have a stimulation problem.",
+                "Your discipline feels inconsistent because you use high stimulation to mask momentary boredom or intellectual frustration.",
+                "This drift is maintained by not building replacement rituals for screen time, causing habitual unconscious checking."
+            ],
+            reset: `Regaining depth requires reducing unconscious stimulation and rebuilding tolerance for slowness. This is not about quitting social media. It’s about controlling stimulation instead of being shaped by it. Awareness of the 'drift' is your essential starting point.`
+        };
+
+        // Tier 1: Low Drift
+        const LOW_DRIFT_PROFILE = {
+            title: "Low Stimulation Drift (Attention is Robust)",
+            color: 'text-emerald-700',
+            mirror: [
+                "You maintain focus easily on boring or complex tasks for long periods.",
+                "You find mental quiet and moments of waiting easy and often productive.",
+                "Scrolling is intentional and usually stops when the goal is met.",
+                "You generally feel rested and can easily transition between rest and high focus."
+            ],
+            diagnosis: [
+                "Your attention economy is stable and resilient.",
+                "Your brain successfully separates novelty-seeking behavior from goal-driven focus.",
+                "Your nervous system is well-regulated, allowing for sustained low-stimulation activity without anxiety."
+            ],
+            why: [
+                "Your discipline is robust because your boredom tolerance is high.",
+                "You subconsciously prioritize depth over speed, allowing neural resources to be allocated efficiently.",
+                "This state is maintained by behavioral guardrails, making stimulation a tool rather than a default crutch."
+            ],
+            reset: `Regaining depth requires reducing unconscious stimulation and rebuilding tolerance for slowness. This is not about quitting social media. It’s about controlling stimulation instead of being shaped by it. Maintain your current boundaries and focus on increasing the difficulty of your quiet tasks.`
+        };
+
+        function showResult() {
+            const results = calculateScore();
+            const resultContainer = document.getElementById('result-container');
+            const resultLabel = document.getElementById('result-label');
+            const scoreDisplay = document.getElementById('score-percentage');
+            
+            // 1. Check if all questions were answered
+            if (results.answeredCount < results.totalQuestions) {
+                 alert("Please answer all 7 questions before getting your Stimulation Load Index.");
+                return;
+            }
+
+            // 2. Determine Tier & Normalize Score (Out of 100)
+            const rawScore = results.nsScore;
+            // FIX 1: Use MAX_STIMULATION_SCORE here
+            const scoreOutOf100 = Math.min(100, Math.round((rawScore / MAX_STIMULATION_SCORE) * 100));
+
+            let finalProfile = {};
+            let scoreColor = '';
+            let borderColor = '';
+
+            // FIX 2: Updated Tier Thresholds
+            if (scoreOutOf100 < 30) { 
+                finalProfile = LOW_DRIFT_PROFILE;
+                scoreColor = finalProfile.color;
+                borderColor = 'border-emerald-500';
+            } else if (scoreOutOf100 >= 30 && scoreOutOf100 < 65) { 
+                finalProfile = MODERATE_DRIFT_PROFILE;
+                scoreColor = finalProfile.color;
+                borderColor = 'border-yellow-500';
+            } else { // score >= 65
+                finalProfile = HIGH_DRIFT_PROFILE;
+                scoreColor = finalProfile.color;
+                borderColor = 'border-red-500';
+            }
+
+            // --- Apply Results to HTML ---
+            resultContainer.className = `result-container mt-10 p-6 rounded-2xl border-4 ${borderColor} bg-white shadow-2xl text-center`;
+
+            // Display normalized score out of 100
+            scoreDisplay.textContent = `${scoreOutOf100}/100`;
+            scoreDisplay.className = `score-display ${scoreColor}`;
+            
+            // Display Title
+            resultLabel.textContent = finalProfile.title;
+            resultLabel.className = `text-2xl font-extrabold mb-6 ${scoreColor}`;
+            
+            // Insert Content Blocks as Bullet Points
+            createBulletList('result-mirror', finalProfile.mirror);
+            createBulletList('result-diagnosis', finalProfile.diagnosis);
+            createBulletList('result-why', finalProfile.why);
+            
+            // Insert Reset Switch (paragraph)
+            document.getElementById('result-reset').textContent = finalProfile.reset;
+
+            // Set the share CTA text and attach clipboard logic
+            const ctaElement = document.getElementById('share-cta');
+            ctaElement.textContent = `Share with Friends You Care About`; // Static CTA text
+
+            ctaElement.onclick = () => {
+                const quizLink = window.location.href;
+                // Updated Share Copy
+                const shareText = `My Stimulation Load Index is ${scoreOutOf100}/100. This explained why motivation and discipline feel harder than they should. Find out your pattern and learn The Reset Switch. Take the Reset Nation Stimulation Drift Scan here: ${quizLink}`;
+                
+                // Clipboard logic
+                const tempInput = document.createElement('textarea');
+                tempInput.value = shareText;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+
+                const messageBox = document.createElement('div');
+                messageBox.className = 'fixed top-5 right-5 bg-green-500 text-white p-3 rounded-lg shadow-xl transition-opacity duration-300';
+                messageBox.textContent = 'Share message copied to clipboard!';
+                document.body.appendChild(messageBox);
+
+                setTimeout(() => {
+                    messageBox.style.opacity = '0';
+                    setTimeout(() => messageBox.remove(), 300);
+                }, 2000);
+            };
+
+
+            // Show the results
+            document.getElementById('diagnosis-form').style.display = 'none'; 
+            resultContainer.style.display = 'block';
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>

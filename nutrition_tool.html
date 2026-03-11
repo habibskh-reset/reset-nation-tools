@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Nation: Indian Food Nutrition Calculator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Slate 50 */
+        }
+        /* FIX: Update accent color to #ff5757 */
+        .rn-accent { color: #ff5757; } 
+        .rn-bg-accent { background-color: #ff5757; }
+        .rn-border-accent { border-color: #ff5757; }
+
+        /* Custom style for the tooltip container */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Tooltip content */
+        .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: #374151; /* Gray 700 */
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 8px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%; /* Position above the text */
+            left: 50%;
+            margin-left: -125px; /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+            line-height: 1.25;
+            pointer-events: none; 
+        }
+
+        /* Show the tooltip text when hovering over the container */
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Header & Branding -->
+        <header class="mb-8 pb-4 text-center border-b border-gray-200">
+            <h1 class="text-3xl font-extrabold rn-accent mb-1">
+                RESET NATION
+            </h1>
+            <p class="text-lg font-semibold text-gray-700">
+                Indian Food Nutrition Breakdown
+            </p>
+            <p class="mt-1 text-sm text-gray-500">
+                Calculate the full macro and micronutrient profile for common Indian foods based on your serving size.
+            </p>
+        </header>
+
+        <!-- Main Input Card -->
+        <div class="bg-white p-6 rounded-xl shadow-2xl border border-gray-100">
+            <h2 class="text-xl font-semibold mb-6 text-gray-800">1. Select Your Food Item</h2>
+
+            <!-- Selection and Input Controls (Adjusted to 2 columns, Portion Input removed) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                <!-- Category Selector -->
+                <div>
+                    <label for="category-select" class="block text-sm font-medium text-gray-700 mb-1">Food Category</label>
+                    <select id="category-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        <option value="" disabled selected>Select Category</option>
+                    </select>
+                </div>
+
+                <!-- Food Item Selector -->
+                <div>
+                    <label for="food-select" class="block text-sm font-medium text-gray-700 mb-1">Food Item</label>
+                    <select id="food-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" disabled>
+                        <option value="" disabled selected>Select Item</option>
+                    </select>
+                </div>
+                
+                <!-- Placeholder where portion used to be (empty since it's removed) -->
+            </div>
+
+            <!-- Nutrition Results -->
+            <div id="results-container" class="mt-8 pt-6 border-t border-gray-200 hidden">
+                <!-- Dynamic calculation label showing the default unit calculated -->
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">2. Nutrition Breakdown (Based on <span id="portion-label" class="rn-accent">Default Portion</span>)</h2>
+
+                <!-- Conditional Portion Guidance (GI High) -->
+                <div id="portion-guidance" class="hidden p-4 mb-4 rounded-lg bg-red-100 border border-red-300">
+                    <p class="font-semibold text-red-800">Portion Guidance (High GI Food)</p>
+                    <p id="guidance-text" class="text-red-700 text-sm mt-1"></p>
+                </div>
+
+                <!-- Conditional Reset Nation Assessment -->
+                <div id="reset-assessment" class="hidden p-4 mb-4 rounded-lg bg-blue-50 border rn-border-accent">
+                    <p class="font-semibold rn-accent">✨ Reset Nation Assessment:</p>
+                    <p id="assessment-text" class="text-gray-700 text-sm mt-1"></p>
+                </div>
+
+                <!-- Core MACRO Grid -->
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Macronutrients (per 100g)</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm border-l-4 rn-border-accent">
+                        <p class="text-sm font-medium text-gray-500">Energy (Cals)</p>
+                        <p id="calc-calories" class="text-xl font-bold text-gray-900 mt-1">0</p>
+                    </div>
+
+                    <!-- Protein Card -->
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                        <div class="flex items-center space-x-1 tooltip-container">
+                            <p class="text-sm font-medium text-gray-500">Protein (g)</p>
+                            <!-- Info Icon (using simple SVG for no external library dependency) -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 16v-4"></path>
+                                <path d="M12 8h.01"></path>
+                            </svg>
+                            <span class="tooltip-text">
+                                This value shows total dietary protein. Muscle building depends on protein quality (complete amino acid profile), digestion, and total daily intake.
+                                <br><br>
+                                Daily protein adequacy depends on total intake across meals, not one food alone.
+                            </span>
+                        </div>
+                        <p id="calc-protein" class="text-xl font-bold text-gray-900 mt-1">0</p>
+                        <!-- TASK 3: Protein Quality Label -->
+                        <p id="protein-quality-label" class="text-xs text-gray-700 mt-1 h-7"></p>
+                        <!-- End Protein Quality Label -->
+                        <p id="protein-context" class="text-xs text-gray-500 mt-1 h-7 hidden"></p> <!-- Kept hidden element for context for safety, but primary text moved to quality label -->
+                    </div>
+                    <!-- End Protein Card -->
+
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 border-yellow-500">
+                        <p class="text-sm font-medium text-gray-500">Carbs (g)</p>
+                        <p id="calc-carbs" class="text-xl font-bold text-gray-900 mt-1">0</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 border-red-500">
+                        <p class="text-sm font-medium text-gray-500">Fats (g)</p>
+                        <p id="calc-fats" class="text-xl font-bold text-gray-900 mt-1">0</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                        <p class="text-sm font-medium text-gray-500">Fiber (g)</p>
+                        <p id="calc-fiber" class="text-xl font-bold text-gray-900 mt-1">0</p>
+                    </div>
+                    <div id="gi-display-box" class="bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 border-gray-400 hidden">
+                        <p class="text-sm font-medium text-gray-500">Glycemic Index (GI)</p>
+                        <p id="calc-gi" class="text-xl font-bold text-gray-900 mt-1">N/A</p>
+                        <p id="calc-gi-range" class="text-xs text-gray-600"></p>
+                    </div>
+                </div>
+
+                <!-- Key Micronutrients Grid (NEW SECTION) -->
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Notable Micronutrients (per 100g)</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4" id="micronutrient-grid">
+                    <!-- Micronutrients injected here by JS -->
+                </div>
+                
+                <p class="text-xs text-gray-500 mt-4 text-center">Data based on 100g average nutrient profiles. Hover over Macros and Micros for their role.</p>
+
+            </div>
+        </div>
+
+        <!-- Community Footer -->
+        <div class="mt-8 text-center p-4">
+            <h3 class="text-lg font-semibold text-gray-700 mb-3">
+                Join the Reset Nation Community
+            </h3>
+            <div class="flex justify-center space-x-6">
+                <!-- FIX: Added correct URLs and used rn-accent for color -->
+                <a href="https://www.instagram.com/resetnation.in/" target="_blank" class="text-sm font-medium rn-accent hover:text-red-700 transition duration-150">
+                    Instagram
+                </a>
+                <a href="https://www.youtube.com/@reset.nation" target="_blank" class="text-sm font-medium rn-accent hover:text-red-700 transition duration-150">
+                    YouTube
+                </a>
+            </div>
+        </div>
+        
+        <!-- Disclaimer -->
+        <div class="mt-4 text-center text-sm text-gray-500 p-4 rounded-xl bg-white shadow-inner">
+            <p>
+                <strong>Disclaimer:</strong> All nutrition values are approximate averages per 100g edible portion and should not be used for medical or critical dietary advice. This tool is designed for meal planning and contextual guidance.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Global Constants
+        const DEBOUNCE_DELAY = 300; 
+        const CARB_DOMINANT_THRESHOLD = 10; 
+        const PORTION_GUIDANCE_CARB_MIN = 20; 
+        const DEFAULT_GRAMS_CALCULATION = 100; 
+
+        // 2. CATEGORY SYSTEM (LOCKED)
+        const FOOD_CATEGORIES = {
+            grains_cereals: "Grains & Cereals",
+            pulses_legumes: "Pulses & Legumes",
+            veg_starchy: "Vegetables (Starchy)",
+            veg_non_starchy: "Vegetables (Non-Starchy)",
+            fruits: "Fruits",
+            dairy: "Dairy",
+            animal_protein: "Animal Protein",
+            fats_addons: "Fats, Oils & Add-ons",
+            invisible_junk: "Convenience & Add-ons" 
+        };
+
+        // Household Unit Conversions (Approximate grams)
+        const UNIT_CONVERSIONS = {
+            'roti': 30, 
+            'chapati': 30,
+            'cup': 150, 
+            'tsp': 5, 
+            'tbsp': 15, 
+            'small potato': 100, 
+            'egg white': 30, 
+            'small banana': 80,
+            'medium banana': 120,
+            'egg': 50, 
+            'slice': 25, 
+            'idli': 50, // 1 medium idli
+            'dosa': 80, // 1 plain dosa
+            'pav': 40, // 1 pav bun
+            'biscuit': 8, // 1 marie biscuit
+            'samosa': 120, // 1 medium samosa
+            'puri': 10, // 1 pani puri shell
+        };
+
+        // Unit-to-Food Name Mapping for UI Display and Placeholder logic
+        const UNIT_LABELS = Object.keys(UNIT_CONVERSIONS).sort((a, b) => b.length - a.length); 
+        
+        // TASK 4 FIX: Micronutrient color accents - Iron changed to deep red/rust, Calcium added
+        const MICRO_ACCENT_COLORS = {
+            iron: '#cc4444',   // Deep Rust/Red (Targeted Fix)
+            calcium: '#0891b2', // Cyan 600 (New)
+            niacin: '#10b981', // Green 500
+            selenium: '#9333ea', // Purple 600
+            b6: '#f97316',     // Orange 500
+            zinc: '#3b82f6'    // Blue 500
+        };
+
+        // TASK 2: Micronutrient functional explanations
+        const MICRO_EXPLANATIONS = {
+            iron: 'Essential for oxygen transport in blood and energy production.',
+            calcium: 'Primary mineral for bone structure and muscle contraction.',
+            niacin: 'Supports energy metabolism and healthy nervous system function.',
+            selenium: 'Crucial for immune system defense and thyroid hormone function.',
+            b6: 'Involved in protein metabolism and brain development.',
+            zinc: 'Supports immune health, wound healing, and DNA synthesis.'
+        };
+        
+        // FIX 1: Significance Thresholds (per 100g)
+        const MICRO_THRESHOLDS = {
+            iron: 1.0,      // mg
+            calcium: 50.0,  // mg
+            niacin: 1.0,    // mg
+            selenium: 10.0, // mcg
+            b6: 0.1,        // mg
+            zinc: 0.5       // mg
+        };
+
+        // Parses the value string (e.g., '1.2 mg', '31.0 mcg') into a standardized number
+        function parseMicroValue(value) {
+            if (!value) return 0;
+            const match = value.match(/(\d+\.?\d*)\s*(mg|mcg|g)/);
+            if (!match) return 0;
+
+            const numericValue = parseFloat(match[1]);
+            const unit = match[2];
+
+            // Convert to a comparable base (e.g., keeping mg, or scaling others)
+            // Since thresholds are defined in their native units, we return the numeric value
+            return numericValue;
+        }
+
+        // TASK 2 & 3 FIX: Protein Quality Classification Logic 
+        function getProteinQuality(food) {
+            const proteinType = food.protein_type;
+            const proteinGrams = food.nutrition_per_100g.protein; // Check for negligible protein
+
+            if (proteinGrams < 1.0) {
+                 return { 
+                    quality: 'N/A', 
+                    explanation: 'Not a primary protein source.' 
+                };
+            }
+
+            if (proteinType === 'complete') {
+                return { 
+                    quality: 'Complete Protein', 
+                    explanation: 'Contains all 9 essential amino acids in adequate amounts.' 
+                };
+            }
+            if (proteinType === 'complementary') {
+                 return { 
+                    quality: 'Complementary Protein', 
+                    explanation: 'Combines two plant sources to form a complete amino acid profile.' 
+                };
+            }
+            if (proteinType === 'incomplete') {
+                return { 
+                    quality: 'Incomplete Protein', 
+                    explanation: 'Lacks one or more essential amino acids when consumed alone.' 
+                };
+            }
+
+            return { quality: 'N/A', explanation: 'Not a primary protein source.' };
+        }
+
+
+        // 6. FOOD LIST (DATA STRUCTURE VALIDATED)
+        const FOOD_DATA = [
+            // --- Grains & Cereals (EXPANDED) ---
+            { id: "white_rice_raw", name: "White Rice (Raw)", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 360, protein: 7.0, carbs: 80.0, fats: 0.7, fiber: 1.0 }, gi: { category: "high", range: "70-90" }, ideal_portion: { min: 60, max: 80, unit: "grams", context: "raw weight, when cooked and eaten as the primary carb source for a meal." }, reset_assessment: "Best paired with high protein and fiber (like dal/veg) to moderate the blood sugar response.", micronutrients_per_100g: { iron: '1.0 mg', niacin: '1.6 mg', selenium: '15.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '5 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "white_rice_cooked", name: "White Rice (Cooked)", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 130, protein: 2.7, carbs: 28.0, fats: 0.3, fiber: 0.4 }, gi: { category: "medium", range: "60-70" }, ideal_portion: { min: 150, max: 200, unit: "grams", context: "cooked weight, when eaten as the primary carb source for a meal." }, reset_assessment: "Cooked rice is mostly water, significantly lowering its calorie and carb density per gram versus raw.", micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.5 mg', selenium: '5.0 mcg', b6: '0.05 mg', zinc: '0.2 mg', calcium: '3 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "brown_rice_cooked", name: "Brown Rice (Cooked)", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 111, protein: 2.6, carbs: 23.0, fats: 0.9, fiber: 1.8 }, gi: { category: "low", range: "50-55" }, reset_assessment: "The higher fiber content supports better satiety and slower energy release than white rice.", micronutrients_per_100g: { iron: '0.4 mg', niacin: '1.0 mg', selenium: '8.0 mcg', b6: '0.1 mg', zinc: '0.6 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "jeera_rice_cooked", name: "Jeera Rice (Cooked)", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 140, protein: 3.0, carbs: 25.0, fats: 3.0, fiber: 0.5 }, gi: { category: "medium", range: "65-75" }, micronutrients_per_100g: { iron: '0.4 mg', niacin: '0.6 mg', selenium: '5.0 mcg', b6: '0.05 mg', zinc: '0.2 mg', calcium: '5 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "khichdi_plain", name: "Khichdi (Plain, rice+dal)", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 120, protein: 4.5, carbs: 20.0, fats: 2.5, fiber: 2.0 }, gi: { category: "medium", range: "55-65" }, reset_assessment: "Combination of grain and pulse provides a more complete protein profile than rice alone.", micronutrients_per_100g: { iron: '1.0 mg', niacin: '0.7 mg', selenium: '4.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '15 mg' }, protein_type: "complementary", gi_variability: "normal" },
+            { id: "roti_plain", name: "Roti / Chapati (Plain)", category: "grains_cereals", unit_key: 'roti', nutrition_per_100g: { calories: 290, protein: 9.0, carbs: 60.0, fats: 1.5, fiber: 1.0 }, gi: { category: "medium", range: "60-75" }, micronutrients_per_100g: { iron: '2.5 mg', niacin: '3.0 mg', selenium: '12.0 mcg', b6: '0.2 mg', zinc: '1.5 mg', calcium: '20 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "idli", name: "Idli", category: "grains_cereals", unit_key: 'idli', nutrition_per_100g: { calories: 104, protein: 3.5, carbs: 22.0, fats: 0.5, fiber: 0.8 }, gi: { category: "medium", range: "60-70" }, micronutrients_per_100g: { iron: '0.6 mg', niacin: '1.0 mg', selenium: '5.0 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '10 mg' }, protein_type: "complementary", gi_variability: "normal" },
+            { id: "dosa_plain", name: "Dosa (Plain)", category: "grains_cereals", unit_key: 'dosa', nutrition_per_100g: { calories: 160, protein: 5.0, carbs: 30.0, fats: 2.0, fiber: 1.0 }, gi: { category: "medium", range: "55-65" }, micronutrients_per_100g: { iron: '1.0 mg', niacin: '1.5 mg', selenium: '7.0 mcg', b6: '0.1 mg', zinc: '0.4 mg', calcium: '15 mg' }, protein_type: "complementary", gi_variability: "normal" },
+            { id: "uttapam_plain", name: "Uttapam (Plain)", category: "grains_cereals", unit_key: 'dosa', nutrition_per_100g: { calories: 155, protein: 4.0, carbs: 28.0, fats: 3.0, fiber: 1.5 }, gi: { category: "medium", range: "50-60" }, micronutrients_per_100g: { iron: '1.0 mg', niacin: '1.0 mg', selenium: '6.0 mcg', b6: '0.1 mg', zinc: '0.4 mg', calcium: '15 mg' }, protein_type: "complementary", gi_variability: "normal" },
+            { id: "upma_plain", name: "Upma (Plain)", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 160, protein: 4.0, carbs: 25.0, fats: 4.5, fiber: 1.5 }, gi: { category: "high", range: "68-80" }, ideal_portion: { min: 150, max: 200, unit: "grams", context: "Cooked semolina has a high GI; pair with vegetables and minimal fat."}, reset_assessment: "Cooked semolina has a high GI; pair with vegetables and minimal fat.", micronutrients_per_100g: { iron: '1.5 mg', niacin: '1.5 mg', selenium: '8.0 mcg', b6: '0.1 mg', zinc: '0.4 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "poha_cooked", name: "Poha (Cooked, typical recipe)", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 150, protein: 3.0, carbs: 28.0, fats: 3.5, fiber: 1.5 }, gi: { category: "high", range: "70-85" }, micronutrients_per_100g: { iron: '1.5 mg', niacin: '0.8 mg', selenium: '4.0 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '5 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "vermicelli_cooked", name: "Vermicelli / Seviyan (Cooked)", category: "grains_cereals", nutrition_per_100g: { calories: 157, protein: 5.8, carbs: 30.8, fats: 0.9, fiber: 1.5 }, gi: { category: "medium", range: "55-65" }, micronutrients_per_100g: { iron: '0.8 mg', niacin: '1.0 mg', selenium: '5.0 mcg', b6: '0.05 mg', zinc: '0.4 mg', calcium: '8 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "pasta_boiled", name: "Pasta (Boiled, Plain)", category: "grains_cereals", nutrition_per_100g: { calories: 131, protein: 5.0, carbs: 25.0, fats: 1.1, fiber: 1.8 }, gi: { category: "low", range: "45-55" }, micronutrients_per_100g: { iron: '0.7 mg', niacin: '1.0 mg', selenium: '8.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '8 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "noodles_boiled", name: "Noodles (Boiled, Plain)", category: "grains_cereals", nutrition_per_100g: { calories: 138, protein: 4.5, carbs: 26.0, fats: 2.0, fiber: 1.0 }, gi: { category: "medium", range: "55-65" }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '1.0 mg', selenium: '5.0 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '5 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "corn_boiled", name: "Corn (Boiled, on cob)", category: "grains_cereals", nutrition_per_100g: { calories: 96, protein: 3.4, carbs: 21.0, fats: 1.5, fiber: 2.4 }, gi: { category: "medium", range: "55-65" }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '1.7 mg', selenium: '2.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '2 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "sweet_corn_boiled", name: "Sweet Corn (Boiled)", category: "grains_cereals", nutrition_per_100g: { calories: 86, protein: 3.3, carbs: 19.0, fats: 1.2, fiber: 2.0 }, gi: { category: "medium", range: "60-70" }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '1.7 mg', selenium: '2.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '2 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "cornflakes", name: "Cornflakes", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 357, protein: 7.5, carbs: 84.0, fats: 1.0, fiber: 1.2 }, gi: { category: "high", range: "80-85" }, ideal_portion: { min: 30, max: 50, unit: "grams", context: "Very high GI. Consume with high protein milk/curd and fiber for balance."}, reset_assessment: "Very high GI. Consume with high protein milk/curd and fiber for balance.", micronutrients_per_100g: { iron: '15.0 mg', niacin: '5.0 mg', selenium: '10.0 mcg', b6: '0.5 mg', zinc: '1.0 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "muesli_plain", name: "Muesli (Plain)", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 350, protein: 10.0, carbs: 70.0, fats: 5.0, fiber: 8.0 }, gi: { category: "low", range: "45-55" }, micronutrients_per_100g: { iron: '4.0 mg', niacin: '2.5 mg', selenium: '15.0 mcg', b6: '0.3 mg', zinc: '2.0 mg', calcium: '25 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "oats_cooked", name: "Oats (Cooked)", category: "grains_cereals", unit_key: 'cup', nutrition_per_100g: { calories: 68, protein: 2.5, carbs: 12.0, fats: 1.5, fiber: 1.7 }, gi: { category: "low", range: "45-55" }, reset_assessment: "Cooking with water makes it a low-calorie, high-fiber, slow-digesting meal.", micronutrients_per_100g: { iron: '0.9 mg', niacin: '0.1 mg', selenium: '4.0 mcg', b6: '0.05 mg', zinc: '0.4 mg', calcium: '5 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "bread_white", name: "Bread (White Slice)", category: "grains_cereals", unit_key: 'slice', nutrition_per_100g: { calories: 265, protein: 8.0, carbs: 50.0, fats: 3.0, fiber: 2.0 }, gi: { category: "high", range: "70-80" }, ideal_portion: { min: 25, max: 50, unit: "grams", context: "1-2 slices are typical servings, high GI requires pairing with protein/fat." }, reset_assessment: "Highly processed, quickly digested carbohydrate; best used as a minor component of a meal.", micronutrients_per_100g: { iron: '1.8 mg', niacin: '4.0 mg', selenium: '10.0 mcg', b6: '0.1 mg', zinc: '0.8 mg', calcium: '20 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "pav_single", name: "Pav (Single Bun)", category: "grains_cereals", unit_key: 'pav', nutrition_per_100g: { calories: 280, protein: 7.5, carbs: 55.0, fats: 3.5, fiber: 1.5 }, gi: { category: "high", range: "75-85" }, ideal_portion: { min: 40, max: 80, unit: "grams", context: "1-2 buns are typical servings; consider reducing the quantity if paired with high-carb bhaji." }, micronutrients_per_100g: { iron: '1.5 mg', niacin: '3.5 mg', selenium: '8.0 mcg', b6: '0.1 mg', zinc: '0.7 mg', calcium: '15 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+
+            // --- Pulses, Legumes & Soy (EXPANDED) ---
+            { id: "dal_cooked_generic", name: "Dal (Cooked, Generic)", category: "pulses_legumes", unit_key: 'cup', nutrition_per_100g: { calories: 120, protein: 8.0, carbs: 18.0, fats: 2.0, fiber: 4.0 }, gi: { category: "low", range: "35-45" }, reset_assessment: "Cooked dal is an excellent source of plant protein and fiber, heavily diluted by water.", micronutrients_per_100g: { iron: '1.5 mg', niacin: '0.6 mg', selenium: '3.0 mcg', b6: '0.1 mg', zinc: '0.8 mg', calcium: '15 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "toor_dal_cooked", name: "Toor Dal (Cooked)", category: "pulses_legumes", unit_key: 'cup', nutrition_per_100g: { calories: 110, protein: 7.0, carbs: 17.0, fats: 1.5, fiber: 3.5 }, gi: { category: "low", range: "30-40" }, micronutrients_per_100g: { iron: '1.4 mg', niacin: '0.5 mg', selenium: '2.5 mcg', b6: '0.1 mg', zinc: '0.7 mg', calcium: '12 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "moong_dal_cooked", name: "Moong Dal (Cooked)", category: "pulses_legumes", unit_key: 'cup', nutrition_per_100g: { calories: 105, protein: 7.5, carbs: 16.0, fats: 1.0, fiber: 3.5 }, gi: { category: "low", range: "35-45" }, micronutrients_per_100g: { iron: '1.2 mg', niacin: '0.4 mg', selenium: '2.0 mcg', b6: '0.1 mg', zinc: '0.6 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "masoor_dal_cooked", name: "Masoor Dal (Cooked)", category: "pulses_legumes", unit_key: 'cup', nutrition_per_100g: { calories: 116, protein: 9.0, carbs: 18.0, fats: 0.5, fiber: 4.0 }, gi: { category: "low", range: "25-35" }, micronutrients_per_100g: { iron: '1.8 mg', niacin: '0.3 mg', selenium: '2.5 mcg', b6: '0.1 mg', zinc: '0.8 mg', calcium: '15 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "chana_dal_cooked", name: "Chana Dal (Cooked)", category: "pulses_legumes", unit_key: 'cup', nutrition_per_100g: { calories: 120, protein: 7.0, carbs: 19.0, fats: 2.0, fiber: 4.5 }, gi: { category: "low", range: "30-40" }, micronutrients_per_100g: { iron: '1.5 mg', niacin: '0.5 mg', selenium: '3.0 mcg', b6: '0.1 mg', zinc: '0.9 mg', calcium: '18 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "rajma_cooked", name: "Rajma (Cooked)", category: "pulses_legumes", unit_key: 'cup', nutrition_per_100g: { calories: 140, protein: 9.0, carbs: 23.0, fats: 0.5, fiber: 7.0 }, gi: { category: "low", range: "25-35" }, reset_assessment: "Provides very high fiber content, making it highly satiating and low GI.", micronutrients_per_100g: { iron: '2.0 mg', niacin: '0.4 mg', selenium: '3.5 mcg', b6: '0.15 mg', zinc: '1.0 mg', calcium: '20 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "chole_cooked", name: "Chole (Cooked)", category: "pulses_legumes", unit_key: 'cup', nutrition_per_100g: { calories: 164, protein: 8.8, carbs: 27.4, fats: 2.6, fiber: 7.6 }, gi: { category: "low", range: "30-40" }, micronutrients_per_100g: { iron: '2.5 mg', niacin: '0.5 mg', selenium: '4.0 mcg', b6: '0.15 mg', zinc: '1.2 mg', calcium: '25 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "kala_chana_cooked", name: "Kala Chana (Cooked)", category: "pulses_legumes", unit_key: 'cup', nutrition_per_100g: { calories: 164, protein: 8.8, carbs: 27.4, fats: 2.6, fiber: 7.6 }, gi: { category: "low", range: "30-40" }, micronutrients_per_100g: { iron: '2.5 mg', niacin: '0.5 mg', selenium: '4.0 mcg', b6: '0.15 mg', zinc: '1.2 mg', calcium: '25 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "sprouted_moong", name: "Sprouted Moong", category: "pulses_legumes", nutrition_per_100g: { calories: 30, protein: 3.0, carbs: 4.0, fats: 0.1, fiber: 2.0 }, gi: { category: "low", range: "null" }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '0.5 mg', selenium: '1.0 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "sprouted_chana", name: "Sprouted Chana", category: "pulses_legumes", nutrition_per_100g: { calories: 50, protein: 5.0, carbs: 7.0, fats: 0.5, fiber: 3.0 }, gi: { category: "low", range: "null" }, micronutrients_per_100g: { iron: '1.0 mg', niacin: '0.5 mg', selenium: '2.0 mcg', b6: '0.1 mg', zinc: '0.4 mg', calcium: '15 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "sambar_plain", name: "Sambar (Plain)", category: "pulses_legumes", unit_key: 'cup', nutrition_per_100g: { calories: 70, protein: 3.5, carbs: 10.0, fats: 1.5, fiber: 3.0 }, gi: { category: "low", range: "40-50" }, micronutrients_per_100g: { iron: '0.8 mg', niacin: '0.5 mg', selenium: '1.0 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '15 mg' }, protein_type: "complementary", gi_variability: "normal" },
+            { id: "besan_raw", name: "Besan (Gram Flour)", category: "pulses_legumes", nutrition_per_100g: { calories: 387, protein: 22.0, carbs: 58.0, fats: 6.0, fiber: 10.0 }, gi: { category: "low", range: "35-45" }, micronutrients_per_100g: { iron: '4.8 mg', niacin: '2.5 mg', selenium: '8.0 mcg', b6: '0.5 mg', zinc: '2.0 mg', calcium: '50 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "soy_chunks_cooked", name: "Soy Chunks (Nutrela, Cooked)", category: "pulses_legumes", nutrition_per_100g: { calories: 150, protein: 18.0, carbs: 10.0, fats: 6.0, fiber: 4.0 }, gi: { category: "low", range: "null" }, reset_assessment: "Extremely high protein content for a plant source, excellent for vegetarian muscle goals.", micronutrients_per_100g: { iron: '3.0 mg', niacin: '1.0 mg', selenium: '10.0 mcg', b6: '0.1 mg', zinc: '1.5 mg', calcium: '50 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "tofu", name: "Tofu", category: "pulses_legumes", nutrition_per_100g: { calories: 76, protein: 8.0, carbs: 1.9, fats: 4.8, fiber: 0.9 }, gi: { category: "low", range: "null" }, micronutrients_per_100g: { iron: '2.9 mg', niacin: '0.1 mg', selenium: '15.0 mcg', b6: '0.05 mg', zinc: '0.8 mg', calcium: '200 mg' }, protein_type: "complete", gi_variability: "normal" },
+
+
+            // --- Vegetables (Starchy) (EXPANDED) ---
+            { id: "potato_boiled", name: "Potato (Boiled)", category: "veg_starchy", unit_key: 'small potato', nutrition_per_100g: { calories: 87, protein: 2.0, carbs: 20.0, fats: 0.1, fiber: 2.0 }, gi: { category: "high", range: "80-100" }, ideal_portion: { min: 150, max: 200, unit: "grams", context: "cooked/boiled weight, when consumed as a primary source of carbohydrate in a meal." }, reset_assessment: "Frying vastly increases calorie density. Boiling and pairing with protein/fat is recommended.", micronutrients_per_100g: { iron: '0.3 mg', niacin: '1.0 mg', selenium: '0.3 mcg', b6: '0.3 mg', zinc: '0.3 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "corn_kernels", name: "Corn Kernels (Boiled)", category: "veg_starchy", nutrition_per_100g: { calories: 96, protein: 3.4, carbs: 21.0, fats: 1.5, fiber: 2.4 }, gi: { category: "medium", range: "55-65" }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '1.7 mg', selenium: '2.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '2 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "beetroot", name: "Beetroot (Raw)", category: "veg_starchy", nutrition_per_100g: { calories: 43, protein: 1.6, carbs: 9.6, fats: 0.2, fiber: 2.8 }, gi: { category: "low", range: "null" }, micronutrients_per_100g: { iron: '0.8 mg', niacin: '0.3 mg', selenium: '0.2 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '16 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "raw_banana", name: "Raw Banana (Plantain, Raw)", category: "veg_starchy", nutrition_per_100g: { calories: 122, protein: 1.3, carbs: 32.0, fats: 0.4, fiber: 2.4 }, gi: { category: "medium", range: "40-55" }, micronutrients_per_100g: { iron: '0.4 mg', niacin: '0.5 mg', selenium: '0.1 mcg', b6: '0.3 mg', zinc: '0.2 mg', calcium: '3 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "jackfruit_raw", name: "Jackfruit (Raw/Green)", category: "veg_starchy", nutrition_per_100g: { calories: 95, protein: 1.5, carbs: 23.0, fats: 0.6, fiber: 1.5 }, gi: { category: "medium", range: "50-60" }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '0.4 mg', selenium: '0.1 mcg', b6: '0.3 mg', zinc: '0.1 mg', calcium: '30 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "pumpkin_yellow", name: "Pumpkin (Yellow)", category: "veg_starchy", nutrition_per_100g: { calories: 40, protein: 1.0, carbs: 8.0, fats: 0.1, fiber: 1.5 }, gi: { category: "low", range: "null" }, micronutrients_per_100g: { iron: '0.8 mg', niacin: '0.6 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '20 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "sweet_corn_sabzi", name: "Sweet Corn Sabzi (Plain)", category: "veg_starchy", nutrition_per_100g: { calories: 120, protein: 4.0, carbs: 18.0, fats: 4.0, fiber: 2.5 }, gi: { category: "medium", range: "60-70" }, micronutrients_per_100g: { iron: '0.8 mg', niacin: '1.5 mg', selenium: '3.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+
+            // --- Vegetables (Non-Starchy) (EXPANDED) ---
+            { id: "spinach_raw", name: "Spinach (Raw)", category: "veg_non_starchy", nutrition_per_100g: { calories: 23, protein: 2.9, carbs: 3.6, fats: 0.4, fiber: 2.2 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '2.7 mg', niacin: '0.7 mg', selenium: '1.0 mcg', b6: '0.2 mg', zinc: '0.5 mg', calcium: '99 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "mushroom", name: "Mushroom", category: "veg_non_starchy", nutrition_per_100g: { calories: 22, protein: 3.1, carbs: 4.3, fats: 0.3, fiber: 1.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '3.6 mg', selenium: '9.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '3 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "capsicum", name: "Capsicum (Bell Pepper, Raw)", category: "veg_non_starchy", nutrition_per_100g: { calories: 20, protein: 1.0, carbs: 4.6, fats: 0.1, fiber: 1.7 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.4 mg', selenium: '0.1 mcg', b6: '0.3 mg', zinc: '0.1 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "cucumber", name: "Cucumber", category: "veg_non_starchy", nutrition_per_100g: { calories: 15, protein: 0.7, carbs: 3.6, fats: 0.1, fiber: 1.5 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.1 mg', selenium: '0.1 mcg', b6: '0.05 mg', zinc: '0.1 mg', calcium: '14 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "brinjal", name: "Brinjal (Eggplant, Raw)", category: "veg_non_starchy", nutrition_per_100g: { calories: 25, protein: 1.0, carbs: 5.9, fats: 0.2, fiber: 3.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.2 mg', niacin: '0.6 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '9 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "pumpkin_green", name: "Pumpkin (Green/White, Raw)", category: "veg_non_starchy", nutrition_per_100g: { calories: 15, protein: 0.6, carbs: 3.4, fats: 0.1, fiber: 1.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.4 mg', niacin: '0.4 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "zucchini", name: "Zucchini", category: "veg_non_starchy", nutrition_per_100g: { calories: 17, protein: 1.2, carbs: 3.1, fats: 0.3, fiber: 1.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.4 mg', niacin: '0.7 mg', selenium: '0.1 mcg', b6: '0.2 mg', zinc: '0.1 mg', calcium: '16 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "lettuce", name: "Lettuce (Generic)", category: "veg_non_starchy", nutrition_per_100g: { calories: 15, protein: 1.4, carbs: 2.9, fats: 0.2, fiber: 1.3 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '0.1 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '13 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "radish", name: "Radish", category: "veg_non_starchy", nutrition_per_100g: { calories: 16, protein: 0.7, carbs: 3.4, fats: 0.1, fiber: 1.6 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.2 mg', selenium: '0.1 mcg', b6: '0.05 mg', zinc: '0.1 mg', calcium: '25 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "turnip", name: "Turnip", category: "veg_non_starchy", nutrition_per_100g: { calories: 28, protein: 0.9, carbs: 6.4, fats: 0.1, fiber: 1.8 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.4 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '30 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "spring_onion", name: "Spring Onion (Scallions)", category: "veg_non_starchy", nutrition_per_100g: { calories: 32, protein: 1.8, carbs: 7.3, fats: 0.2, fiber: 2.6 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.8 mg', niacin: '0.3 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.2 mg', calcium: '72 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "methi_leaves", name: "Fenugreek Leaves (Methi)", category: "veg_non_starchy", nutrition_per_100g: { calories: 49, protein: 4.4, carbs: 6.0, fats: 0.9, fiber: 1.1 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '1.5 mg', niacin: '0.5 mg', selenium: '0.5 mcg', b6: '0.1 mg', zinc: '0.4 mg', calcium: '49 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "coriander_leaves", name: "Coriander Leaves", category: "veg_non_starchy", nutrition_per_100g: { calories: 23, protein: 2.1, carbs: 3.7, fats: 0.5, fiber: 2.8 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '1.8 mg', niacin: '0.4 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '67 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+
+            // --- Fruits (EXPANDED) ---
+            { id: "banana_raw", name: "Banana (Raw)", category: "fruits", unit_key: 'medium banana', nutrition_per_100g: { calories: 89, protein: 1.1, carbs: 22.8, fats: 0.3, fiber: 2.6 }, gi: { category: "medium", range: "42-62" }, reset_assessment: "Pairing with a fat or protein source (like nuts/curd) helps slow the absorption of its natural sugars.", micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.7 mg', selenium: '1.0 mcg', b6: '0.3 mg', zinc: '0.2 mg', calcium: '5 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "apple_raw", name: "Apple (Raw)", category: "fruits", nutrition_per_100g: { calories: 52, protein: 0.3, carbs: 13.8, fats: 0.2, fiber: 2.4 }, gi: { category: "low", range: "36-40" }, micronutrients_per_100g: { iron: '0.1 mg', niacin: '0.2 mg', selenium: '0.1 mcg', b6: '0.05 mg', zinc: '0.1 mg', calcium: '6 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "mango_raw", name: "Mango (Raw)", category: "fruits", nutrition_per_100g: { calories: 60, protein: 0.8, carbs: 15.0, fats: 0.4, fiber: 1.6 }, gi: { category: "medium", range: "51-60" }, micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.4 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '11 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "papaya_raw", name: "Papaya (Raw)", category: "fruits", nutrition_per_100g: { calories: 43, protein: 0.5, carbs: 10.8, fats: 0.3, fiber: 1.7 }, gi: { category: "low", range: "56-60" }, micronutrients_per_100g: { iron: '0.1 mg', niacin: '0.3 mg', selenium: '0.1 mcg', b6: '0.05 mg', zinc: '0.1 mg', calcium: '20 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "watermelon_raw", name: "Watermelon (Raw)", category: "fruits", nutrition_per_100g: { calories: 30, protein: 0.6, carbs: 7.6, fats: 0.2, fiber: 0.4 }, gi: { category: "high", range: "72-80" }, ideal_portion: { min: 200, max: 300, unit: "grams", context: "to manage fruit sugar (fructose) intake in a single serving." }, micronutrients_per_100g: { iron: '0.2 mg', niacin: '0.2 mg', selenium: '0.1 mcg', b6: '0.05 mg', zinc: '0.1 mg', calcium: '7 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "pomegranate_raw", name: "Pomegranate (Raw)", category: "fruits", nutrition_per_100g: { calories: 83, protein: 1.7, carbs: 18.7, fats: 1.2, fiber: 4.0 }, gi: { category: "low", range: "35-40" }, micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.3 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "orange_raw", name: "Orange (Raw)", category: "fruits", nutrition_per_100g: { calories: 47, protein: 0.9, carbs: 11.8, fats: 0.1, fiber: 2.4 }, gi: { category: "low", range: "31-51" }, micronutrients_per_100g: { iron: '0.1 mg', niacin: '0.3 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '40 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "grapes", name: "Grapes", category: "fruits", nutrition_per_100g: { calories: 69, protein: 0.6, carbs: 18.0, fats: 0.2, fiber: 0.9 }, gi: { category: "medium", range: "43-59" }, micronutrients_per_100g: { iron: '0.4 mg', niacin: '0.2 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "guava", name: "Guava", category: "fruits", nutrition_per_100g: { calories: 68, protein: 2.6, carbs: 14.3, fats: 1.0, fiber: 5.4 }, gi: { category: "low", range: "20-40" }, reset_assessment: "High fiber content slows down sugar absorption, making it a satiating fruit choice.", micronutrients_per_100g: { iron: '0.3 mg', niacin: '1.1 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '18 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "pineapple", name: "Pineapple", category: "fruits", nutrition_per_100g: { calories: 50, protein: 0.5, carbs: 13.1, fats: 0.1, fiber: 1.4 }, gi: { category: "medium", range: "51-73" }, micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.5 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '13 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "chikoo", name: "Chikoo (Sapota)", category: "fruits", nutrition_per_100g: { calories: 83, protein: 0.4, carbs: 20.0, fats: 1.1, fiber: 5.3 }, gi: { category: "medium", range: "56-65" }, micronutrients_per_100g: { iron: '0.8 mg', niacin: '0.2 mg', selenium: '0.1 mcg', b6: '0.05 mg', zinc: '0.1 mg', calcium: '21 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "dates_dry", name: "Dates (Dry)", category: "fruits", unit_key: 'slice', nutrition_per_100g: { calories: 282, protein: 2.5, carbs: 75.0, fats: 0.4, fiber: 8.0 }, gi: { category: "medium", range: null }, ideal_portion: { min: 20, max: 40, unit: "grams", context: "High energy density means consumption should be limited, usually 1-3 units per serving." }, reset_assessment: "High in sugar and calories; portion control is critical, often consumed as 1-3 pieces.", micronutrients_per_100g: { iron: '0.9 mg', niacin: '2.0 mg', selenium: '3.0 mcg', b6: '0.2 mg', zinc: '0.4 mg', calcium: '30 mg' }, protein_type: "incomplete", gi_variability: "high" },
+            { id: "raisins", name: "Raisins", category: "fruits", unit_key: 'tsp', nutrition_per_100g: { calories: 299, protein: 3.1, carbs: 79.0, fats: 0.5, fiber: 3.7 }, gi: { category: "medium", range: null }, ideal_portion: { min: 10, max: 20, unit: "grams", context: "Highly concentrated sugar source; measure portions rather than pouring freely." }, micronutrients_per_100g: { iron: '1.9 mg', niacin: '0.7 mg', selenium: '0.6 mcg', b6: '0.2 mg', zinc: '0.2 mg', calcium: '50 mg' }, protein_type: "incomplete", gi_variability: "high" },
+            { id: "strawberries", name: "Strawberries", category: "fruits", nutrition_per_100g: { calories: 32, protein: 0.7, carbs: 7.7, fats: 0.3, fiber: 2.0 }, gi: { category: "low", range: "40-41" }, micronutrients_per_100g: { iron: '0.4 mg', niacin: '0.4 mg', selenium: '0.1 mcg', b6: '0.05 mg', zinc: '0.1 mg', calcium: '16 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "kiwi", name: "Kiwi", category: "fruits", nutrition_per_100g: { calories: 61, protein: 1.1, carbs: 14.7, fats: 0.5, fiber: 3.0 }, gi: { category: "low", range: "47-58" }, micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.3 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '34 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "pear", name: "Pear", category: "fruits", nutrition_per_100g: { calories: 57, protein: 0.4, carbs: 15.2, fats: 0.1, fiber: 3.1 }, gi: { category: "low", range: "30-40" }, micronutrients_per_100g: { iron: '0.1 mg', niacin: '0.2 mg', selenium: '0.1 mcg', b6: '0.05 mg', zinc: '0.1 mg', calcium: '9 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "custard_apple", name: "Custard Apple (Sitaphal)", category: "fruits", nutrition_per_100g: { calories: 94, protein: 1.6, carbs: 23.0, fats: 0.6, fiber: 2.4 }, gi: { category: "medium", range: "54-69" }, micronutrients_per_100g: { iron: '0.7 mg', niacin: '0.6 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '17 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "litchi", name: "Litchi", category: "fruits", nutrition_per_100g: { calories: 66, protein: 0.8, carbs: 16.5, fats: 0.4, fiber: 1.3 }, gi: { category: "medium", range: "50-57" }, micronutrients_per_100g: { iron: '0.3 mg', niacin: '0.6 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '5 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "fig_fresh", name: "Fig (Fresh)", category: "fruits", nutrition_per_100g: { calories: 74, protein: 0.8, carbs: 19.2, fats: 0.3, fiber: 2.9 }, gi: { category: "medium", range: "40-61" }, micronutrients_per_100g: { iron: '0.4 mg', niacin: '0.4 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.1 mg', calcium: '35 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "fig_dry", name: "Fig (Dry)", category: "fruits", unit_key: 'slice', nutrition_per_100g: { calories: 249, protein: 3.3, carbs: 63.9, fats: 0.9, fiber: 9.8 }, gi: { category: "medium", range: null }, ideal_portion: { min: 20, max: 40, unit: "grams", context: "High calorie and sugar density; limit consumption to 1-3 pieces per serving." }, reset_assessment: "High in sugar and calories; portion control is critical, often consumed as 1-3 pieces.", micronutrients_per_100g: { iron: '2.0 mg', niacin: '0.7 mg', selenium: '1.0 mcg', b6: '0.2 mg', zinc: '0.5 mg', calcium: '162 mg' }, protein_type: "incomplete", gi_variability: "high" },
+
+            // --- Dairy (EXPANDED) ---
+            { id: "milk_toned", name: "Milk (Toned)", category: "dairy", unit_key: 'cup', nutrition_per_100g: { calories: 45, protein: 3.3, carbs: 4.8, fats: 1.5, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "Toned milk provides protein and calcium with reduced saturated fat compared to full-fat varieties.", micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '3.7 mcg', b6: '0.05 mg', zinc: '0.4 mg', calcium: '120 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "milk_full_fat", name: "Milk (Full Fat)", category: "dairy", unit_key: 'cup', nutrition_per_100g: { calories: 60, protein: 3.2, carbs: 4.6, fats: 3.5, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "Higher calorie and fat density; managing portion size or choosing lower-fat alternatives is context-dependent.", micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '3.0 mcg', b6: '0.05 mg', zinc: '0.4 mg', calcium: '113 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "curd_full_fat", name: "Curd (Full Fat)", category: "dairy", unit_key: 'cup', nutrition_per_100g: { calories: 98, protein: 3.5, carbs: 4.7, fats: 7.0, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "Higher fat and calorie density than toned curd; balance other dietary fats when consuming.", micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '3.0 mcg', b6: '0.05 mg', zinc: '0.5 mg', calcium: '100 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "curd_homemade", name: "Curd (Homemade, average fat)", category: "dairy", unit_key: 'cup', nutrition_per_100g: { calories: 75, protein: 4.0, carbs: 4.7, fats: 4.5, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '3.5 mcg', b6: '0.05 mg', zinc: '0.5 mg', calcium: '110 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "greek_yogurt", name: "Greek Yogurt / Hung Curd", category: "dairy", unit_key: 'cup', nutrition_per_100g: { calories: 100, protein: 10.0, carbs: 4.0, fats: 5.0, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "Excellent concentration of complete protein due to the whey removal process.", micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '4.0 mcg', b6: '0.08 mg', zinc: '0.7 mg', calcium: '110 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "cheese_slice", name: "Cheese Slice (Processed)", category: "dairy", unit_key: 'slice', nutrition_per_100g: { calories: 330, protein: 20.0, carbs: 2.0, fats: 26.0, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "High in sodium and saturated fat; strictly portion control to avoid excess calorie consumption.", micronutrients_per_100g: { iron: '0.5 mg', niacin: '0.1 mg', selenium: '20.0 mcg', b6: '0.1 mg', zinc: '2.5 mg', calcium: '500 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "cheese_cube", name: "Cheese Cube (Cheddar/Processed)", category: "dairy", unit_key: 'slice', nutrition_per_100g: { calories: 370, protein: 25.0, carbs: 1.5, fats: 30.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '0.1 mg', selenium: '25.0 mcg', b6: '0.1 mg', zinc: '3.0 mg', calcium: '700 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "flavoured_yogurt", name: "Flavoured Yogurt (Sweetened)", category: "dairy", unit_key: 'cup', nutrition_per_100g: { calories: 100, protein: 3.5, carbs: 15.0, fats: 3.0, fiber: 0.0 }, gi: { category: "medium", range: "55-65" }, reset_assessment: "Higher carb content due to added sugars; portion control is essential for sugar management.", micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '3.0 mcg', b6: '0.05 mg', zinc: '0.4 mg', calcium: '110 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "ice_cream_vanilla", name: "Ice Cream (Vanilla, basic)", category: "dairy", unit_key: 'cup', nutrition_per_100g: { calories: 200, protein: 4.0, carbs: 25.0, fats: 10.0, fiber: 0.0 }, gi: { category: "medium", range: "60-70" }, reset_assessment: "High calorie and sugar density; treat as a discretionary item requiring strict portion management.", micronutrients_per_100g: { iron: '0.1 mg', niacin: '0.1 mg', selenium: '3.0 mcg', b6: '0.05 mg', zinc: '0.4 mg', calcium: '100 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "milkshake_plain", name: "Milkshake (Plain, whole milk base)", category: "dairy", unit_key: 'cup', nutrition_per_100g: { calories: 80, protein: 3.0, carbs: 8.0, fats: 4.0, fiber: 0.0 }, gi: { category: "medium", range: "45-55" }, micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '3.0 mcg', b6: '0.05 mg', zinc: '0.4 mg', calcium: '100 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "paneer_full_fat", name: "Paneer (Full Fat)", category: "dairy", nutrition_per_100g: { calories: 290, protein: 18.0, carbs: 1.2, fats: 22.0, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "An excellent source of protein, but its high fat and calorie density require mindful portioning for energy balance.", micronutrients_per_100g: { iron: '0.2 mg', niacin: '0.1 mg', selenium: '10.0 mcg', b6: '0.05 mg', zinc: '0.8 mg', calcium: '200 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "paneer_low_fat", name: "Paneer (Low Fat)", category: "dairy", nutrition_per_100g: { calories: 200, protein: 20.0, carbs: 1.5, fats: 12.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.2 mg', niacin: '0.1 mg', selenium: '10.0 mcg', b6: '0.05 mg', zinc: '0.8 mg', calcium: '220 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "buttermilk", name: "Buttermilk (Chaas)", category: "dairy", unit_key: 'cup', nutrition_per_100g: { calories: 40, protein: 3.0, carbs: 5.0, fats: 1.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '3.0 mcg', b6: '0.05 mg', zinc: '0.4 mg', calcium: '110 mg' }, protein_type: "complete", gi_variability: "normal" },
+
+
+            // --- Animal Protein (EXPANDED) ---
+            { id: "egg_whole_boiled", name: "Egg (Whole, Boiled)", category: "animal_protein", unit_key: 'egg', nutrition_per_100g: { calories: 155, protein: 12.6, carbs: 1.1, fats: 10.6, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "The yolk contains healthy fats and essential micronutrients; recommended for most unless strictly advised otherwise.", micronutrients_per_100g: { iron: '1.2 mg', niacin: '0.1 mg', selenium: '31.0 mcg', b6: '0.1 mg', zinc: '1.0 mg', calcium: '50 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "egg_whites", name: "Egg Whites (Boiled)", category: "animal_protein", unit_key: 'egg white', nutrition_per_100g: { calories: 52, protein: 10.9, carbs: 0.7, fats: 0.1, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "A very lean protein source with minimal fat and zero cholesterol.", micronutrients_per_100g: { iron: '0.1 mg', niacin: '0.05 mg', selenium: '15.0 mcg', b6: '0.05 mg', zinc: '0.1 mg', calcium: '7 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "chicken_breast_raw", name: "Chicken Breast (Raw, Skinless)", category: "animal_protein", nutrition_per_100g: { calories: 165, protein: 31.0, carbs: 0.0, fats: 3.6, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '1.0 mg', niacin: '10.8 mg', selenium: '31.0 mcg', b6: '0.5 mg', zinc: '1.0 mg', calcium: '15 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "chicken_curry_plain", name: "Chicken Curry (Plain, meat only)", category: "animal_protein", nutrition_per_100g: { calories: 180, protein: 28.0, carbs: 0.5, fats: 7.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '1.5 mg', niacin: '10.0 mg', selenium: '30.0 mcg', b6: '0.5 mg', zinc: '1.0 mg', calcium: '15 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "chicken_leg_cooked", name: "Chicken Leg Piece (Cooked)", category: "animal_protein", nutrition_per_100g: { calories: 210, protein: 25.0, carbs: 0.0, fats: 12.0, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "Higher fat content than breast meat, contributing to higher calorie density.", micronutrients_per_100g: { iron: '1.5 mg', niacin: '8.0 mg', selenium: '25.0 mcg', b6: '0.4 mg', zinc: '1.5 mg', calcium: '15 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "mutton_lean_cooked", name: "Mutton (Lean, Cooked)", category: "animal_protein", nutrition_per_100g: { calories: 250, protein: 28.0, carbs: 0.0, fats: 15.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '3.0 mg', niacin: '6.0 mg', selenium: '35.0 mcg', b6: '0.2 mg', zinc: '4.0 mg', calcium: '15 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "fish_rohu_raw", name: "Fish (Rohu, Raw)", category: "animal_protein", nutrition_per_100g: { calories: 96, protein: 17.5, carbs: 0.0, fats: 2.3, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.8 mg', niacin: '5.0 mg', selenium: '35.0 mcg', b6: '0.3 mg', zinc: '0.5 mg', calcium: '20 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "fish_curry_generic", name: "Fish Curry (Generic, meat only)", category: "animal_protein", nutrition_per_100g: { calories: 150, protein: 22.0, carbs: 0.5, fats: 6.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '1.0 mg', niacin: '8.0 mg', selenium: '40.0 mcg', b6: '0.3 mg', zinc: '0.8 mg', calcium: '25 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "sardines", name: "Sardines (Canned)", category: "animal_protein", nutrition_per_100g: { calories: 208, protein: 25.0, carbs: 0.0, fats: 11.5, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '2.9 mg', niacin: '10.0 mg', selenium: '50.0 mcg', b6: '0.3 mg', zinc: '1.0 mg', calcium: '380 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "canned_tuna", name: "Canned Tuna (in water)", category: "animal_protein", nutrition_per_100g: { calories: 116, protein: 25.0, carbs: 0.0, fats: 1.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.8 mg', niacin: '12.0 mg', selenium: '45.0 mcg', b6: '0.4 mg', zinc: '0.7 mg', calcium: '15 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "chicken_sausage", name: "Chicken Sausage", category: "animal_protein", nutrition_per_100g: { calories: 250, protein: 15.0, carbs: 4.0, fats: 20.0, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "Processed meat, typically high in sodium and saturated fat.", micronutrients_per_100g: { iron: '1.5 mg', niacin: '4.0 mg', selenium: '15.0 mcg', b6: '0.2 mg', zinc: '2.0 mg', calcium: '15 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "chicken_salami", name: "Chicken Salami", category: "animal_protein", nutrition_per_100g: { calories: 280, protein: 18.0, carbs: 3.0, fats: 22.0, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "Processed meat, typically high in sodium and saturated fat.", micronutrients_per_100g: { iron: '1.0 mg', niacin: '3.0 mg', selenium: '10.0 mcg', b6: '0.2 mg', zinc: '1.5 mg', calcium: '15 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "egg_bhurji", name: "Egg Bhurji (Plain, low oil)", category: "animal_protein", nutrition_per_100g: { calories: 155, protein: 12.0, carbs: 2.0, fats: 11.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '1.2 mg', niacin: '0.1 mg', selenium: '31.0 mcg', b6: '0.1 mg', zinc: '1.0 mg', calcium: '50 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "omelette_plain", name: "Omelette (2 eggs, plain)", category: "animal_protein", nutrition_per_100g: { calories: 150, protein: 12.0, carbs: 1.5, fats: 10.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '1.0 mg', niacin: '0.1 mg', selenium: '30.0 mcg', b6: '0.1 mg', zinc: '0.9 mg', calcium: '40 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "chicken_thigh_raw", name: "Chicken Thigh (Raw, Skinless)", category: "animal_protein", nutrition_per_100g: { calories: 177, protein: 21.0, carbs: 0.0, fats: 9.3, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '1.5 mg', niacin: '8.0 mg', selenium: '25.0 mcg', b6: '0.4 mg', zinc: '1.5 mg', calcium: '15 mg' }, protein_type: "complete", gi_variability: "normal" },
+
+            // --- Fats, Oils & Add-ons (EXPANDED) ---
+            { id: "ghee", name: "Ghee (Clarified Butter)", category: "fats_addons", unit_key: 'tsp', nutrition_per_100g: { calories: 884, protein: 0.0, carbs: 0.0, fats: 99.5, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.0 mg', niacin: '0.0 mg', selenium: '0.1 mcg', b6: '0.0 mg', zinc: '0.0 mg', calcium: '0 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "mustard_oil", name: "Mustard Oil", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 884, protein: 0.0, carbs: 0.0, fats: 100.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.0 mg', niacin: '0.0 mg', selenium: '0.1 mcg', b6: '0.0 mg', zinc: '0.0 mg', calcium: '0 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "sunflower_oil", name: "Sunflower Oil (Refined)", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 884, protein: 0.0, carbs: 0.0, fats: 100.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.0 mg', niacin: '0.0 mg', selenium: '0.1 mcg', b6: '0.0 mg', zinc: '0.0 mg', calcium: '0 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "refined_oil_generic", name: "Refined Vegetable Oil (Generic)", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 884, protein: 0.0, carbs: 0.0, fats: 100.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.0 mg', niacin: '0.0 mg', selenium: '0.1 mcg', b6: '0.0 mg', zinc: '0.0 mg', calcium: '0 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "olive_oil", name: "Olive Oil", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 884, protein: 0.0, carbs: 0.0, fats: 100.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.0 mg', niacin: '0.0 mg', selenium: '0.1 mcg', b6: '0.0 mg', zinc: '0.0 mg', calcium: '0 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "rice_bran_oil", name: "Rice Bran Oil", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 884, protein: 0.0, carbs: 0.0, fats: 100.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.0 mg', niacin: '0.0 mg', selenium: '0.1 mcg', b6: '0.0 mg', zinc: '0.0 mg', calcium: '0 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "peanut_butter", name: "Peanut Butter (Plain)", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 588, protein: 25.0, carbs: 20.0, fats: 50.0, fiber: 6.0 }, gi: { category: "low", range: "30-40" }, reset_assessment: "A dense source of both protein and fat; portion control is vital for calorie management.", micronutrients_per_100g: { iron: '1.9 mg', niacin: '12.0 mg', selenium: '7.0 mcg', b6: '0.5 mg', zinc: '2.5 mg', calcium: '40 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "mayonnaise", name: "Mayonnaise (Generic)", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 680, protein: 1.0, carbs: 3.0, fats: 75.0, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "Primarily composed of fat and high in calories; use sparingly or measure strictly.", micronutrients_per_100g: { iron: '0.2 mg', niacin: '0.1 mg', selenium: '1.0 mcg', b6: '0.01 mg', zinc: '0.1 mg', calcium: '5 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "ketchup", name: "Ketchup / Tomato Sauce", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 100, protein: 1.0, carbs: 25.0, fats: 0.1, fiber: 0.5 }, gi: { category: "medium", range: "45-55" }, reset_assessment: "Contains high levels of added sugar; measure servings carefully.", micronutrients_per_100g: { iron: '0.5 mg', niacin: '0.5 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.2 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "coconut_chutney", name: "Coconut Chutney", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 150, protein: 3.0, carbs: 8.0, fats: 12.0, fiber: 2.0 }, gi: { category: "low", range: null }, reset_assessment: "The primary calorie source is fat from coconut; typically consumed in small quantities.", micronutrients_per_100g: { iron: '1.0 mg', niacin: '1.0 mg', selenium: '1.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '15 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "green_chutney", name: "Green Chutney (Mint/Coriander)", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 50, protein: 2.0, carbs: 5.0, fats: 2.0, fiber: 2.5 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '1.0 mg', niacin: '0.5 mg', selenium: '0.1 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '30 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "chocolate_milk", name: "Chocolate (Milk)", category: "fats_addons", unit_key: 'slice', nutrition_per_100g: { calories: 535, protein: 7.0, carbs: 59.0, fats: 30.0, fiber: 2.0 }, gi: { category: "medium", range: "45-55" }, micronutrients_per_100g: { iron: '2.0 mg', niacin: '0.3 mg', selenium: '4.0 mcg', b6: '0.1 mg', zinc: '0.8 mg', calcium: '150 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "dark_chocolate", name: "Dark Chocolate (70%)", category: "fats_addons", unit_key: 'slice', nutrition_per_100g: { calories: 570, protein: 8.0, carbs: 45.0, fats: 42.0, fiber: 10.0 }, gi: { category: "low", range: "20-30" }, reset_assessment: "Higher fat and fiber than milk chocolate, lower effective sugar content.", micronutrients_per_100g: { iron: '12.0 mg', niacin: '0.5 mg', selenium: '3.0 mcg', b6: '0.1 mg', zinc: '2.0 mg', calcium: '70 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "cream_dairy", name: "Cream (Dairy, Fresh)", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 200, protein: 2.0, carbs: 4.0, fats: 20.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '1.0 mcg', b6: '0.05 mg', zinc: '0.3 mg', calcium: '80 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "malai", name: "Malai (Milk Fat Layer)", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 350, protein: 3.0, carbs: 3.0, fats: 35.0, fiber: 0.0 }, gi: { category: "low", range: null }, reset_assessment: "Very high fat density; a small amount can significantly increase the total calories of a meal.", micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.1 mg', selenium: '1.5 mcg', b6: '0.05 mg', zinc: '0.3 mg', calcium: '80 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "butter", name: "Butter", category: "fats_addons", unit_key: 'tsp', nutrition_per_100g: { calories: 717, protein: 0.9, carbs: 0.1, fats: 81.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.05 mg', niacin: '0.05 mg', selenium: '1.0 mcg', b6: '0.05 mg', zinc: '0.05 mg', calcium: '24 mg' }, protein_type: "complete", gi_variability: "normal" },
+            { id: "coconut_oil", name: "Coconut Oil", category: "fats_addons", unit_key: 'tbsp', nutrition_per_100g: { calories: 884, protein: 0.0, carbs: 0.0, fats: 100.0, fiber: 0.0 }, gi: { category: "low", range: null }, micronutrients_per_100g: { iron: '0.0 mg', niacin: '0.0 mg', selenium: '0.1 mcg', b6: '0.0 mg', zinc: '0.0 mg', calcium: '0 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            
+            // --- Indian Convenience / Invisible Junk (NEW CATEGORY) ---
+            { id: "samosa", name: "Samosa (1 piece)", category: "invisible_junk", unit_key: 'samosa', nutrition_per_100g: { calories: 280, protein: 6.0, carbs: 30.0, fats: 15.0, fiber: 3.0 }, gi: { category: "high", range: "70-85" }, ideal_portion: { min: 100, max: 150, unit: "grams", context: "High energy density from frying and refined flour; limit to 1-2 pieces per sitting." }, reset_assessment: "Combines high GI refined carbs with high fat from deep frying, leading to rapid energy delivery.", micronutrients_per_100g: { iron: '1.5 mg', niacin: '1.5 mg', selenium: '5.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '15 mg' }, protein_type: "complementary", gi_variability: "normal" },
+            { id: "vada_pav", name: "Vada Pav (Vada only)", category: "invisible_junk", unit_key: 'egg', nutrition_per_100g: { calories: 250, protein: 5.0, carbs: 28.0, fats: 14.0, fiber: 3.5 }, gi: { category: "medium", range: "60-70" }, micronutrients_per_100g: { iron: '1.2 mg', niacin: '1.0 mg', selenium: '4.0 mcg', b6: '0.1 mg', zinc: '0.4 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "pav_bhaji_bhaji", name: "Pav Bhaji (Bhaji only)", category: "invisible_junk", unit_key: 'cup', nutrition_per_100g: { calories: 120, protein: 4.0, carbs: 18.0, fats: 3.5, fiber: 4.0 }, gi: { category: "medium", range: "55-65" }, reset_assessment: "A vegetable-based dish, but high carb content is often amplified by large portions of Pav (bread).", micronutrients_per_100g: { iron: '1.5 mg', niacin: '1.0 mg', selenium: '2.0 mcg', b6: '0.1 mg', zinc: '0.6 mg', calcium: '15 mg' }, protein_type: "complementary", gi_variability: "normal" },
+            { id: "pani_puri_puri", name: "Pani Puri (Puri only)", category: "invisible_junk", unit_key: 'puri', nutrition_per_100g: { calories: 500, protein: 7.0, carbs: 65.0, fats: 25.0, fiber: 2.0 }, gi: { category: "high", range: "75-90" }, ideal_portion: { min: 10, max: 20, unit: "grams", context: "Extremely high calorie density due to frying; overall macro contribution is low per piece but high per serving." }, micronutrients_per_100g: { iron: '2.0 mg', niacin: '2.0 mg', selenium: '4.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "biscuit_marie", name: "Biscuit (Marie)", category: "invisible_junk", unit_key: 'biscuit', nutrition_per_100g: { calories: 430, protein: 8.0, carbs: 75.0, fats: 10.0, fiber: 1.0 }, gi: { category: "high", range: "70-80" }, ideal_portion: { min: 15, max: 30, unit: "grams", context: "Refined flour and high sugar; portion control (2-4 biscuits) is essential to limit overall carb load."}, reset_assessment: "Refined flour and high sugar; portion control (2-4 biscuits) is essential to limit overall carb load.", micronutrients_per_100g: { iron: '1.5 mg', niacin: '2.0 mg', selenium: '5.0 mcg', b6: '0.1 mg', zinc: '0.4 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "cream_biscuits", name: "Cream Biscuits (2 pieces)", category: "invisible_junk", unit_key: 'biscuit', nutrition_per_100g: { calories: 480, protein: 6.0, carbs: 70.0, fats: 20.0, fiber: 1.0 }, gi: { category: "high", range: "70-85" }, ideal_portion: { min: 10, max: 20, unit: "grams", context: "High fat, high sugar refined flour product; limit to 1-2 biscuits per serving." }, reset_assessment: "High fat, high sugar refined flour product; limit to 1-2 biscuits per serving.", micronutrients_per_100g: { iron: '1.0 mg', niacin: '1.5 mg', selenium: '4.0 mcg', b6: '0.1 mg', zinc: '0.3 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+            { id: "namkeen_generic", name: "Namkeen (Generic Fried Mix)", category: "invisible_junk", nutrition_per_100g: { calories: 550, protein: 12.0, carbs: 50.0, fats: 30.0, fiber: 5.0 }, gi: { category: "medium", range: "60-70" }, reset_assessment: "A dense mixture of fat and refined carbs; measure portions strictly to avoid excess calorie consumption.", micronutrients_per_100g: { iron: '1.5 mg', niacin: '1.0 mg', selenium: '5.0 mcg', b6: '0.1 mg', zinc: '0.5 mg', calcium: '15 mg' }, protein_type: "complementary", gi_variability: "normal" },
+            { id: "chips_plain_salted", name: "Chips (Plain Salted, Potato)", category: "invisible_junk", nutrition_per_100g: { calories: 536, protein: 6.0, carbs: 50.0, fats: 35.0, fiber: 4.0 }, gi: { category: "high", range: "80-90" }, ideal_portion: { min: 25, max: 50, unit: "grams", context: "Very high GI and high fat content; extremely high energy density in a small volume." }, micronutrients_per_100g: { iron: '0.5 mg', niacin: '3.0 mg', selenium: '5.0 mcg', b6: '0.4 mg', zinc: '0.5 mg', calcium: '10 mg' }, protein_type: "incomplete", gi_variability: "normal" },
+        ];
+
+
+        // 8. UI & LOGIC INTEGRATION
+        const categorySelect = document.getElementById('category-select');
+        const foodSelect = document.getElementById('food-select');
+        const resultsContainer = document.getElementById('results-container');
+        const portionGuidanceDiv = document.getElementById('portion-guidance');
+        const guidanceText = document.getElementById('guidance-text');
+        const resetAssessmentDiv = document.getElementById('reset-assessment');
+        const assessmentText = document.getElementById('assessment-text');
+        const giDisplayBox = document.getElementById('gi-display-box');
+        const proteinContextElement = document.getElementById('protein-context');
+        const proteinQualityLabel = document.getElementById('protein-quality-label'); // TASK 3
+        const portionLabel = document.getElementById('portion-label');
+        const micronutrientGrid = document.getElementById('micronutrient-grid');
+
+
+        // Function to initialize the application
+        function initApp() {
+            populateCategories();
+
+            categorySelect.addEventListener('change', filterFoods);
+            foodSelect.addEventListener('change', handleFoodSelectionChange); 
+
+            foodSelect.disabled = true;
+        }
+
+        // Populates the Category dropdown
+        function populateCategories() {
+            for (const key in FOOD_CATEGORIES) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = FOOD_CATEGORIES[key];
+                categorySelect.appendChild(option);
+            }
+        }
+
+        // Filters foods based on selected category and populates the Food dropdown
+        function filterFoods() {
+            const selectedCategory = categorySelect.value;
+            foodSelect.innerHTML = '<option value="" disabled selected>Select Item</option>';
+            resultsContainer.classList.add('hidden');
+            proteinQualityLabel.textContent = '';
+            
+            // UX FIX: Add clarifying sentence under portion label
+            portionLabel.innerHTML = '100 grams <span class="text-xs font-normal text-gray-500">(All values shown are scaled to 100g edible portion)</span>'; 
+            
+            micronutrientGrid.innerHTML = '';
+
+
+            if (selectedCategory) {
+                const filteredFoods = FOOD_DATA.filter(food => food.category === selectedCategory);
+                filteredFoods.forEach(food => {
+                    const option = document.createElement('option');
+                    option.value = food.id;
+                    
+                    // Display unit weight next to food name
+                    let display_name = food.name;
+                    if (food.unit_key && UNIT_CONVERSIONS[food.unit_key]) {
+                        const unitDisplay = food.unit_key.split(' ')[0]; 
+                        const unitWeight = UNIT_CONVERSIONS[food.unit_key];
+                        display_name += ` (1 ${unitDisplay} ≈ ${unitWeight}g)`;
+                    } else {
+                        // Add 100g label for items without a unit key, to reinforce the default calculation
+                        display_name += ` (100g Base)`;
+                    }
+
+                    option.textContent = display_name;
+                    foodSelect.appendChild(option);
+                });
+                foodSelect.disabled = false;
+            } else {
+                foodSelect.disabled = true;
+            }
+        }
+
+        // Handler to trigger calculation immediately upon food item selection
+        function handleFoodSelectionChange() {
+            const food = FOOD_DATA.find(f => f.id === foodSelect.value);
+            
+            resultsContainer.classList.add('hidden'); 
+            proteinQualityLabel.textContent = '';
+            
+            if (food) {
+                // FIX: ALWAYS default the calculation to 100g, as requested.
+                const defaultGrams = DEFAULT_GRAMS_CALCULATION; 
+                portionLabel.innerHTML = `${defaultGrams} grams <span class="text-xs font-normal text-gray-500">(All values shown are scaled to 100g edible portion)</span>`; 
+
+                // Calculate and display results immediately
+                resultsContainer.classList.remove('hidden');
+                updateResults(food, defaultGrams);
+                updateConditionalDisplays(food, defaultGrams);
+                updateMicronutrients(food); 
+                
+                // FIX 5: Invisible Junk category warning
+                if (food.category === 'invisible_junk') {
+                    // This uses the assessment div for a quick, subtle message
+                    resetAssessmentDiv.classList.remove('hidden');
+                    assessmentText.textContent = "This food is calorie-dense and easy to overconsume.";
+                }
+
+            } else {
+                portionLabel.innerHTML = 'Default Portion';
+                micronutrientGrid.innerHTML = '';
+            }
+        }
+
+
+        function updateResults(food, grams) {
+            const n = food.nutrition_per_100g;
+            const factor = grams / 100;
+
+            document.getElementById('calc-calories').textContent = Math.round(n.calories * factor);
+            document.getElementById('calc-protein').textContent = (n.protein * factor).toFixed(1);
+            document.getElementById('calc-carbs').textContent = (n.carbs * factor).toFixed(1);
+            document.getElementById('calc-fats').textContent = (n.fats * factor).toFixed(1);
+            document.getElementById('calc-fiber').textContent = (n.fiber * factor).toFixed(1);
+        }
+        
+        // TASK 1, 2, 3, 5: Micronutrient display logic with Trace label and suppression for fats/oils
+        function updateMicronutrients(food) {
+            const micros = food.micronutrients_per_100g;
+            const macro = food.nutrition_per_100g;
+            micronutrientGrid.innerHTML = '';
+            
+            // FIX 3: Suppression condition for pure fats/oils
+            const isPureFatOrOil = macro.protein < 2 && macro.carbs < 2;
+            
+            if (isPureFatOrOil) {
+                // Do not render the grid at all for pure fats/oils
+                return;
+            }
+
+            // Keys must match those in MICRO_ACCENT_COLORS and MICRO_EXPLANATIONS, including new Calcium
+            const microKeys = ['iron', 'calcium', 'niacin', 'selenium', 'b6', 'zinc']; 
+
+            microKeys.forEach(key => {
+                const valueString = micros[key];
+                const explanation = MICRO_EXPLANATIONS[key];
+                const color = MICRO_ACCENT_COLORS[key];
+                const title = key.charAt(0).toUpperCase() + key.slice(1);
+                
+                // Parse the value string into a number and unit
+                const match = valueString ? valueString.match(/(\d+\.?\d*)\s*(mg|mcg|g)/) : null;
+                
+                if (match) {
+                    const numericValue = parseFloat(match[1]);
+                    const unit = match[2];
+                    
+                    // Check if the value is zero/negligible (already filtered by data structure for '0 mg' etc. but added safety)
+                    if (numericValue === 0) return;
+
+                    // FIX 1, 2, 5: Apply significance threshold logic
+                    let isSignificant = false;
+                    const threshold = MICRO_THRESHOLDS[key];
+                    
+                    if (threshold) {
+                        // All thresholds are defined in their native units (mg, mcg)
+                        isSignificant = numericValue >= threshold;
+                    }
+
+                    // Append (Trace) if below significance threshold
+                    const displayValue = isSignificant 
+                        ? valueString 
+                        : `${valueString} (Trace)`;
+
+                    const html = `
+                        <div class="bg-gray-50 p-3 rounded-lg shadow-sm border-l-4" style="border-left-color: ${color};">
+                            <p class="text-xs font-medium text-gray-500">${title}</p>
+                            <p class="text-lg font-bold text-gray-900 mt-0.5">${displayValue}</p>
+                            <p class="text-xs text-gray-600 mt-1">${explanation}</p>
+                        </div>
+                    `;
+                    micronutrientGrid.insertAdjacentHTML('beforeend', html);
+                }
+            });
+        }
+
+
+        function updateConditionalDisplays(food, grams) {
+            // --- GI Display Logic (Fix 3: Handle dry fruit GI range display) ---
+            const n = food.nutrition_per_100g;
+            const giCategory = food.gi ? food.gi.category : null;
+            const foodCategory = food.category;
+            const giVariability = food.gi_variability;
+
+            // Show GI only if carb dominant AND NOT a non-starchy vegetable
+            const isCarbDominant = n.carbs >= CARB_DOMINANT_THRESHOLD;
+            const isNonStarchyVeg = foodCategory === 'veg_non_starchy';
+            const shouldShowGI = isCarbDominant && giCategory && !isNonStarchyVeg;
+
+            const giRangeElement = document.getElementById('calc-gi-range');
+
+            if (shouldShowGI) {
+                giDisplayBox.classList.remove('hidden');
+                document.getElementById('calc-gi').textContent = giCategory.charAt(0).toUpperCase() + giCategory.slice(1);
+                
+                // FIX 3: Dynamic Range Display using gi_variability flag
+                if (food.gi.range && giVariability === 'normal') {
+                    giRangeElement.textContent = `Range: ${food.gi.range}`;
+                    giRangeElement.classList.remove('hidden');
+                } else if (giVariability === 'high') {
+                     // For high variability/dried fruits
+                    giRangeElement.textContent = 'Variable / Context-dependent'; 
+                    giRangeElement.classList.remove('hidden');
+                } else {
+                    giRangeElement.textContent = '';
+                    giRangeElement.classList.add('hidden');
+                }
+                
+                // Color coding for GI Category
+                giDisplayBox.style.borderLeftColor = 
+                    giCategory === 'high' ? '#ef4444' : 
+                    giCategory === 'medium' ? '#f59e0b' : 
+                    '#10b981'; // green for low
+            } else {
+                giDisplayBox.classList.add('hidden');
+            }
+
+
+            // --- Portion Guidance Logic ---
+            // Only hide if NOT using it for invisible junk assessment
+            if (food.reset_assessment && food.category !== 'invisible_junk') {
+                resetAssessmentDiv.classList.remove('hidden');
+                assessmentText.textContent = food.reset_assessment;
+            } else if (!food.reset_assessment && food.category !== 'invisible_junk') {
+                resetAssessmentDiv.classList.add('hidden');
+            }
+
+
+            portionGuidanceDiv.classList.add('hidden');
+            if (giCategory === 'high' && n.carbs >= PORTION_GUIDANCE_CARB_MIN && food.ideal_portion) {
+                portionGuidanceDiv.classList.remove('hidden');
+                guidanceText.textContent = `Mechanical Portion Guide (${food.ideal_portion.min}–${food.ideal_portion.max} ${food.ideal_portion.unit}): ${food.ideal_portion.context}`;
+            }
+            
+            // --- TASK 3: Protein Quality Label Display ---
+            const proteinInfo = getProteinQuality(food);
+            proteinQualityLabel.textContent = `Quality: ${proteinInfo.quality} — ${proteinInfo.explanation}`;
+        }
+        
+        // This process automatically attaches the protein quality to the food data for display stability
+        // NOTE: In production code, this is usually done server-side or during build time.
+        FOOD_DATA.forEach(food => {
+             food.protein_quality = getProteinQuality(food);
+        });
+
+        // Initialize the app on page load
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

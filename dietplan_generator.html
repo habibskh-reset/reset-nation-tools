@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Gym Nation - Advanced Diet Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Modern & Scientific Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-primary: #f43f5e;
+            --brand-dark: #0f172a;
+            --data-bg: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #eef2f6; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .brand-font { font-family: 'Montserrat', sans-serif; }
+        .data-font { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+        /* Custom Scrollbar - Scientific Minimalist */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        #pdf-content, #pdf-content * {
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+        
+        /* PREVIEW LAYOUT */
+        .preview-content { 
+            background: white; 
+            width: 210mm; 
+            min-height: 100%;
+            padding: 12mm 15mm 20mm 15mm; 
+            margin: auto; 
+            color: #1e293b;
+            box-sizing: border-box;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .watermark-footer {
+            margin-top: 40px;
+            border-top: 1.5px solid #f1f5f9;
+            padding-top: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 8.5px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* --- VISUAL ELEMENTS --- */
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--brand-dark);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-large { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 24px; 
+            font-weight: 900; 
+            color: var(--brand-dark); 
+            text-transform: uppercase; 
+            line-height: 1.2;
+            letter-spacing: -0.04em;
+        }
+        
+        .section-bar {
+            background-color: var(--data-bg);
+            border-left: 4px solid var(--brand-dark);
+            padding: 8px 14px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #475569;
+            margin-bottom: -1px;
+            display: flex;
+            align-items: center;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 18px;
+            background: white;
+        }
+        
+        .metric-cell {
+            padding: 12px 14px;
+            border-right: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .m-label { font-size: 8px; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 3px; letter-spacing: 0.05em; }
+        .m-value { font-size: 12.5px; font-weight: 700; color: var(--brand-dark); }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            margin-bottom: 18px;
+            border: 1px solid var(--brand-dark);
+            overflow: hidden;
+        }
+        
+        .intake-box {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .timeline-box {
+            background-color: #ffffff;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-left: 1px solid var(--brand-dark);
+        }
+
+        .meal-table, .supp-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 18px;
+        }
+        .meal-table th, .supp-table th {
+            border: 1px solid #e2e8f0;
+            padding: 10px 12px;
+            background-color: #f8fafc;
+            font-size: 9.5px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: left;
+            color: #64748b;
+            letter-spacing: 0.08em;
+        }
+        .meal-table td {
+            border: 1px solid #f1f5f9;
+            padding: 14px 12px;
+            font-size: 12.5px;
+            color: #1e293b;
+            line-height: 1.5;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .supp-table td {
+            border: 1px solid #f1f5f9;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #1e293b;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .m-box {
+            border: 1px solid #e2e8f0;
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: 800;
+            min-width: 55px;
+            text-align: center;
+            background: #fff;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .m-box span { color: var(--brand-primary); margin-right: 4px; font-weight: 600; font-size: 9px; }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            border: 1px solid #e2e8f0;
+        }
+        .footer-box { font-size: 11px; line-height: 1.4; padding: 14px; border-right: 1px solid #e2e8f0; }
+        .footer-box strong { text-transform: uppercase; font-size: 9px; color: var(--brand-dark); display: block; margin-bottom: 6px; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px; letter-spacing: 0.05em; }
+
+        .bmi-status-text { 
+            font-size: 9px; 
+            font-weight: 900; 
+            display: block;
+            margin-top: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- TACTILE PREMIUM BUTTONS --- */
+        .category-pill {
+            cursor: pointer;
+            padding: 7px 15px;
+            font-size: 9px;
+            font-weight: 900;
+            border-radius: 10px;
+            text-transform: uppercase;
+            border: 1.5px solid #f1f5f9;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            color: #475569;
+            letter-spacing: 0.06em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,1);
+            margin-right: 5px;
+            margin-bottom: 7px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .category-pill:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+        .category-pill.active {
+            background: var(--brand-dark);
+            color: white;
+            border-color: var(--brand-dark);
+            box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .food-item-row {
+            @apply flex items-center gap-3 bg-slate-50 p-2.5 rounded-lg border border-slate-100 mb-2 transition-all;
+        }
+        .food-item-row:hover { @apply border-slate-300 bg-white; }
+
+        @media print { 
+            .no-print { display: none !important; } 
+            .preview-content { margin: 0; width: 100%; box-shadow: none; padding: 10mm; border: none; } 
+        }
+
+        .sidebar-header {
+            @apply flex items-center gap-2 mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-800;
+        }
+
+        /* WATERMARK OVERLAY */
+        #watermark-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            display: none;
+            overflow: hidden;
+        }
+        #watermark-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .watermark-text {
+            font-size: 100px;
+            font-weight: 900;
+            color: rgba(15, 23, 42, 0.03);
+            text-transform: uppercase;
+            transform: rotate(-45deg);
+            white-space: nowrap;
+            letter-spacing: 0.2em;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- Admin Header -->
+    <header class="bg-slate-900 text-white p-4 flex justify-between items-center no-print shrink-0 border-b border-slate-800 shadow-2xl z-50">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-gradient-to-tr from-rose-500 to-rose-600 rounded-lg flex items-center justify-center font-black text-white text-base shadow-lg shadow-rose-500/20 text-xs">GN</div>
+            <div>
+                <h1 class="text-sm font-black tracking-[0.2em] uppercase brand-font">The Gym Nation</h1>
+                <p class="text-[9px] text-slate-500 font-bold tracking-widest uppercase mt-0.5">Clinical Dietetics OS <span class="text-rose-400">v5.9</span></p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="downloadPDF()" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-rose-500/20">
+                Export Clinical Report
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- SIDEBAR EDITOR -->
+        <aside class="w-[480px] bg-white border-r overflow-y-auto p-6 no-print flex flex-col gap-8 shadow-sm">
+            
+            <section class="space-y-4">
+                <div class="sidebar-header"><span class="bg-slate-900 text-white px-1.5 py-0.5 rounded text-[8px] data-font">01</span>Member Details</div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Full Identity</label>
+                        <input type="text" id="in-name" value="Habib Shaikh" class="w-full border-slate-200 border p-2.5 rounded-md text-sm font-semibold focus:border-rose-500 outline-none transition-all bg-slate-50 focus:bg-white shadow-inner focus:shadow-none">
+                    </div>
+                    <div><label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Protocol Date</label><input type="date" id="in-date" class="w-full border-slate-200 border p-2.5 rounded-md text-sm font-semibold focus:border-rose-500 bg-slate-50 focus:bg-white"></div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Gender</label>
+                        <select id="in-gender" class="w-full border-slate-200 border p-2.5 rounded-md text-sm font-semibold focus:border-rose-500 bg-slate-50 focus:bg-white" onchange="suggestCalorieTarget()">
+                            <option value="male" selected>Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <div class="sidebar-header"><span class="bg-slate-900 text-white px-1.5 py-0.5 rounded text-[8px] data-font">02</span>Biometric Inputs & Clinical Target</div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div><label class="text-[9px] font-black text-slate-400 uppercase">Age</label><input type="number" id="in-age" value="41" class="w-full border p-2.5 rounded-md text-sm font-bold data-font bg-slate-50" oninput="suggestCalorieTarget()"></div>
+                    <div><label class="text-[9px] font-black text-slate-400 uppercase">Height</label><input type="number" id="in-height" value="173" class="w-full border p-2.5 rounded-md text-sm font-bold data-font bg-slate-50" oninput="suggestCalorieTarget()"></div>
+                    <div><label class="text-[9px] font-black text-slate-400 uppercase">Weight</label><input type="number" id="in-weight" value="82" class="w-full border p-2.5 rounded-md text-sm font-bold data-font bg-slate-50" oninput="suggestCalorieTarget()"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase">Activity PAL</label>
+                        <select id="in-activity" class="w-full border p-2.5 rounded-md text-sm font-bold bg-slate-50" onchange="suggestCalorieTarget()">
+                            <option value="1.2">Sedentary (1.2)</option>
+                            <option value="1.375">Light (1.375)</option>
+                            <option value="1.55" selected>Moderate (1.55)</option>
+                            <option value="1.725">Very Active (1.725)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase">Primary Goal</label>
+                        <select id="in-goal" class="w-full border p-2.5 rounded-md text-sm font-bold bg-slate-50" onchange="suggestCalorieTarget()">
+                            <option value="Fat Loss" selected>Fat Loss</option>
+                            <option value="Muscle Gain">Muscle Gain</option>
+                            <option value="Maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-xl shadow-2xl border border-slate-800 mt-2">
+                    <label class="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-2 block">Desired Daily Caloric Target</label>
+                    <div class="flex items-center gap-4">
+                        <input type="number" id="in-target-kcal" value="1800" class="flex-1 bg-transparent border-b-2 border-rose-500 text-white font-black text-2xl outline-none py-1 data-font tracking-tighter" oninput="updatePreview()">
+                        <span class="text-slate-500 font-bold text-xs uppercase">Kcal / Day</span>
+                    </div>
+                    <div id="calorie-logic-hint" class="text-[8px] text-slate-400 mt-2 font-bold uppercase tracking-widest italic">Calculated based on TDEE logic</div>
+                </div>
+            </section>
+
+            <!-- REPORT SETTINGS -->
+            <section class="space-y-4">
+                <div class="sidebar-header"><span class="bg-slate-900 text-white px-1.5 py-0.5 rounded text-[8px] data-font">03</span>Report Branding Settings</div>
+                <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg shadow-inner">
+                    <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Apply Clinical Watermark</span>
+                    <button id="toggle-wm" onclick="toggleWatermark()" class="bg-slate-200 text-slate-600 px-4 py-1.5 rounded-full text-[9px] font-black uppercase transition-all shadow-sm">Disabled</button>
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <div class="sidebar-header"><span class="bg-slate-900 text-white px-1.5 py-0.5 rounded text-[8px] data-font">04</span>Lifestyle & Metabolic Schedule</div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Wake-Up Time</label><input type="time" id="in-wake" value="06:00" class="w-full border-slate-200 border p-2.5 rounded-md text-sm font-semibold bg-slate-50"></div>
+                    <div><label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Sleep Time</label><input type="time" id="in-sleep" value="22:30" class="w-full border-slate-200 border p-2.5 rounded-md text-sm font-semibold bg-slate-50"></div>
+                    <div><label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Workout Start</label><input type="time" id="in-workout" value="18:00" class="w-full border-slate-200 border p-2.5 rounded-md text-sm font-semibold bg-slate-50"></div>
+                    <div><label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Duration (mins)</label><input type="number" id="in-workout-duration" value="60" class="w-full border-slate-200 border p-2.5 rounded-md text-sm font-semibold bg-slate-50"></div>
+                    <div class="col-span-2">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Dietary Preference</label>
+                        <select id="in-diet-pref" class="w-full border-slate-200 border p-2.5 rounded-md text-sm font-semibold bg-slate-50">
+                            <option value="non-veg" selected>Non-Vegetarian (All Sources)</option>
+                            <option value="veg">Vegetarian (No Meat/Eggs)</option>
+                            <option value="eggetarian">Eggetarian (Veg + Eggs)</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="generateSmartPlan()" class="w-full bg-rose-600 text-white py-3 font-black rounded-lg hover:bg-rose-700 transition-all uppercase tracking-widest text-[10px] shadow-xl active:scale-95">🚀 Generate Smart Protocol</button>
+            </section>
+
+            <section class="flex flex-col gap-5">
+                <div class="sidebar-header !mb-0"><span class="bg-slate-900 text-white px-1.5 py-0.5 rounded text-[8px] data-font">05</span>Dietary Engineering (Manual Override)</div>
+                <div id="meal-container" class="space-y-6"></div>
+                <button onclick="addMealRow()" class="w-full bg-slate-900 text-white py-3.5 font-black rounded-lg hover:bg-black transition-all uppercase tracking-[0.15em] shadow-xl text-[10px] active:scale-95">+ Add New Metabolism Slot</button>
+            </section>
+
+            <section class="space-y-4">
+                <div class="flex justify-between alignment-center">
+                    <div class="sidebar-header !mb-0"><span class="bg-slate-900 text-white px-1.5 py-0.5 rounded text-[8px] data-font">06</span>Micronutrient Protocol</div>
+                    <div class="flex gap-2">
+                        <button onclick="autoSuggestMicros()" class="text-[9px] bg-emerald-600 text-white px-3 py-1.5 font-black rounded hover:bg-emerald-700 transition uppercase tracking-tighter shadow-sm">Auto Suggest</button>
+                        <button onclick="addSuppRow()" class="text-[9px] bg-sky-600 text-white px-3 py-1.5 font-black rounded hover:bg-sky-700 transition uppercase tracking-tighter shadow-sm">+ Manual</button>
+                    </div>
+                </div>
+                <div id="supp-container" class="space-y-3"></div>
+            </section>
+
+            <section class="space-y-4 pb-16">
+                <div class="sidebar-header"><span class="bg-slate-900 text-white px-1.5 py-0.5 rounded text-[8px] data-font">07</span>Clinical Guidelines</div>
+                <textarea id="in-notes" rows="6" class="w-full border-slate-200 border p-3 rounded-lg text-sm font-medium outline-none focus:border-rose-500 transition-all bg-slate-50 focus:bg-white resize-none">Target Water Intake: 3-4L Daily. Minimum 7-9 hours sleep required. Prioritize consistent meal timings for optimal metabolic health.</textarea>
+            </section>
+        </aside>
+
+        <!-- REPORT PREVIEW -->
+        <div class="flex-1 overflow-auto bg-[#dae1e7] p-10 flex justify-center">
+            <div id="pdf-content" class="preview-content">
+                <!-- WATERMARK -->
+                <div id="watermark-overlay"><div class="watermark-text">THE GYM NATION</div></div>
+
+                <!-- Clinical Header -->
+                <div class="report-header">
+                    <div class="flex flex-col items-center gap-2">
+                        <img src="logo.png" alt="Logo" class="h-16 w-auto" onerror="this.style.display='none'; this.setAttribute('data-html2canvas-ignore', 'true');">
+                        <div class="logo-large brand-font text-slate-900">THE GYM NATION</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[16px] font-black uppercase text-rose-600 tracking-tighter italic">Diet & Nutrition Plan</div>
+                    </div>
+                </div>
+
+                <div class="section-bar">Member Profile</div>
+                <div class="metrics-grid">
+                    <div class="metric-cell col-span-2">
+                        <span class="m-label">Name</span>
+                        <span class="m-value uppercase text-rose-600 tracking-tight" id="out-name">--</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Gender</span>
+                        <span class="m-value data-font" id="out-gender-display">--</span>
+                    </div>
+                    <div class="metric-cell no-border-r">
+                        <span class="m-label">Date</span>
+                        <span class="m-value text-sky-600 data-font" id="out-report-date">--</span>
+                    </div>
+
+                    <div class="metric-cell border-t">
+                        <span class="m-label">Age</span>
+                        <span class="m-value data-font" id="out-age">--</span>
+                    </div>
+                    <div class="metric-cell border-t">
+                        <span class="m-label">Height (cms)</span>
+                        <span class="m-value data-font" id="out-height">--</span>
+                    </div>
+                    <div class="metric-cell border-t">
+                        <span class="m-label">Weight (kgs)</span>
+                        <span class="m-value data-font" id="out-weight">--</span>
+                    </div>
+                    <div class="metric-cell border-t no-border-r">
+                        <span class="m-label">Goal</span>
+                        <span class="m-value brand-accent uppercase italic" id="out-goal">--</span>
+                    </div>
+
+                    <div class="metric-cell border-t">
+                        <span class="m-label">BMI (Body Mass Index)</span>
+                        <div class="flex flex-col">
+                            <span class="m-value data-font" id="out-bmi">--</span>
+                            <span class="bmi-status-text" id="out-bmi-status">--</span>
+                        </div>
+                    </div>
+                    <div class="metric-cell border-t">
+                        <span class="m-label">IBW (Ideal Body Weight)</span>
+                        <span class="m-value text-amber-600 data-font" id="out-ibw">--</span>
+                    </div>
+                    <div class="metric-cell border-t">
+                        <span class="m-label">BMR (Basal Metabolic Rate)</span>
+                        <span class="m-value data-font" id="out-bmr">--</span>
+                    </div>
+                    <div class="metric-cell border-t no-border-r">
+                        <span class="m-label">TDEE (Total Daily Energy Expenditure)</span>
+                        <span class="m-value data-font" id="out-tdee">--</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-container">
+                    <div class="intake-box">
+                        <div>
+                            <div class="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Prescribed Daily Caloric Intake</div>
+                            <div class="text-4xl font-black mt-1 leading-none text-white flex items-baseline gap-2">
+                                <span id="out-target" class="data-font tracking-tighter">0</span> 
+                                <span class="text-[12px] font-bold text-slate-400 uppercase">kcal</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-6 border-l border-slate-700 pl-8 text-right">
+                            <div><div class="text-[8px] font-black text-rose-400 uppercase tracking-widest">Protein</div><div class="text-xl font-black text-white data-font"><span id="out-p">0</span>g</div></div>
+                            <div><div class="text-[8px] font-black text-sky-400 uppercase tracking-widest">Fats</div><div class="text-xl font-black text-white data-font"><span id="out-f">0</span>g</div></div>
+                            <div><div class="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Carbs</div><div class="text-xl font-black text-white data-font"><span id="out-c">0</span>g</div></div>
+                        </div>
+                    </div>
+                    <div class="timeline-box">
+                        <div class="text-[8px] font-black text-slate-400 uppercase mb-1 tracking-widest">Compliance Timeline</div>
+                        <div class="text-[13px] font-black text-rose-600 uppercase leading-tight" id="out-progress-text">Analyzing Balance...</div>
+                        <div class="mt-2 h-1 w-full bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-500 w-1/3"></div></div>
+                    </div>
+                </div>
+
+                <div class="section-bar">Dietary Programming & Nutrient Distribution</div>
+                <table class="meal-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 14%">Slot Time</th>
+                            <th style="width: 46%">Nutrient Selection & Protocol Logic</th>
+                            <th style="width: 30%">Macronutrients (g)</th>
+                            <th style="width: 10%; text-align: right">Energy (Kcal)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="out-meals"></tbody>
+                </table>
+
+                <div class="section-bar">Essential Micronutrient & Supplementation</div>
+                <table class="supp-table">
+                    <thead>
+                        <tr><th style="width: 25%">Timing Window</th><th style="width: 75%">Clinical Supplementation Matrix</th></tr>
+                    </thead>
+                    <tbody id="out-supps"></tbody>
+                </table>
+
+                <div class="footer-grid">
+                    <div class="footer-box">
+                        <strong>Clinical Guidelines</strong>
+                        <p id="out-notes" class="leading-relaxed text-slate-600 text-[9.5px]">--</p>
+                    </div>
+                    <div class="footer-box">
+                        <strong>Regulatory Disclosure</strong>
+                        <p class="text-[8px] text-slate-400 italic leading-tight mt-1">
+                            This program is an engineered nutritional guidance framework. Data represents calculated biochemical estimates. Consult a medical professional before starting any high-intensity nutritional or supplementary protocol. Individual metabolic outcomes may vary based on systemic adherence.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-12 border-t border-slate-100 pt-5">
+                    <div class="flex justify-between items-center px-4">
+                        <div class="flex items-center gap-2 text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                            <span class="text-rose-500">🌐</span> www.thegymnation.in
+                        </div>
+                        <div class="flex items-center gap-2 text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                            <span class="text-rose-500">📞</span> 8888-991-786
+                        </div>
+                        <div class="flex items-center gap-2 text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                            <span class="text-rose-500">✍️</span> Signature: Habib Shaikh
+                        </div>
+                    </div>
+                </div>
+
+                <div class="watermark-footer">
+                    <span>Members Exclusive · Non-Transferable · No Sharing Without Permission</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const FOOD_CATEGORIES = {
+            "Proteins": [
+                { name: "Chicken", unit: "g", base: 100, p: 31, f: 3.6, c: 0, type: 'non-veg' },
+                { name: "Fish", unit: "g", base: 100, p: 22, f: 2, c: 0, type: 'non-veg' },
+                { name: "Egg (Whole)", unit: "pc", base: 1, p: 6, f: 5, c: 0.5, type: 'eggetarian' },
+                { name: "Egg White", unit: "pc", base: 1, p: 4, f: 0, c: 0, type: 'eggetarian' },
+                { name: "Paneer", unit: "g", base: 100, p: 20, f: 4, c: 2, type: 'veg' },
+                { name: "Tofu", unit: "g", base: 100, p: 10, f: 5, c: 2, type: 'veg' },
+                { name: "Soya Chunks", unit: "g", base: 50, p: 26, f: 0.2, c: 16, type: 'veg' },
+                { name: "Chana", unit: "g", base: 100, p: 9, f: 2.5, c: 25, type: 'veg' },
+                { name: "Dry Legumes (Rajma, Chickpeas)", unit: "g", base: 100, p: 9, f: 0.6, c: 23, type: 'veg' },
+                { name: "Sprouts (Moong, Matki)", unit: "g", base: 100, p: 7, f: 1, c: 15, type: 'veg' },
+                { name: "Whey Protein", unit: "scoop", base: 1, p: 25, f: 1.5, c: 3, type: 'veg' },
+                { name: "Creatine", unit: "g", base: 5, p: 0, f: 0, c: 0, type: 'veg' }
+            ],
+            "Grains": [
+                { name: "White Rice", unit: "g", base: 100, p: 2.7, f: 0.3, c: 28, type: 'veg' },
+                { name: "Brown Rice", unit: "g", base: 100, p: 2.6, f: 0.9, c: 23, type: 'veg' },
+                { name: "Oats", unit: "g", base: 50, p: 7, f: 4, c: 33, type: 'veg' },
+                { name: "Quinoa", unit: "g", base: 100, p: 4.4, f: 1.9, c: 21, type: 'veg' },
+                { name: "Multigrain Roti (Jowar, Bajra, etc.)", unit: "pc", base: 1, p: 4, f: 1, c: 25, type: 'veg' },
+                { name: "Wheat Chapati", unit: "pc", base: 1, p: 3, f: 0.5, c: 15, type: 'veg' }
+            ],
+            "Fruits": [
+                { name: "Banana", unit: "pc", base: 1, p: 1.3, f: 0.3, c: 27, type: 'veg' },
+                { name: "Apple", unit: "pc", base: 1, p: 0.5, f: 0.3, c: 25, type: 'veg' },
+                { name: "Papaya", unit: "g", base: 100, p: 0.5, f: 0.3, c: 11, type: 'veg' },
+                { name: "Watermelon", unit: "g", base: 100, p: 0.6, f: 0.2, c: 8, type: 'veg' },
+                { name: "Orange", unit: "pc", base: 1, p: 1.2, f: 0.2, c: 15, type: 'veg' },
+                { name: "Dates", unit: "pc", base: 1, p: 0.4, f: 0, c: 18, type: 'veg' }
+            ],
+            "Carbs (Slow)": [
+                { name: "Sweet Potato", unit: "g", base: 100, p: 1.6, f: 0.1, c: 20, type: 'veg' },
+                { name: "Millet", unit: "g", base: 100, p: 11, f: 4, c: 73, type: 'veg' },
+                { name: "Sweet Corn", unit: "g", base: 100, p: 3.3, f: 1.4, c: 19, type: 'veg' }
+            ],
+            "Vegetables": [
+                { name: "Salad", unit: "g", base: 100, p: 1, f: 0.2, c: 4, type: 'veg' },
+                { name: "Mixed Vegetables (Spinach, Bottle Gourd, Lady Finger)", unit: "g", base: 100, p: 2, f: 0.2, c: 5, type: 'veg' }
+            ],
+            "Dairy": [
+                { name: "Curd", unit: "g", base: 100, p: 4, f: 1.5, c: 5, type: 'veg' },
+                { name: "Yogurt", unit: "g", base: 100, p: 10, f: 0, c: 3.6, type: 'veg' },
+                { name: "Buttermilk", unit: "ml", base: 200, p: 3.2, f: 1, c: 5, type: 'veg' },
+                { name: "Skimmed Milk", unit: "ml", base: 100, p: 3.4, f: 0.1, c: 5, type: 'veg' },
+                { name: "Soy Milk", unit: "ml", base: 100, p: 3.3, f: 1.8, c: 1.8, type: 'veg' }
+            ],
+            "Nuts & Seeds": [
+                { name: "Peanuts", unit: "g", base: 28, p: 7, f: 14, c: 5, type: 'veg' },
+                { name: "Almonds", unit: "pc", base: 10, p: 2.5, f: 6, c: 2.5, type: 'veg' },
+                { name: "Walnuts", unit: "pc", base: 5, p: 2.2, f: 9, c: 1.9, type: 'veg' },
+                { name: "Mixed Seeds (Flax, Chia, Pumpkin, Sunflower)", unit: "tsp", base: 1, p: 2, f: 4, c: 2, type: 'veg' }
+            ],
+            "Fats": [
+                { name: "Extra Virgin Olive / Coconut Oil", unit: "tsp", base: 1, p: 0, f: 4.5, c: 0, type: 'veg' },
+                { name: "Ghee", unit: "tsp", base: 1, p: 0, f: 4.5, c: 0, type: 'veg' },
+                { name: "Peanut Butter", unit: "tbsp", base: 1, p: 4, f: 8, c: 3, type: 'veg' }
+            ],
+            "Beverages": [
+                { name: "Black Tea", unit: "cup", base: 1, p: 0, f: 0, c: 0.5, type: 'veg' },
+                { name: "Green Tea", unit: "cup", base: 1, p: 0, f: 0, c: 0, type: 'veg' },
+                { name: "Black Coffee", unit: "cup", base: 1, p: 0, f: 0, c: 0.5, type: 'veg' }
+            ]
+        };
+
+        const _getVal = (id) => document.getElementById(id)?.value || "";
+        const _getNum = (id) => parseFloat(_getVal(id)) || 0;
+        const _setTxt = (id, v) => { if(document.getElementById(id)) document.getElementById(id).textContent = v; };
+
+        function suggestCalorieTarget() {
+            const w = _getNum('in-weight');
+            const h = _getNum('in-height');
+            const age = _getNum('in-age');
+            const gen = _getVal('in-gender');
+            const activity = _getNum('in-activity');
+            const goal = _getVal('in-goal');
+
+            if (!w || !h || !age) return;
+
+            let bmr = (10 * w) + (6.25 * h) - (5 * age);
+            bmr += (gen === 'male' ? 5 : -161);
+            const tdee = Math.round(bmr * activity);
+
+            let target = tdee;
+            if (goal === 'Fat Loss') target -= 500;
+            if (goal === 'Muscle Gain') target += 300;
+
+            document.getElementById('in-target-kcal').value = target;
+            const hint = document.getElementById('calorie-logic-hint');
+            const diff = target - tdee;
+            hint.textContent = `${goal} Target: ${target} Kcal (${diff > 0 ? '+' : ''}${diff} from TDEE)`;
+            
+            updatePreview();
+        }
+
+        function toggleWatermark() {
+            const btn = document.getElementById('toggle-wm');
+            const overlay = document.getElementById('watermark-overlay');
+            const isActive = overlay.classList.toggle('active');
+            
+            if (isActive) {
+                btn.textContent = "Enabled";
+                btn.classList.add('bg-emerald-600', 'text-white');
+                btn.classList.remove('bg-slate-200', 'text-slate-600');
+            } else {
+                btn.textContent = "Disabled";
+                btn.classList.add('bg-slate-200', 'text-slate-600');
+                btn.classList.remove('bg-emerald-600', 'text-white');
+            }
+        }
+
+        function updatePreview() {
+            const w = _getNum('in-weight');
+            const h = _getNum('in-height');
+            const age = _getNum('in-age');
+            const gen = _getVal('in-gender');
+            const activity = _getNum('in-activity');
+
+            let bmr = (10 * w) + (6.25 * h) - (5 * age);
+            bmr += (gen === 'male' ? 5 : -161);
+            bmr = Math.round(bmr);
+            const tdee = Math.round(bmr * activity);
+            const bmi = (h > 0) ? (w / ((h/100) ** 2)).toFixed(1) : 0;
+            const ibw = gen === 'male' ? (h - 100) : (h - 105);
+
+            _setTxt('out-name', _getVal('in-name').toUpperCase());
+            _setTxt('out-gender-display', gen.toUpperCase());
+            _setTxt('out-age', age);
+            _setTxt('out-height', h);
+            _setTxt('out-weight', w);
+            _setTxt('out-goal', _getVal('in-goal'));
+            _setTxt('out-bmi', bmi);
+            _setTxt('out-ibw', `${ibw} kg`);
+            _setTxt('out-bmr', bmr);
+            _setTxt('out-tdee', tdee);
+            _setTxt('out-notes', _getVal('in-notes'));
+
+            const d = _getVal('in-date');
+            _setTxt('out-report-date', d ? new Date(d).toLocaleDateString('en-GB') : '--');
+
+            const bmiStatus = document.getElementById('out-bmi-status');
+            if(bmiStatus) {
+                if (bmi < 18.5) { bmiStatus.textContent = "Underweight"; bmiStatus.style.color = "#0ea5e9"; }
+                else if (bmi < 25) { bmiStatus.textContent = "Optimal"; bmiStatus.style.color = "#10b981"; }
+                else if (bmi < 30) { bmiStatus.textContent = "Elevated"; bmiStatus.style.color = "#f59e0b"; }
+                else { bmiStatus.textContent = "High Risk"; bmiStatus.style.color = "#ef4444"; }
+            }
+
+            renderDynamicMeals(tdee, w, ibw);
+            renderSupps();
+        }
+
+        function addMealRow(data = null) {
+            const container = document.getElementById('meal-container');
+            const mealId = 'meal-' + Date.now() + Math.random().toString(36).substr(2, 5);
+            const el = document.createElement('div');
+            el.className = "meal-input-card group transition hover:border-rose-300";
+            el.id = mealId;
+            
+            let categories = Object.keys(FOOD_CATEGORIES);
+            let catHTML = categories.map((cat) => {
+                return `<button onclick="setActiveCategory('${mealId}', '${cat}')" class="category-pill">${cat}</button>`;
+            }).join('');
+
+            el.innerHTML = `
+                <button onclick="document.getElementById('${mealId}').remove(); updatePreview()" class="absolute -top-2 -right-2 bg-slate-800 text-white w-6 h-6 rounded-full flex items-center justify-center transition shadow-lg z-10 hover:bg-black text-xs font-bold">×</button>
+                <div class="flex items-center gap-3 mb-4 border-b pb-3">
+                    <input type="text" class="m-time w-28 border-slate-200 border p-1.5 rounded-sm font-bold bg-slate-50 outline-none focus:border-rose-500 text-xs shadow-inner" placeholder="Time" value="${data?.time || ''}">
+                    <div class="flex-1 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Nutrient Matrix</div>
+                </div>
+                <div class="food-sources-list space-y-2 mb-4"></div>
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4 shadow-inner">
+                    <div class="flex items-center flex-wrap gap-1 mb-3">${catHTML}</div>
+                    <div class="flex gap-2">
+                        <select class="food-select flex-1 border-slate-200 border p-2 rounded text-[10px] font-bold outline-none focus:border-rose-500 bg-white">
+                            <option value="">Select Biological Category</option>
+                        </select>
+                        <button onclick="addFoodToMeal('${mealId}')" class="bg-slate-900 text-white px-4 py-2 rounded text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-md">Add Source</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-4 gap-3 border-t pt-4 text-center">
+                    <div class="flex flex-col"><label class="text-[7px] font-black text-rose-500 uppercase mb-1">PRO (g)</label><input type="number" class="m-p w-full border-none p-0 text-xs font-bold text-rose-600 outline-none bg-transparent text-center data-font" readonly value="0"></div>
+                    <div class="flex flex-col"><label class="text-[7px] font-black text-sky-500 uppercase mb-1">LIP (g)</label><input type="number" class="m-f w-full border-none p-0 text-xs font-bold text-sky-600 outline-none bg-transparent text-center data-font" readonly value="0"></div>
+                    <div class="flex flex-col"><label class="text-[7px] font-black text-emerald-500 uppercase mb-1">GLY (g)</label><input type="number" class="m-c w-full border-none p-0 text-xs font-bold text-emerald-600 outline-none bg-transparent text-center data-font" readonly value="0"></div>
+                    <div class="flex flex-col text-right"><label class="text-[7px] font-black text-slate-400 uppercase mb-1">Energy (kcal)</label><input type="number" class="m-kcal w-full border-none p-0 text-xs font-black text-slate-900 outline-none bg-transparent text-center data-font" readonly value="0"></div>
+                </div>
+            `;
+            container.appendChild(el);
+            el.querySelector('.m-time').addEventListener('input', updatePreview);
+
+            if (data?.items) {
+                data.items.forEach(item => {
+                    addFoodToMeal(mealId, item.name, item.qty);
+                });
+            }
+        }
+
+        function setActiveCategory(mealId, category) {
+            const card = document.getElementById(mealId);
+            const select = card.querySelector('.food-select');
+            const buttons = card.querySelectorAll('.category-pill');
+            buttons.forEach(btn => btn.classList.toggle('active', btn.textContent === category));
+            select.innerHTML = `<option value="">Select ${category} source...</option>`;
+            FOOD_CATEGORIES[category].forEach(food => {
+                const opt = document.createElement('option');
+                opt.value = food.name;
+                opt.textContent = food.name;
+                select.appendChild(opt);
+            });
+        }
+
+        function addFoodToMeal(mealId, foodNameOverride = null, qtyOverride = null) {
+            const card = document.getElementById(mealId);
+            const select = card.querySelector('.food-select');
+            const foodName = foodNameOverride || select.value;
+            if(!foodName) return;
+            let f = null;
+            for(let cat in FOOD_CATEGORIES) { f = FOOD_CATEGORIES[cat].find(x => x.name === foodName); if(f) break; }
+            if(!f) return;
+            const list = card.querySelector('.food-sources-list');
+            const itemId = 'item-' + Date.now() + Math.random().toString(36).substr(2, 5);
+            const row = document.createElement('div');
+            row.className = "food-item-row";
+            row.id = itemId;
+            row.dataset.p = f.p; row.dataset.f = f.f; row.dataset.c = f.c; row.dataset.base = f.base;
+            row.innerHTML = `
+                <div class="flex-1 min-w-0"><div class="text-[11px] font-bold text-slate-900 truncate tracking-tight">${f.name}</div></div>
+                <div class="flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded shadow-sm">
+                    <input type="number" value="${qtyOverride || f.base}" class="item-size w-12 border-none p-0 text-[11px] text-center font-black focus:ring-0 data-font" oninput="calculateMealTotals('${mealId}')">
+                    <span class="text-[8px] text-slate-400 font-black uppercase">${f.unit}</span>
+                </div>
+                <button onclick="document.getElementById('${itemId}').remove(); calculateMealTotals('${mealId}')" class="text-slate-300 hover:text-rose-500 px-1 font-bold text-base transition-colors">×</button>
+            `;
+            list.appendChild(row);
+            calculateMealTotals(mealId);
+        }
+
+        function calculateMealTotals(mealId) {
+            const card = document.getElementById(mealId);
+            let p = 0, f = 0, c = 0;
+            card.querySelectorAll('.food-item-row').forEach(row => {
+                const size = parseFloat(row.querySelector('.item-size').value) || 0;
+                const baseVal = parseFloat(row.dataset.base) || 1;
+                const ratio = size / baseVal;
+                p += (parseFloat(row.dataset.p) * ratio); f += (parseFloat(row.dataset.f) * ratio); c += (parseFloat(row.dataset.c) * ratio);
+            });
+            card.querySelector('.m-p').value = Math.round(p);
+            card.querySelector('.m-f').value = Math.round(f);
+            card.querySelector('.m-c').value = Math.round(c);
+            card.querySelector('.m-kcal').value = Math.round((p*4) + (f*9) + (c*4));
+            updatePreview();
+        }
+
+        function renderDynamicMeals(tdee, weight, ibw) {
+            const tbody = document.getElementById('out-meals');
+            tbody.innerHTML = '';
+            let totalP = 0, totalF = 0, totalC = 0, totalKcal = 0;
+            document.querySelectorAll('.meal-input-card').forEach(card => {
+                const time = card.querySelector('.m-time').value;
+                let sources = [];
+                card.querySelectorAll('.food-item-row').forEach(row => {
+                    const size = row.querySelector('.item-size').value;
+                    const unit = row.querySelector('span').textContent;
+                    const name = row.querySelector('.text-slate-900').textContent;
+                    sources.push(`<span class="font-bold">${size}${unit}</span> ${name}`);
+                });
+                const p = parseFloat(card.querySelector('.m-p').value) || 0;
+                const f = parseFloat(card.querySelector('.m-f').value) || 0;
+                const c = parseFloat(card.querySelector('.m-c').value) || 0;
+                const k = parseInt(card.querySelector('.m-kcal').value) || 0;
+                totalP += p; totalF += f; totalC += c; totalKcal += k;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-bold text-slate-900 data-font text-[10px] uppercase">${time || '--'}</td>
+                    <td class="font-medium text-slate-600 text-[10.5px]">${sources.join(' + ') || '--'}</td>
+                    <td><div class="flex gap-1.5"><div class="m-box"><span>P:</span>${Math.round(p)}</div><div class="m-box"><span>F:</span>${Math.round(f)}</div><div class="m-box"><span>C:</span>${Math.round(c)}</div></div></td>
+                    <td style="text-align: right" class="font-black text-slate-900 data-font text-[11px]">${k}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            _setTxt('out-target', totalKcal);
+            _setTxt('out-p', Math.round(totalP)); _setTxt('out-f', Math.round(totalF)); _setTxt('out-c', Math.round(totalC));
+            const bal = totalKcal - tdee;
+            const prog = document.getElementById('out-progress-text');
+            if (prog) {
+                const goal = _getVal('in-goal');
+                if (goal === 'Maintenance') {
+                    prog.textContent = "Homeostasis Maintenance Strategy";
+                } else if (Math.abs(bal) > 100 && weight > ibw) {
+                    const weeks = (((weight - ibw) * 7700) / (Math.abs(bal) * 7)).toFixed(1);
+                    prog.textContent = `${weeks} Weeks to goal weight`;
+                } else { 
+                    prog.textContent = "Metabolic Equilibrium Detected"; 
+                }
+            }
+        }
+
+        function addSuppRow(data = null) {
+            const container = document.getElementById('supp-container');
+            const id = 'supp-' + Date.now() + Math.random().toString(36).substr(2, 5);
+            const el = document.createElement('div');
+            el.className = "bg-slate-50 border border-slate-200 p-3 rounded-lg relative group transition-all hover:border-sky-400";
+            el.id = id;
+            el.innerHTML = `
+                <button onclick="document.getElementById('${id}').remove(); updatePreview()" class="absolute -top-1 -right-1 bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center opacity-100 transition shadow-sm z-10 hover:bg-black text-xs">×</button>
+                <input type="text" class="s-window w-full border-none bg-transparent font-bold text-slate-900 text-[10px] mb-1 outline-none uppercase tracking-widest" placeholder="Timing Window" value="${data?.window || ''}">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" class="s-name border border-slate-200 p-1.5 rounded text-[10px] font-bold" placeholder="Nutrient" value="${data?.name || ''}">
+                    <input type="text" class="s-dose border border-slate-200 p-1.5 rounded text-[10px]" placeholder="Dose/Purpose" value="${data?.dose || ''}">
+                </div>
+            `;
+            container.appendChild(el);
+            el.querySelectorAll('input').forEach(i => i.addEventListener('input', updatePreview));
+        }
+
+        function autoSuggestMicros() {
+            const container = document.getElementById('supp-container');
+            container.innerHTML = '';
+            addSuppRow({ window: "Post Breakfast", name: "Multivitamin", dose: "1 Cap" });
+            addSuppRow({ window: "Post Breakfast", name: "Calcium", dose: "500mg" });
+            addSuppRow({ window: "Post Breakfast", name: "Vitamin C", dose: "500mg" });
+            addSuppRow({ window: "Post Breakfast", name: "Vitamin E", dose: "400IU" });
+            addSuppRow({ window: "Post Breakfast", name: "Iron / Folate", dose: "As per blood report" });
+            addSuppRow({ window: "Post Dinner", name: "Omega-3", dose: "1000mg" });
+            addSuppRow({ window: "Before Sleep", name: "Magnesium", dose: "300mg" });
+            addSuppRow({ window: "Before Sleep", name: "Zinc", dose: "20mg" });
+            addSuppRow({ window: "Weekly", name: "Vitamin D3", dose: "60k IU" });
+            updatePreview();
+        }
+
+        function renderSupps() {
+            const tbody = document.getElementById('out-supps');
+            tbody.innerHTML = '';
+            const timeOrder = ["Post Breakfast", "Post Dinner", "Before Sleep", "Weekly"];
+            const groups = {};
+            document.querySelectorAll('#supp-container > div').forEach(card => {
+                const window = card.querySelector('.s-window').value || "Other";
+                const name = card.querySelector('.s-name').value;
+                const dose = card.querySelector('.s-dose').value;
+                if(!name) return;
+                if(!groups[window]) groups[window] = [];
+                groups[window].push(`<span class="font-bold text-slate-900">${name}</span> [${dose}]`);
+            });
+            const sortedKeys = Object.keys(groups).sort((a, b) => {
+                let idxA = timeOrder.indexOf(a);
+                let idxB = timeOrder.indexOf(b);
+                if (idxA === -1) idxA = 99;
+                if (idxB === -1) idxB = 99;
+                return idxA - idxB;
+            });
+            sortedKeys.forEach(window => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-black text-rose-500 uppercase text-[9.5px] tracking-widest">${window}</td>
+                    <td class="text-slate-600 font-medium">${groups[window].join(', ')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- REFINED CLINICAL ENGINEERING ENGINE ---
+        function generateSmartPlan() {
+            const container = document.getElementById('meal-container');
+            container.innerHTML = ''; 
+
+            const w = _getNum('in-weight');
+            const h = _getNum('in-height');
+            const age = _getNum('in-age');
+            const gen = _getVal('in-gender');
+            const activity = _getNum('in-activity');
+            const pref = _getVal('in-diet-pref');
+            
+            // Core Target from UI
+            const targetKcal = _getNum('in-target-kcal');
+
+            // Metabolic Scaling Factor (Normalized to 1800kcal baseline)
+            const scalingFactor = targetKcal / 1800;
+
+            // Schedule Logic
+            const wake = _getVal('in-wake');
+            const sleep = _getVal('in-sleep');
+            const workout = _getVal('in-workout');
+
+            const addTime = (t, mins) => {
+                let [hh, mm] = t.split(':').map(Number);
+                let d = new Date(0,0,0, hh, mm + mins);
+                return d.toTimeString().slice(0, 5);
+            };
+
+            const subTime = (t, mins) => {
+                let [hh, mm] = t.split(':').map(Number);
+                let d = new Date(0,0,0, hh, mm - mins);
+                return d.toTimeString().slice(0, 5);
+            };
+
+            // Intelligent Food Selection per Metabolic Window
+            const selectPro = (window) => {
+                if (window === 'breakfast') {
+                    if (pref === 'non-veg' || pref === 'eggetarian') return { name: "Egg (Whole)", qty: Math.round(3 * scalingFactor) };
+                    return { name: "Sprouts (Moong, Matki)", qty: Math.round(100 * scalingFactor) };
+                }
+                if (window === 'lunch') {
+                    if (pref === 'non-veg') return { name: "Chicken", qty: Math.round(150 * scalingFactor) };
+                    return { name: "Paneer", qty: Math.round(150 * scalingFactor) };
+                }
+                if (window === 'post-workout') {
+                    if (pref === 'non-veg' || pref === 'eggetarian') return { name: "Egg White", qty: Math.round(6 * scalingFactor) };
+                    return { name: "Whey Protein", qty: 1 };
+                }
+                if (window === 'dinner') {
+                    if (pref === 'non-veg') return { name: "Fish", qty: Math.round(150 * scalingFactor) };
+                    return { name: "Tofu", qty: Math.round(150 * scalingFactor) };
+                }
+                if (window === 'bedtime') {
+                    if (pref === 'non-veg') return { name: "Casein Protein (Milk/Curd)", qty: 100 };
+                    return { name: "Paneer", qty: Math.round(80 * scalingFactor) };
+                }
+                return { name: "Paneer", qty: Math.round(120 * scalingFactor) };
+            };
+
+            // MEAL 1: Breakfast
+            addMealRow({
+                time: addTime(wake, 60),
+                items: [
+                    selectPro('breakfast'),
+                    { name: "Oats", qty: Math.round(50 * scalingFactor) }
+                ]
+            });
+
+            // MEAL 2: Lunch
+            addMealRow({
+                time: addTime(wake, 300),
+                items: [
+                    selectPro('lunch'),
+                    { name: "White Rice", qty: Math.round(100 * scalingFactor) },
+                    { name: "Salad", qty: 150 }
+                ]
+            });
+
+            // MEAL 3: Pre-Workout (Glucose session prep)
+            addMealRow({
+                time: subTime(workout, 90),
+                items: [
+                    { name: "Sweet Potato", qty: Math.round(150 * scalingFactor) },
+                    { name: "Black Coffee", qty: 1 }
+                ]
+            });
+
+            // MEAL 4: Post-Workout (Rapid Glycogen Recovery)
+            addMealRow({
+                time: addTime(workout, 60),
+                items: [
+                    selectPro('post-workout'),
+                    { name: "Banana", qty: 1 }
+                ]
+            });
+
+            // MEAL 5: Dinner (Muscle Repair phase)
+            addMealRow({
+                time: subTime(sleep, 120),
+                items: [
+                    selectPro('dinner'),
+                    { name: "Mixed Vegetables (Spinach, Bottle Gourd, Lady Finger)", qty: 250 }
+                ]
+            });
+
+            // MEAL 6: Late Night / Bedtime (Anti-Catabolic window)
+            addMealRow({
+                time: subTime(sleep, 30),
+                items: [
+                    { name: "Dry Legumes (Rajma, Chickpeas)", qty: Math.round(100 * scalingFactor) },
+                    { name: "Mixed Seeds (Flax, Chia, Pumpkin, Sunflower)", qty: 1 },
+                    { name: "Extra Virgin Olive / Coconut Oil", qty: 1 }
+                ]
+            });
+
+            updatePreview();
+        }
+
+        async function downloadPDF() {
+            const element = document.getElementById('pdf-content');
+            if (!element) return;
+
+            // Wait for assets and layouts to stabilize (crucial for hosted environments like Netlify)
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const rawName = _getVal('in-name') || 'Member';
+            const cleanName = rawName.trim().replace(/\s+/g, '_');
+            
+            const captureWidthMM = 210;
+            const captureWidthPx = 800; 
+            
+            const originalStyle = element.style.cssText;
+            
+            // Set explicit capture styles to prevent Netlify-specific clipping
+            element.style.width = captureWidthPx + 'px';
+            element.style.padding = '40px'; 
+            element.style.paddingBottom = '80px'; // Extra physical landing zone for footer
+            element.style.margin = '0';
+            element.style.boxShadow = 'none';
+            element.style.height = 'auto'; 
+            
+            void element.offsetHeight; // Force layout reflow
+
+            const elementHeightPx = element.scrollHeight + 20; // +20px safety buffer
+            const heightMM = (elementHeightPx * captureWidthMM) / captureWidthPx;
+
+            const opt = {
+                margin: 0,
+                filename: `${cleanName}_Diet_Plan.pdf`,
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: { 
+                    scale: 3, 
+                    useCORS: true, 
+                    logging: false, 
+                    letterRendering: true,
+                    backgroundColor: '#ffffff',
+                    width: captureWidthPx,
+                    height: elementHeightPx,
+                    windowWidth: captureWidthPx,
+                    windowHeight: elementHeightPx, 
+                    scrollX: 0,
+                    scrollY: 0,
+                    x: 0,
+                    y: 0,
+                    ignoreElements: (node) => {
+                        return node.nodeName === 'IMG' && (!node.complete || node.naturalHeight === 0);
+                    }
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: [captureWidthMM, heightMM],
+                    orientation: 'portrait',
+                    compress: true
+                },
+                pagebreak: { mode: 'avoid-all' }
+            };
+
+            try {
+                await html2pdf().set(opt).from(element).save();
+            } catch (err) {
+                console.error("PDF Export failed:", err);
+            } finally {
+                element.style.cssText = originalStyle;
+            }
+        }
+
+        window.onload = () => {
+            const dateInput = document.getElementById('in-date');
+            if (dateInput) dateInput.valueAsDate = new Date();
+            
+            document.querySelectorAll('aside input, aside select, aside textarea').forEach(el => {
+                el.addEventListener('input', updatePreview);
+            });
+            
+            window.addEventListener('unhandledrejection', function(event) {
+                if (event.reason && event.reason.name === 'DOMException') {
+                    event.preventDefault();
+                }
+            });
+
+            addMealRow();
+            updatePreview();
+        };
+    </script>
+</body>
+</html>

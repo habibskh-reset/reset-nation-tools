@@ -6,6 +6,11 @@
     <title>The Gym Nation - Advanced Diet Planner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Firebase SDKs for Data Persistence -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js" type="module"></script>
+    
     <!-- Modern & Scientific Typography -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
@@ -298,6 +303,7 @@
             </div>
         </div>
         <div class="flex items-center gap-4">
+            <span id="save-indicator" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest opacity-0 transition-opacity duration-300">Autosaving...</span>
             <button onclick="downloadPDF()" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-rose-500/20">
                 Export Clinical Report
             </button>
@@ -431,11 +437,6 @@
                     </div>
                 </div>
 
-                <!-- CLINICAL DISCLAIMER -->
-                <div class="text-[9.5px] text-slate-500 mb-4 px-1 italic">
-                    All food quantities are based on raw weight unless specified otherwise. Values for items like roti are approximate and may vary.
-                </div>
-
                 <div class="section-bar">Member Profile</div>
                 <div class="metrics-grid">
                     <div class="metric-cell col-span-2">
@@ -535,6 +536,10 @@
                 <div class="footer-grid">
                     <div class="footer-box">
                         <strong>Clinical Guidelines</strong>
+                        <!-- Disclaimer moved here per request -->
+                        <p class="text-[9.5px] text-slate-400 mb-2 italic">
+                            All food quantities are based on raw weight unless specified otherwise. Values for items like roti are approximate and may vary.
+                        </p>
                         <p id="out-notes" class="leading-relaxed text-slate-600 text-[9.5px]">--</p>
                     </div>
                     <div class="footer-box">
@@ -566,7 +571,11 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc, collection } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
         const FOOD_CATEGORIES = {
             "Proteins": [
                 { name: "Chicken", unit: "g", base: 100, p: 23, f: 2, c: 0, type: 'non-veg' },
@@ -630,10 +639,139 @@
             ]
         };
 
+        // --- GLOBAL VARIABLES FOR PERSISTENCE ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'gym-nation-v5';
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+        let isRestoring = false;
+
         const _getVal = (id) => document.getElementById(id)?.value || "";
         const _getNum = (id) => parseFloat(_getVal(id)) || 0;
         const _setTxt = (id, v) => { if(document.getElementById(id)) document.getElementById(id).textContent = v; };
 
+        // --- STORAGE LOGIC ---
+        const saveData = async () => {
+            if (!currentUser || isRestoring) return;
+            const indicator = document.getElementById('save-indicator');
+            indicator.style.opacity = '1';
+            
+            const meals = [];
+            document.querySelectorAll('.meal-input-card').forEach(card => {
+                const items = [];
+                card.querySelectorAll('.food-item-row').forEach(row => {
+                    items.push({
+                        name: row.querySelector('.text-slate-900').textContent,
+                        qty: row.querySelector('.item-size').value
+                    });
+                });
+                meals.push({
+                    time: card.querySelector('.m-time').value,
+                    items: items
+                });
+            });
+
+            const supps = [];
+            document.querySelectorAll('#supp-container > div').forEach(card => {
+                supps.push({
+                    window: card.querySelector('.s-window').value,
+                    name: card.querySelector('.s-name').value,
+                    dose: card.querySelector('.s-dose').value
+                });
+            });
+
+            const data = {
+                name: _getVal('in-name'),
+                date: _getVal('in-date'),
+                gender: _getVal('in-gender'),
+                age: _getNum('in-age'),
+                height: _getNum('in-height'),
+                weight: _getNum('in-weight'),
+                activity: _getVal('in-activity'),
+                goal: _getVal('in-goal'),
+                targetKcal: _getNum('in-target-kcal'),
+                wake: _getVal('in-wake'),
+                sleep: _getVal('in-sleep'),
+                workout: _getVal('in-workout'),
+                workoutDuration: _getNum('in-workout-duration'),
+                dietPref: _getVal('in-diet-pref'),
+                notes: _getVal('in-notes'),
+                watermark: document.getElementById('watermark-overlay').classList.contains('active'),
+                meals: meals,
+                supps: supps
+            };
+
+            try {
+                const userDoc = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'settings', 'latest');
+                await setDoc(userDoc, data);
+                setTimeout(() => { indicator.style.opacity = '0'; }, 1000);
+            } catch (err) {
+                console.error("Save failed:", err);
+            }
+        };
+
+        const restoreData = async (user) => {
+            isRestoring = true;
+            try {
+                const userDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'latest');
+                const snap = await getDoc(userDoc);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    document.getElementById('in-name').value = data.name || "";
+                    document.getElementById('in-date').value = data.date || "";
+                    document.getElementById('in-gender').value = data.gender || "male";
+                    document.getElementById('in-age').value = data.age || 0;
+                    document.getElementById('in-height').value = data.height || 0;
+                    document.getElementById('in-weight').value = data.weight || 0;
+                    document.getElementById('in-activity').value = data.activity || "1.55";
+                    document.getElementById('in-goal').value = data.goal || "Fat Loss";
+                    document.getElementById('in-target-kcal').value = data.targetKcal || 1800;
+                    document.getElementById('in-wake').value = data.wake || "06:00";
+                    document.getElementById('in-sleep').value = data.sleep || "22:30";
+                    document.getElementById('in-workout').value = data.workout || "18:00";
+                    document.getElementById('in-workout-duration').value = data.workoutDuration || 60;
+                    document.getElementById('in-diet-pref').value = data.dietPref || "non-veg";
+                    document.getElementById('in-notes').value = data.notes || "";
+                    
+                    if (data.watermark) toggleWatermark();
+                    
+                    document.getElementById('meal-container').innerHTML = '';
+                    if (data.meals) data.meals.forEach(m => addMealRow(m));
+                    else addMealRow();
+
+                    document.getElementById('supp-container').innerHTML = '';
+                    if (data.supps) data.supps.forEach(s => addSuppRow(s));
+
+                    updatePreview();
+                } else {
+                    addMealRow();
+                    updatePreview();
+                }
+            } catch (err) {
+                console.error("Restore failed:", err);
+            }
+            isRestoring = false;
+        };
+
+        // --- AUTH & INIT ---
+        const init = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                restoreData(user);
+            }
+        });
+
+        // --- UI LOGIC ---
         function suggestCalorieTarget() {
             const w = _getNum('in-weight');
             const h = _getNum('in-height');
@@ -658,6 +796,7 @@
             hint.textContent = `${goal} Target: ${target} Kcal (${diff > 0 ? '+' : ''}${diff} from TDEE)`;
             
             updatePreview();
+            saveData();
         }
 
         function toggleWatermark() {
@@ -674,6 +813,7 @@
                 btn.classList.add('bg-slate-200', 'text-slate-600');
                 btn.classList.remove('bg-emerald-600', 'text-white');
             }
+            saveData();
         }
 
         function updatePreview() {
@@ -721,28 +861,28 @@
             const container = document.getElementById('meal-container');
             const mealId = 'meal-' + Date.now() + Math.random().toString(36).substr(2, 5);
             const el = document.createElement('div');
-            el.className = "meal-input-card group transition hover:border-rose-300";
+            el.className = "meal-input-card group transition hover:border-rose-300 relative bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-sm";
             el.id = mealId;
             
             let categories = Object.keys(FOOD_CATEGORIES);
             let catHTML = categories.map((cat) => {
-                return `<button onclick="setActiveCategory('${mealId}', '${cat}')" class="category-pill">${cat}</button>`;
+                return `<button type="button" class="category-pill">${cat}</button>`;
             }).join('');
 
             el.innerHTML = `
-                <button onclick="document.getElementById('${mealId}').remove(); updatePreview()" class="absolute -top-2 -right-2 bg-slate-800 text-white w-6 h-6 rounded-full flex items-center justify-center transition shadow-lg z-10 hover:bg-black text-xs font-bold">×</button>
+                <button type="button" class="absolute -top-2 -right-2 bg-slate-800 text-white w-6 h-6 rounded-full flex items-center justify-center transition shadow-lg z-10 hover:bg-black text-xs font-bold delete-meal">×</button>
                 <div class="flex items-center gap-3 mb-4 border-b pb-3">
-                    <input type="text" class="m-time w-28 border-slate-200 border p-1.5 rounded-sm font-bold bg-slate-50 outline-none focus:border-rose-500 text-xs shadow-inner" placeholder="Time" value="${data?.time || ''}">
+                    <input type="text" class="m-time w-28 border-slate-200 border p-1.5 rounded-sm font-bold bg-white outline-none focus:border-rose-500 text-xs shadow-inner" placeholder="Time" value="${data?.time || ''}">
                     <div class="flex-1 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Nutrient Matrix</div>
                 </div>
                 <div class="food-sources-list space-y-2 mb-4"></div>
-                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4 shadow-inner">
-                    <div class="flex items-center flex-wrap gap-1 mb-3">${catHTML}</div>
+                <div class="bg-white p-3 rounded-lg border border-slate-200 mb-4 shadow-inner">
+                    <div class="flex items-center flex-wrap gap-1 mb-3 cat-container">${catHTML}</div>
                     <div class="flex gap-2">
                         <select class="food-select flex-1 border-slate-200 border p-2 rounded text-[10px] font-bold outline-none focus:border-rose-500 bg-white">
                             <option value="">Select Biological Category</option>
                         </select>
-                        <button onclick="addFoodToMeal('${mealId}')" class="bg-slate-900 text-white px-4 py-2 rounded text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-md">Add Source</button>
+                        <button type="button" class="bg-slate-900 text-white px-4 py-2 rounded text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-md add-source-btn">Add Source</button>
                     </div>
                 </div>
                 <div class="grid grid-cols-4 gap-3 border-t pt-4 text-center">
@@ -753,7 +893,14 @@
                 </div>
             `;
             container.appendChild(el);
-            el.querySelector('.m-time').addEventListener('input', updatePreview);
+            
+            // Re-attach listeners manually for dynamic elements
+            el.querySelector('.delete-meal').addEventListener('click', () => { el.remove(); updatePreview(); saveData(); });
+            el.querySelector('.m-time').addEventListener('input', () => { updatePreview(); saveData(); });
+            el.querySelectorAll('.category-pill').forEach(btn => {
+                btn.addEventListener('click', () => setActiveCategory(mealId, btn.textContent));
+            });
+            el.querySelector('.add-source-btn').addEventListener('click', () => addFoodToMeal(mealId));
 
             if (data?.items) {
                 data.items.forEach(item => {
@@ -793,12 +940,16 @@
             row.innerHTML = `
                 <div class="flex-1 min-w-0"><div class="text-[11px] font-bold text-slate-900 truncate tracking-tight">${f.name}</div></div>
                 <div class="flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded shadow-sm">
-                    <input type="number" value="${qtyOverride || f.base}" class="item-size w-12 border-none p-0 text-[11px] text-center font-black focus:ring-0 data-font" oninput="calculateMealTotals('${mealId}')">
+                    <input type="number" value="${qtyOverride || f.base}" class="item-size w-12 border-none p-0 text-[11px] text-center font-black focus:ring-0 data-font">
                     <span class="text-[8px] text-slate-400 font-black uppercase">${f.unit}</span>
                 </div>
-                <button onclick="document.getElementById('${itemId}').remove(); calculateMealTotals('${mealId}')" class="text-slate-300 hover:text-rose-500 px-1 font-bold text-base transition-colors">×</button>
+                <button type="button" class="text-slate-300 hover:text-rose-500 px-1 font-bold text-base transition-colors delete-item">×</button>
             `;
             list.appendChild(row);
+            
+            row.querySelector('.item-size').addEventListener('input', () => { calculateMealTotals(mealId); saveData(); });
+            row.querySelector('.delete-item').addEventListener('click', () => { row.remove(); calculateMealTotals(mealId); saveData(); });
+
             calculateMealTotals(mealId);
         }
 
@@ -869,7 +1020,7 @@
             el.className = "bg-slate-50 border border-slate-200 p-3 rounded-lg relative group transition-all hover:border-sky-400";
             el.id = id;
             el.innerHTML = `
-                <button onclick="document.getElementById('${id}').remove(); updatePreview()" class="absolute -top-1 -right-1 bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center opacity-100 transition shadow-sm z-10 hover:bg-black text-xs">×</button>
+                <button type="button" class="absolute -top-1 -right-1 bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center transition shadow-sm z-10 hover:bg-black text-xs delete-supp">×</button>
                 <input type="text" class="s-window w-full border-none bg-transparent font-bold text-slate-900 text-[10px] mb-1 outline-none uppercase tracking-widest" placeholder="Timing Window" value="${data?.window || ''}">
                 <div class="grid grid-cols-2 gap-2">
                     <input type="text" class="s-name border border-slate-200 p-1.5 rounded text-[10px] font-bold" placeholder="Nutrient" value="${data?.name || ''}">
@@ -877,7 +1028,8 @@
                 </div>
             `;
             container.appendChild(el);
-            el.querySelectorAll('input').forEach(i => i.addEventListener('input', updatePreview));
+            el.querySelector('.delete-supp').addEventListener('click', () => { el.remove(); updatePreview(); saveData(); });
+            el.querySelectorAll('input').forEach(i => i.addEventListener('input', () => { updatePreview(); saveData(); }));
         }
 
         function autoSuggestMicros() {
@@ -893,6 +1045,7 @@
             addSuppRow({ window: "Before Sleep", name: "Zinc", dose: "20mg" });
             addSuppRow({ window: "Weekly", name: "Vitamin D3", dose: "60k IU" });
             updatePreview();
+            saveData();
         }
 
         function renderSupps() {
@@ -973,45 +1126,86 @@
             addMealRow({ time: subTime(workout, 90), items: [{ name: "Sweet Potato (Raw)", qty: Math.round(150 * scalingFactor) }, { name: "Black Coffee", qty: 1 }] });
             addMealRow({ time: addTime(workout, 60), items: [selectPro('post-workout'), { name: "Banana", qty: 1 }] });
             addMealRow({ time: subTime(sleep, 120), items: [selectPro('dinner'), { name: "Mixed Vegetables", qty: 250 }] });
+            
             updatePreview();
+            saveData();
         }
 
         async function downloadPDF() {
             const element = document.getElementById('pdf-content');
             if (!element) return;
-            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await new Promise(resolve => setTimeout(resolve, 300));
             const rawName = _getVal('in-name') || 'Member';
             const cleanName = rawName.trim().replace(/\s+/g, '_');
-            const captureWidthPx = 800; 
+            
             const originalStyle = element.style.cssText;
+            
+            // Optimization for single-page capture
+            // Force container to capture its full scroll height
+            const captureWidthPx = 800; 
+            const elementHeightPx = element.scrollHeight;
+            
             element.style.width = captureWidthPx + 'px';
+            element.style.height = elementHeightPx + 'px';
             element.style.padding = '40px'; 
-            element.style.paddingBottom = '80px';
             element.style.margin = '0';
             element.style.boxShadow = 'none';
-            element.style.height = 'auto'; 
+            
             void element.offsetHeight; 
-            const elementHeightPx = element.scrollHeight + 20;
+
+            // Convert scroll height px to mm based on standard A4 width (210mm)
             const heightMM = (elementHeightPx * 210) / captureWidthPx;
 
             const opt = {
                 margin: 0,
                 filename: `${cleanName}_Diet_Plan.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { scale: 3, useCORS: true, logging: false, width: captureWidthPx, height: elementHeightPx },
-                jsPDF: { unit: 'mm', format: [210, heightMM], orientation: 'portrait', compress: true }
+                html2canvas: { 
+                    scale: 3, 
+                    useCORS: true, 
+                    logging: false, 
+                    width: captureWidthPx,
+                    height: elementHeightPx,
+                    windowWidth: captureWidthPx,
+                    windowHeight: elementHeightPx
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: [210, heightMM], // Dynamic single page height
+                    orientation: 'portrait', 
+                    compress: true 
+                }
             };
 
-            try { await html2pdf().set(opt).from(element).save(); } catch (err) { console.error("PDF Export failed:", err); } 
-            finally { element.style.cssText = originalStyle; }
+            try { 
+                await html2pdf().set(opt).from(element).save(); 
+            } catch (err) { 
+                console.error("PDF Export failed:", err); 
+            } finally { 
+                element.style.cssText = originalStyle; 
+            }
         }
 
+        // --- EXPOSE FUNCTIONS TO WINDOW ---
+        window.downloadPDF = downloadPDF;
+        window.toggleWatermark = toggleWatermark;
+        window.suggestCalorieTarget = suggestCalorieTarget;
+        window.generateSmartPlan = generateSmartPlan;
+        window.addMealRow = addMealRow;
+        window.addSuppRow = addSuppRow;
+        window.autoSuggestMicros = autoSuggestMicros;
+        window.updatePreview = updatePreview;
+
         window.onload = () => {
-            const dateInput = document.getElementById('in-date');
-            if (dateInput) dateInput.valueAsDate = new Date();
-            document.querySelectorAll('aside input, aside select, aside textarea').forEach(el => el.addEventListener('input', updatePreview));
-            addMealRow();
-            updatePreview();
+            init();
+            
+            document.querySelectorAll('aside input, aside select, aside textarea').forEach(el => {
+                el.addEventListener('input', () => {
+                    updatePreview();
+                    saveData();
+                });
+            });
         };
     </script>
 </body>

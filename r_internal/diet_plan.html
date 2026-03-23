@@ -44,8 +44,9 @@
         .preview-content { 
             background: white; 
             width: 210mm; 
-            min-height: 100%;
-            padding: 12mm 15mm 20mm 15mm; 
+            height: auto;
+            min-height: auto;
+            padding: 12mm 15mm; 
             margin: auto; 
             color: #1e293b;
             box-sizing: border-box;
@@ -57,9 +58,10 @@
         }
 
         .watermark-footer {
-            margin-top: 40px;
+            margin-top: 30px;
             border-top: 1.5px solid #f1f5f9;
             padding-top: 15px;
+            padding-bottom: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1177,7 +1179,7 @@
             btn.innerHTML = 'Exporting...';
             btn.disabled = true;
 
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 800));
             const rawName = _getVal('in-name') || 'Member';
             const cleanName = rawName.trim().replace(/\s+/g, '_');
             
@@ -1202,15 +1204,9 @@
 
             const captureWidthPx = 800; 
             
-            element.style.width = captureWidthPx + 'px';
-            element.style.margin = '0 auto';
-            element.style.padding = '40px';
-            element.style.boxShadow = 'none';
-            element.style.height = 'max-content';
-            
             // Force browser reflow to get actual size
             void element.offsetHeight; 
-            const elementHeightPx = element.scrollHeight;
+            const elementHeightPx = element.getBoundingClientRect().height;
             
             // Add slight padding to bottom to prevent footer cropping
             const heightMM = ((elementHeightPx * 210) / captureWidthPx);
@@ -1222,13 +1218,7 @@
                 html2canvas: { 
                     scale: 2, 
                     useCORS: true, 
-                    logging: false, 
-                    width: captureWidthPx,
-                    height: elementHeightPx,
-                    windowWidth: captureWidthPx,
-                    windowHeight: elementHeightPx,
-                    scrollY: 0,
-                    scrollX: 0
+                    backgroundColor: '#ffffff'
                 },
                 jsPDF: { 
                     unit: 'mm', 

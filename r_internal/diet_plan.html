@@ -1181,36 +1181,9 @@
             const rawName = _getVal('in-name') || 'Member';
             const cleanName = rawName.trim().replace(/\s+/g, '_');
 
-            // 1. Temporarily detach element from scrollable container and attach to body
-            //    so html2canvas can measure/render the full height without clipping.
-            const originalParent = element.parentElement;
-            const placeholder = document.createElement('div');
-            placeholder.style.display = 'none';
-            originalParent.insertBefore(placeholder, element);
-
-            // Apply capture styles directly to the detached element
-            const prevPosition = element.style.position;
-            const prevTop      = element.style.top;
-            const prevLeft     = element.style.left;
-            const prevWidth    = element.style.width;
-            const prevZIndex   = element.style.zIndex;
-            const prevMargin   = element.style.margin;
-            const prevBoxShadow = element.style.boxShadow;
-
-            element.style.position  = 'fixed';
-            element.style.top       = '0';
-            element.style.left      = '0';
-            element.style.width     = '794px';   // ≈ A4 at 96dpi
-            element.style.zIndex    = '-9999';
-            element.style.margin    = '0';
-            element.style.boxShadow = 'none';
-
-            document.body.appendChild(element);
-
-            // Let browser reflow settle
-            await new Promise(r => setTimeout(r, 600));
-
-            const captureHeight = element.scrollHeight;
+            const elementHeightPx = element.getBoundingClientRect().height;
+            const pxToMm = 0.264583;
+            const heightMM = (elementHeightPx * pxToMm) + 5;
 
             const opt = {
                 margin:   0,
@@ -1219,17 +1192,11 @@
                 html2canvas: {
                     scale:       2,
                     useCORS:     true,
-                    backgroundColor: '#ffffff',
-                    width:       794,
-                    height:      captureHeight,
-                    windowWidth: 794,
-                    scrollX:     0,
-                    scrollY:     0,
-                    logging:     false
+                    backgroundColor: '#ffffff'
                 },
                 jsPDF: {
                     unit:        'mm',
-                    format:      [210, Math.ceil((captureHeight / 794) * 210)],
+                    format:      [210, heightMM],
                     orientation: 'portrait'
                 }
             };
@@ -1240,18 +1207,6 @@
                 console.error('PDF Export failed:', err);
                 alert('An error occurred during PDF generation.');
             } finally {
-                // Restore element to its original position in the DOM
-                element.style.position  = prevPosition;
-                element.style.top       = prevTop;
-                element.style.left      = prevLeft;
-                element.style.width     = prevWidth;
-                element.style.zIndex    = prevZIndex;
-                element.style.margin    = prevMargin;
-                element.style.boxShadow = prevBoxShadow;
-
-                originalParent.insertBefore(element, placeholder);
-                placeholder.remove();
-
                 btn.innerHTML = origBtnText;
                 btn.disabled  = false;
             }

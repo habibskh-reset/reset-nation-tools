@@ -304,7 +304,7 @@
         </div>
         <div class="flex items-center gap-4">
             <span id="save-indicator" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest opacity-0 transition-opacity duration-300">Autosaving...</span>
-            <button onclick="downloadPDF()" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-rose-500/20">
+            <button onclick="downloadPDF()" id="pdf-export-btn" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-rose-500/20">
                 Export Clinical Report
             </button>
         </div>
@@ -536,7 +536,6 @@
                 <div class="footer-grid">
                     <div class="footer-box">
                         <strong>Clinical Guidelines</strong>
-                        <!-- Disclaimer moved here per request -->
                         <p class="text-[9.5px] text-slate-400 mb-2 italic">
                             All food quantities are based on raw weight unless specified otherwise. Values for items like roti are approximate and may vary.
                         </p>
@@ -580,21 +579,21 @@
             "Proteins": [
                 { name: "Chicken", unit: "g", base: 100, p: 23, f: 2, c: 0, type: 'non-veg' },
                 { name: "Fish", unit: "g", base: 100, p: 20, f: 5, c: 0, type: 'non-veg' },
-                { name: "Egg (Whole)", unit: "pc", base: 1, p: 6, f: 5, c: 0.5, type: 'eggetarian' },
+                { name: "Egg", unit: "pc", base: 1, p: 6, f: 5, c: 0.5, type: 'eggetarian' },
                 { name: "Egg White", unit: "pc", base: 1, p: 3.5, f: 0, c: 0, type: 'eggetarian' },
-                { name: "Paneer (Full Fat)", unit: "g", base: 100, p: 18, f: 20, c: 2, type: 'veg' },
+                { name: "Paneer", unit: "g", base: 100, p: 18, f: 15, c: 2, type: 'veg' },
                 { name: "Tofu", unit: "g", base: 100, p: 8, f: 4, c: 2, type: 'veg' },
-                { name: "Soya Chunks (Dry)", unit: "g", base: 100, p: 52, f: 1, c: 33, type: 'veg' },
-                { name: "Chana (Raw)", unit: "g", base: 100, p: 19, f: 6, c: 60, type: 'veg' },
-                { name: "Dry Legumes (Raw)", unit: "g", base: 100, p: 24, f: 1, c: 60, type: 'veg' },
+                { name: "Soya Chunks", unit: "g", base: 100, p: 52, f: 1, c: 33, type: 'veg' },
+                { name: "Chana", unit: "g", base: 100, p: 19, f: 6, c: 60, type: 'veg' },
+                { name: "Dry Legumes", unit: "g", base: 100, p: 24, f: 1, c: 60, type: 'veg' },
                 { name: "Sprouts (Moong)", unit: "g", base: 100, p: 8, f: 0.5, c: 15, type: 'veg' },
                 { name: "Whey Protein", unit: "scoop", base: 1, p: 25, f: 1.5, c: 3, type: 'veg' }
             ],
             "Grains": [
-                { name: "White Rice (Raw)", unit: "g", base: 100, p: 7, f: 0.5, c: 78, type: 'veg' },
-                { name: "Brown Rice (Raw)", unit: "g", base: 100, p: 7.5, f: 1, c: 77, type: 'veg' },
-                { name: "Oats (Raw)", unit: "g", base: 100, p: 13, f: 7, c: 66, type: 'veg' },
-                { name: "Quinoa (Raw)", unit: "g", base: 100, p: 14, f: 6, c: 64, type: 'veg' },
+                { name: "White Rice", unit: "g", base: 100, p: 7, f: 0.5, c: 78, type: 'veg' },
+                { name: "Brown Rice", unit: "g", base: 100, p: 7.5, f: 1, c: 77, type: 'veg' },
+                { name: "Oats", unit: "g", base: 100, p: 13, f: 7, c: 66, type: 'veg' },
+                { name: "Quinoa", unit: "g", base: 100, p: 14, f: 6, c: 64, type: 'veg' },
                 { name: "Multigrain Roti", unit: "pc", base: 1, p: 4, f: 1, c: 22, type: 'veg' },
                 { name: "Wheat Chapati", unit: "pc", base: 1, p: 3, f: 0.5, c: 15, type: 'veg' }
             ],
@@ -607,8 +606,8 @@
                 { name: "Dates", unit: "pc", base: 1, p: 0.4, f: 0, c: 18, type: 'veg' }
             ],
             "Carbs (Slow)": [
-                { name: "Sweet Potato (Raw)", unit: "g", base: 100, p: 1.6, f: 0.1, c: 20, type: 'veg' },
-                { name: "Millet (Raw)", unit: "g", base: 100, p: 11, f: 4, c: 73, type: 'veg' },
+                { name: "Sweet Potato", unit: "g", base: 100, p: 1.6, f: 0.1, c: 20, type: 'veg' },
+                { name: "Millet", unit: "g", base: 100, p: 11, f: 4, c: 73, type: 'veg' },
                 { name: "Sweet Corn", unit: "g", base: 100, p: 3.3, f: 1.4, c: 19, type: 'veg' }
             ],
             "Vegetables": [
@@ -635,18 +634,36 @@
             ],
             "Beverages": [
                 { name: "Black Coffee", unit: "cup", base: 1, p: 0, f: 0, c: 0.5, type: 'veg' },
-                { name: "Green Tea", unit: "cup", base: 1, p: 0, f: 0, c: 0, type: 'veg' }
+                { name: "Green Tea", unit: "cup", base: 1, p: 0, f: 0, c: 0, type: 'veg' },
+                { 
+                    name: "Calorie Booster Shake", 
+                    unit: "serving", 
+                    base: 1, 
+                    p: 34, 
+                    f: 20, 
+                    c: 70, 
+                    type: "veg", 
+                    note: "Milk (300ml) + Oats (50g) + Banana (1) + Whey (1 scoop) + Peanut Butter (1 tbsp) + Almonds (10g)" 
+                }
             ]
         };
 
         // --- GLOBAL VARIABLES FOR PERSISTENCE ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'gym-nation-v5';
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        let db = null;
+        let auth = null;
         let currentUser = null;
         let isRestoring = false;
+
+        // SAFE FIREBASE INIT
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+            try {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            } catch (e) { console.warn("Firebase Init Error:", e); }
+        }
 
         const _getVal = (id) => document.getElementById(id)?.value || "";
         const _getNum = (id) => parseFloat(_getVal(id)) || 0;
@@ -654,7 +671,7 @@
 
         // --- STORAGE LOGIC ---
         const saveData = async () => {
-            if (!currentUser || isRestoring) return;
+            if (!currentUser || !db || isRestoring) return;
             const indicator = document.getElementById('save-indicator');
             indicator.style.opacity = '1';
             
@@ -713,6 +730,7 @@
         };
 
         const restoreData = async (user) => {
+            if (!db) return;
             isRestoring = true;
             try {
                 const userDoc = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'latest');
@@ -757,6 +775,12 @@
 
         // --- AUTH & INIT ---
         const init = async () => {
+            if (!auth) {
+                // Not in Canvas or no Firebase config, just setup local state
+                addMealRow();
+                updatePreview();
+                return;
+            }
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
             } else {
@@ -764,12 +788,14 @@
             }
         };
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                restoreData(user);
-            }
-        });
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    restoreData(user);
+                }
+            });
+        }
 
         // --- UI LOGIC ---
         function suggestCalorieTarget() {
@@ -894,7 +920,6 @@
             `;
             container.appendChild(el);
             
-            // Re-attach listeners manually for dynamic elements
             el.querySelector('.delete-meal').addEventListener('click', () => { el.remove(); updatePreview(); saveData(); });
             el.querySelector('.m-time').addEventListener('input', () => { updatePreview(); saveData(); });
             el.querySelectorAll('.category-pill').forEach(btn => {
@@ -977,10 +1002,22 @@
                 const time = card.querySelector('.m-time').value;
                 let sources = [];
                 card.querySelectorAll('.food-item-row').forEach(row => {
-                    const size = row.querySelector('.item-size').value;
+                    const sizeStr = row.querySelector('.item-size').value;
+                    const size = parseFloat(sizeStr) || 0;
                     const unit = row.querySelector('span').textContent;
                     const name = row.querySelector('.text-slate-900').textContent;
-                    sources.push(`<span class="font-bold">${size}${unit}</span> ${name}`);
+                    
+                    let sourceText = `<span class="font-bold">${size}${unit}</span> ${name}`;
+                    
+                    // Display dynamic sub-ingredients breakdown for Calorie Booster Shake
+                    if (name === "Calorie Booster Shake") {
+                        const s = size; // serving multiplier
+                        sourceText += `<span class="block text-[8.5px] text-slate-500 font-medium leading-tight mt-1 mb-1 pl-1.5 border-l-2 border-rose-200">
+                            Includes: Milk (${300*s}ml) + Oats (${50*s}g) + Banana (${1*s}) + Whey (${1*s} scoop) + Peanut Butter (${1*s} tbsp) + Almonds (${10*s}g)
+                        </span>`;
+                    }
+                    
+                    sources.push(sourceText);
                 });
                 const p = parseFloat(card.querySelector('.m-p').value) || 0;
                 const f = parseFloat(card.querySelector('.m-f').value) || 0;
@@ -990,7 +1027,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="font-bold text-slate-900 data-font text-[10px] uppercase">${time || '--'}</td>
-                    <td class="font-medium text-slate-600 text-[10.5px]">${sources.join(' + ') || '--'}</td>
+                    <td class="font-medium text-slate-600 text-[10.5px]">${sources.join(' <br/> ') || '--'}</td>
                     <td><div class="flex gap-1.5"><div class="m-box"><span>P:</span>${Math.round(p)}</div><div class="m-box"><span>F:</span>${Math.round(f)}</div><div class="m-box"><span>C:</span>${Math.round(c)}</div></div></td>
                     <td style="text-align: right" class="font-black text-slate-900 data-font text-[11px]">${k}</td>
                 `;
@@ -1103,12 +1140,12 @@
 
             const selectPro = (window) => {
                 if (window === 'breakfast') {
-                    if (pref === 'non-veg' || pref === 'eggetarian') return { name: "Egg (Whole)", qty: Math.round(3 * scalingFactor) };
+                    if (pref === 'non-veg' || pref === 'eggetarian') return { name: "Egg", qty: Math.round(3 * scalingFactor) };
                     return { name: "Sprouts (Moong)", qty: Math.round(100 * scalingFactor) };
                 }
                 if (window === 'lunch') {
                     if (pref === 'non-veg') return { name: "Chicken", qty: Math.round(150 * scalingFactor) };
-                    return { name: "Paneer (Full Fat)", qty: Math.round(150 * scalingFactor) };
+                    return { name: "Paneer", qty: Math.round(150 * scalingFactor) };
                 }
                 if (window === 'post-workout') {
                     if (pref === 'non-veg' || pref === 'eggetarian') return { name: "Egg White", qty: Math.round(6 * scalingFactor) };
@@ -1121,9 +1158,9 @@
                 return { name: "Tofu", qty: Math.round(120 * scalingFactor) };
             };
 
-            addMealRow({ time: addTime(wake, 60), items: [selectPro('breakfast'), { name: "Oats (Raw)", qty: Math.round(50 * scalingFactor) }] });
-            addMealRow({ time: addTime(wake, 300), items: [selectPro('lunch'), { name: "White Rice (Raw)", qty: Math.round(100 * scalingFactor) }, { name: "Salad", qty: 150 }] });
-            addMealRow({ time: subTime(workout, 90), items: [{ name: "Sweet Potato (Raw)", qty: Math.round(150 * scalingFactor) }, { name: "Black Coffee", qty: 1 }] });
+            addMealRow({ time: addTime(wake, 60), items: [selectPro('breakfast'), { name: "Oats", qty: Math.round(50 * scalingFactor) }] });
+            addMealRow({ time: addTime(wake, 300), items: [selectPro('lunch'), { name: "White Rice", qty: Math.round(100 * scalingFactor) }, { name: "Salad", qty: 150 }] });
+            addMealRow({ time: subTime(workout, 90), items: [{ name: "Sweet Potato", qty: Math.round(150 * scalingFactor) }, { name: "Black Coffee", qty: 1 }] });
             addMealRow({ time: addTime(workout, 60), items: [selectPro('post-workout'), { name: "Banana", qty: 1 }] });
             addMealRow({ time: subTime(sleep, 120), items: [selectPro('dinner'), { name: "Mixed Vegetables", qty: 250 }] });
             
@@ -1135,44 +1172,57 @@
             const element = document.getElementById('pdf-content');
             if (!element) return;
             
+            const btn = document.getElementById('pdf-export-btn');
+            const origBtnText = btn.innerHTML;
+            btn.innerHTML = 'Exporting...';
+            btn.disabled = true;
+
             await new Promise(resolve => setTimeout(resolve, 300));
             const rawName = _getVal('in-name') || 'Member';
             const cleanName = rawName.trim().replace(/\s+/g, '_');
             
             const originalStyle = element.style.cssText;
+            const wrapper = element.parentElement;
+            const origWrapperOverflow = wrapper.style.overflow;
+            const origWrapperHeight = wrapper.style.height;
             
-            // Optimization for single-page capture
-            // Force container to capture its full scroll height
+            // Remove parent constraints to avoid cutoff in generated PDF
+            wrapper.style.overflow = 'visible';
+            wrapper.style.height = 'auto';
+            
             const captureWidthPx = 800; 
+            
+            // Apply safe inline styling instead of absolute positioning to prevent crashes
+            element.style.width = captureWidthPx + 'px';
+            element.style.margin = '0 auto';
+            element.style.padding = '40px';
+            element.style.boxShadow = 'none';
+            element.style.height = 'auto';
+            
+            // Force browser reflow to get actual size
+            void element.offsetHeight; 
             const elementHeightPx = element.scrollHeight;
             
-            element.style.width = captureWidthPx + 'px';
-            element.style.height = elementHeightPx + 'px';
-            element.style.padding = '40px'; 
-            element.style.margin = '0';
-            element.style.boxShadow = 'none';
-            
-            void element.offsetHeight; 
-
-            // Convert scroll height px to mm based on standard A4 width (210mm)
-            const heightMM = (elementHeightPx * 210) / captureWidthPx;
+            // Add slight padding to bottom to prevent footer cropping
+            const heightMM = ((elementHeightPx * 210) / captureWidthPx) + 10;
 
             const opt = {
                 margin: 0,
                 filename: `${cleanName}_Diet_Plan.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: { 
-                    scale: 3, 
+                    scale: 2, 
                     useCORS: true, 
                     logging: false, 
                     width: captureWidthPx,
                     height: elementHeightPx,
-                    windowWidth: captureWidthPx,
-                    windowHeight: elementHeightPx
+                    scrollY: 0,
+                    scrollX: 0
                 },
                 jsPDF: { 
                     unit: 'mm', 
-                    format: [210, heightMM], // Dynamic single page height
+                    // Dynamic height bounds to ensure it stays a single unbroken page
+                    format: [210, Math.max(297, heightMM)], 
                     orientation: 'portrait', 
                     compress: true 
                 }
@@ -1182,8 +1232,14 @@
                 await html2pdf().set(opt).from(element).save(); 
             } catch (err) { 
                 console.error("PDF Export failed:", err); 
+                alert("An error occurred during PDF generation. Please ensure no browser extensions are blocking the export.");
             } finally { 
+                // Restore all styles so the UI returns to normal
                 element.style.cssText = originalStyle; 
+                wrapper.style.overflow = origWrapperOverflow;
+                wrapper.style.height = origWrapperHeight;
+                btn.innerHTML = origBtnText;
+                btn.disabled = false;
             }
         }
 

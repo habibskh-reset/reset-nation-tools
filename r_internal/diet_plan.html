@@ -1182,29 +1182,38 @@
             const cleanName = rawName.trim().replace(/\s+/g, '_');
             
             const originalStyle = element.style.cssText;
-            const wrapper = element.parentElement;
-            const origWrapperOverflow = wrapper.style.overflow;
-            const origWrapperHeight = wrapper.style.height;
             
-            // Remove parent constraints to avoid cutoff in generated PDF
-            wrapper.style.overflow = 'visible';
-            wrapper.style.height = 'auto';
-            
+            // Keep track of parent styles to restore them later
+            // We iterate up the tree to make sure no overflow constraint clips the PDF rendering
+            const parents = [];
+            let curr = element.parentElement;
+            while(curr && curr !== document.documentElement) {
+                parents.push({ 
+                    el: curr, 
+                    overflow: curr.style.overflow, 
+                    height: curr.style.height,
+                    maxHeight: curr.style.maxHeight
+                });
+                curr.style.overflow = 'visible';
+                curr.style.height = 'auto';
+                curr.style.maxHeight = 'none';
+                curr = curr.parentElement;
+            }
+
             const captureWidthPx = 800; 
             
-            // Apply safe inline styling instead of absolute positioning to prevent crashes
             element.style.width = captureWidthPx + 'px';
             element.style.margin = '0 auto';
             element.style.padding = '40px';
             element.style.boxShadow = 'none';
-            element.style.height = 'auto';
+            element.style.height = 'max-content';
             
             // Force browser reflow to get actual size
             void element.offsetHeight; 
             const elementHeightPx = element.scrollHeight;
             
             // Add slight padding to bottom to prevent footer cropping
-            const heightMM = ((elementHeightPx * 210) / captureWidthPx) + 10;
+            const heightMM = ((elementHeightPx * 210) / captureWidthPx);
 
             const opt = {
                 margin: 0,
@@ -1216,13 +1225,15 @@
                     logging: false, 
                     width: captureWidthPx,
                     height: elementHeightPx,
+                    windowWidth: captureWidthPx,
+                    windowHeight: elementHeightPx,
                     scrollY: 0,
                     scrollX: 0
                 },
                 jsPDF: { 
                     unit: 'mm', 
                     // Dynamic height bounds to ensure it stays a single unbroken page
-                    format: [210, Math.max(297, heightMM)], 
+                    format: [210, Math.max(297, heightMM + 5)], // Added small buffer
                     orientation: 'portrait', 
                     compress: true 
                 }
@@ -1236,8 +1247,11 @@
             } finally { 
                 // Restore all styles so the UI returns to normal
                 element.style.cssText = originalStyle; 
-                wrapper.style.overflow = origWrapperOverflow;
-                wrapper.style.height = origWrapperHeight;
+                parents.forEach(p => {
+                    p.el.style.overflow = p.overflow;
+                    p.el.style.height = p.height;
+                    p.el.style.maxHeight = p.maxHeight;
+                });
                 btn.innerHTML = origBtnText;
                 btn.disabled = false;
             }

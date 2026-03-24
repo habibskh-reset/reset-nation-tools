@@ -185,6 +185,7 @@
             font-size: 12px;
             color: #1e293b;
             font-family: 'Inter', sans-serif;
+            line-height: 1.6; /* FIX: Added line-height to fix overlapping text in micros */
         }
 
         .m-box {
@@ -581,7 +582,7 @@
             "Proteins": [
                 { name: "Chicken", unit: "g", base: 100, p: 23, f: 2, c: 0, type: 'non-veg' },
                 { name: "Fish", unit: "g", base: 100, p: 20, f: 5, c: 0, type: 'non-veg' },
-                { name: "Egg", unit: "pc", base: 1, p: 6, f: 5, c: 0.5, type: 'eggetarian' },
+                { name: "Egg Whole", unit: "pc", base: 1, p: 6, f: 5, c: 0.5, type: 'eggetarian' }, // FIX: Renamed Egg to Egg Whole
                 { name: "Egg White", unit: "pc", base: 1, p: 3.5, f: 0, c: 0, type: 'eggetarian' },
                 { name: "Paneer", unit: "g", base: 100, p: 18, f: 15, c: 2, type: 'veg' },
                 { name: "Tofu", unit: "g", base: 100, p: 8, f: 4, c: 2, type: 'veg' },
@@ -688,6 +689,7 @@
                 });
                 meals.push({
                     time: card.querySelector('.m-time').value,
+                    remark: card.querySelector('.m-remark').value, // FIX: Save remark state
                     items: items
                 });
             });
@@ -896,11 +898,13 @@
                 return `<button type="button" class="category-pill">${cat}</button>`;
             }).join('');
 
+            // FIX: Added m-remark input explicitly here for specific meal annotations
             el.innerHTML = `
                 <button type="button" class="absolute -top-2 -right-2 bg-slate-800 text-white w-6 h-6 rounded-full flex items-center justify-center transition shadow-lg z-10 hover:bg-black text-xs font-bold delete-meal">×</button>
-                <div class="flex items-center gap-3 mb-4 border-b pb-3">
-                    <input type="text" class="m-time w-28 border-slate-200 border p-1.5 rounded-sm font-bold bg-white outline-none focus:border-rose-500 text-xs shadow-inner" placeholder="Time" value="${data?.time || ''}">
-                    <div class="flex-1 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Nutrient Matrix</div>
+                <div class="flex items-center gap-2 mb-4 border-b pb-3">
+                    <input type="text" class="m-time w-24 border-slate-200 border p-1.5 rounded-sm font-bold bg-white outline-none focus:border-rose-500 text-xs shadow-inner" placeholder="Time" value="${data?.time || ''}">
+                    <input type="text" class="m-remark flex-1 border-slate-200 border p-1.5 rounded-sm font-semibold bg-white outline-none focus:border-rose-500 text-[10px] shadow-inner" placeholder="Remarks..." value="${data?.remark || ''}">
+                    <div class="text-[8px] font-black text-slate-400 uppercase tracking-widest text-right ml-1">Nutrient Matrix</div>
                 </div>
                 <div class="food-sources-list space-y-2 mb-4"></div>
                 <div class="bg-white p-3 rounded-lg border border-slate-200 mb-4 shadow-inner">
@@ -923,6 +927,7 @@
             
             el.querySelector('.delete-meal').addEventListener('click', () => { el.remove(); updatePreview(); saveData(); });
             el.querySelector('.m-time').addEventListener('input', () => { updatePreview(); saveData(); });
+            el.querySelector('.m-remark').addEventListener('input', () => { updatePreview(); saveData(); }); // FIX: Listener for remarks
             el.querySelectorAll('.category-pill').forEach(btn => {
                 btn.addEventListener('click', () => setActiveCategory(mealId, btn.textContent));
             });
@@ -1001,6 +1006,8 @@
             let totalP = 0, totalF = 0, totalC = 0, totalKcal = 0;
             document.querySelectorAll('.meal-input-card').forEach(card => {
                 const time = card.querySelector('.m-time').value;
+                const remark = card.querySelector('.m-remark')?.value.trim(); // FIX: Read remark for preview
+                
                 let sources = [];
                 card.querySelectorAll('.food-item-row').forEach(row => {
                     const sizeStr = row.querySelector('.item-size').value;
@@ -1024,10 +1031,18 @@
                 const c = parseFloat(card.querySelector('.m-c').value) || 0;
                 const k = parseInt(card.querySelector('.m-kcal').value) || 0;
                 totalP += p; totalF += f; totalC += c; totalKcal += k;
+                
+                let finalSourcesHtml = sources.join(' <br/> ') || '--';
+                
+                // FIX: If remark exists, dynamically append it to the sources list
+                if (remark) {
+                    finalSourcesHtml += `<div class="mt-2 pt-1.5 border-t border-slate-100 text-[10px] text-slate-500 font-bold italic leading-tight"><span class="text-rose-500 mr-1">📝</span>${remark}</div>`;
+                }
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="font-bold text-slate-900 data-font text-[11px] uppercase">${time || '--'}</td>
-                    <td class="font-medium text-slate-700 text-[11.5px]">${sources.join(' <br/> ') || '--'}</td>
+                    <td class="font-medium text-slate-700 text-[11.5px]">${finalSourcesHtml}</td>
                     <td><div class="flex gap-1.5"><div class="m-box"><span>P:</span>${Math.round(p)}</div><div class="m-box"><span>F:</span>${Math.round(f)}</div><div class="m-box"><span>C:</span>${Math.round(c)}</div></div></td>
                     <td style="text-align: right" class="font-black text-slate-900 data-font text-[12px]">${k}</td>
                 `;
@@ -1140,7 +1155,7 @@
 
             const selectPro = (window) => {
                 if (window === 'breakfast') {
-                    if (pref === 'non-veg' || pref === 'eggetarian') return { name: "Egg", qty: Math.round(3 * scalingFactor) };
+                    if (pref === 'non-veg' || pref === 'eggetarian') return { name: "Egg Whole", qty: Math.round(3 * scalingFactor) }; // FIX: Changed Egg to Egg Whole
                     return { name: "Sprouts (Moong)", qty: Math.round(100 * scalingFactor) };
                 }
                 if (window === 'lunch') {

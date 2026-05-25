@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Supplement Priority Pyramid | Reset Nation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Inter for readable body text, Montserrat for punchy, heavy headers -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        appBg: 'var(--bg-app)',
+                        cardBg: 'var(--bg-card)',
+                        inputBg: 'var(--bg-input)',
+                        borderDark: 'var(--border-color)',
+                        textMain: 'var(--text-main)',
+                        textSecondary: 'var(--text-secondary)',
+                        textMuted: 'var(--text-muted)',
+                        textSubtle: 'var(--text-subtle)',
+                        coral: '#ff4a4a',
+                        emeraldTone: '#00b87c',
+                        layer1: '#00c78f',
+                        layer2: '#4f8cff',
+                        layer3: '#f0b90b',
+                        layer4: '#9b6dff',
+                        layer5: '#ff6b6b',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-app: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --text-subtle: #94a3b8;
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --tag-bg: #ffffff;
+            --tag-hover: #f1f5f9;
+            --tag-text: #475569;
+            --tag-text-hover: #0f172a;
+            --tag-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+            --instruction-bg: rgba(241, 245, 249, 0.8);
+            
+            /* Softer Ambient Glows for Light Mode */
+            --glow-5: rgba(255,107,107,0.1);
+            --glow-4: rgba(155,109,255,0.1);
+            --glow-3: rgba(240,185,11,0.1);
+            --glow-2: rgba(79,140,255,0.1);
+            --glow-1: rgba(0,199,143,0.1);
+            --glow-hover-5: rgba(255,107,107,0.2);
+            --glow-hover-4: rgba(155,109,255,0.2);
+            --glow-hover-3: rgba(240,185,11,0.2);
+            --glow-hover-2: rgba(79,140,255,0.2);
+            --glow-hover-1: rgba(0,199,143,0.2);
+            --glow-active-5: rgba(255,107,107,0.3);
+            --glow-active-4: rgba(155,109,255,0.3);
+            --glow-active-3: rgba(240,185,11,0.3);
+            --glow-active-2: rgba(79,140,255,0.3);
+            --glow-active-1: rgba(0,199,143,0.3);
+            --glow-edge: rgba(0,0,0,0.05);
+        }
+
+        .dark {
+            /* Dark Theme Variables */
+            --bg-app: #0f1219;
+            --bg-card: #1a1e29;
+            --bg-input: #11151c;
+            --border-color: #2a303f;
+            --text-main: #ffffff;
+            --text-secondary: #d4d4d8; 
+            --text-muted: #a1a1aa;    
+            --text-subtle: #71717a;   
+            /* Reduced shadow intensity */
+            --shadow-card: 0 15px 30px -10px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.02);
+            --tag-bg: linear-gradient(145deg, #161b22, #11151c);
+            --tag-hover: #1e2430;
+            --tag-text: #d4d4d8;
+            --tag-text-hover: #ffffff;
+            --tag-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.02);
+            --instruction-bg: rgba(24, 24, 27, 0.5); 
+            
+            /* Toned Down Cinematic Glows */
+            --glow-5: rgba(255,107,107,0.15);
+            --glow-4: rgba(155,109,255,0.15);
+            --glow-3: rgba(240,185,11,0.15);
+            --glow-2: rgba(79,140,255,0.15);
+            --glow-1: rgba(0,199,143,0.15);
+            --glow-hover-5: rgba(255,107,107,0.4);
+            --glow-hover-4: rgba(155,109,255,0.4);
+            --glow-hover-3: rgba(240,185,11,0.35);
+            --glow-hover-2: rgba(79,140,255,0.4);
+            --glow-hover-1: rgba(0,199,143,0.4);
+            --glow-active-5: rgba(255,107,107,0.5);
+            --glow-active-4: rgba(155,109,255,0.5);
+            --glow-active-3: rgba(240,185,11,0.45);
+            --glow-active-2: rgba(79,140,255,0.5);
+            --glow-active-1: rgba(0,199,143,0.5);
+            --glow-edge: rgba(255,255,255,0.4);
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .theme-card {
+            background-color: var(--bg-card);
+            border-radius: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-card);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Reduced Logo Glow */
+        .logo-glow {
+            text-shadow: 0 0 10px rgba(255, 74, 74, 0.3), 0 0 20px rgba(255, 74, 74, 0.1);
+        }
+
+        /* --- Educational Pyramid Construction --- */
+        .pyramid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin: 0.5rem 0 1.5rem 0; 
+            width: 100%;
+        }
+
+        .pyramid-wrapper {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pyramid-layer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 64px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.95);
+            /* Slightly softer inner depth */
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.25);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .wrap-5 { filter: drop-shadow(0 0 8px var(--glow-5)); }
+        .wrap-4 { filter: drop-shadow(0 0 8px var(--glow-4)); }
+        .wrap-3 { filter: drop-shadow(0 0 8px var(--glow-3)); }
+        .wrap-2 { filter: drop-shadow(0 0 8px var(--glow-2)); }
+        .wrap-1 { filter: drop-shadow(0 0 8px var(--glow-1)); }
+
+        .layer-5 { 
+            width: 140px; 
+            height: 90px; 
+            background: linear-gradient(135deg, #ff4d5a, #ff6b6b); 
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%); 
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3); 
+            align-items: flex-end; 
+            padding-bottom: 8px;
+        }
+        .layer-4 { width: 220px; background: linear-gradient(135deg, #6d3df5, #9b6dff); clip-path: polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .layer-3 { width: 300px; background: linear-gradient(135deg, #c58a00, #f0b90b); clip-path: polygon(13% 0%, 87% 0%, 100% 100%, 0% 100%); color: #11151c; text-shadow: 0 1px 1px rgba(255,255,255,0.3); } 
+        .layer-2 { width: 380px; background: linear-gradient(135deg, #2563eb, #4f8cff); clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .layer-1 { width: 460px; background: linear-gradient(135deg, #008f68, #00c78f); clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%); border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+
+        @media (hover: hover) {
+            .pyramid-wrapper:hover {
+                transform: scale(1.01) translateY(-1px);
+                z-index: 10;
+            }
+            .wrap-5:hover { filter: drop-shadow(0 0 15px var(--glow-hover-5)); }
+            .wrap-4:hover { filter: drop-shadow(0 0 15px var(--glow-hover-4)); }
+            .wrap-3:hover { filter: drop-shadow(0 0 15px var(--glow-hover-3)); }
+            .wrap-2:hover { filter: drop-shadow(0 0 15px var(--glow-hover-2)); }
+            .wrap-1:hover { filter: drop-shadow(0 0 15px var(--glow-hover-1)); }
+        }
+
+        .pyramid-wrapper.active {
+            transform: scale(1.02) translateY(-1px);
+            z-index: 20;
+        }
+        .wrap-5.active { filter: drop-shadow(0 0 2px var(--glow-edge)) drop-shadow(0 0 20px var(--glow-active-5)); }
+        .wrap-4.active { filter: drop-shadow(0 0 2px var(--glow-edge)) drop-shadow(0 0 20px var(--glow-active-4)); }
+        .wrap-3.active { filter: drop-shadow(0 0 2px var(--glow-edge)) drop-shadow(0 0 20px var(--glow-active-3)); }
+        .wrap-2.active { filter: drop-shadow(0 0 2px var(--glow-edge)) drop-shadow(0 0 20px var(--glow-active-2)); }
+        .wrap-1.active { filter: drop-shadow(0 0 2px var(--glow-edge)) drop-shadow(0 0 20px var(--glow-active-1)); }
+
+        .pyramid-wrapper.active .pyramid-layer {
+            filter: brightness(1.05);
+        }
+
+        @media (max-width: 640px) {
+            .layer-5 { width: 110px; height: 75px; padding-bottom: 6px; }
+            .layer-4 { width: 170px; height: 50px; clip-path: polygon(16% 0%, 84% 0%, 100% 100%, 0% 100%); }
+            .layer-3 { width: 230px; height: 50px; clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%); }
+            .layer-2 { width: 290px; height: 50px; clip-path: polygon(9% 0%, 91% 0%, 100% 100%, 0% 100%); }
+            .layer-1 { width: 350px; height: 50px; clip-path: polygon(7% 0%, 93% 0%, 100% 100%, 0% 100%); }
+            .pyramid-layer { font-size: 0.7rem; }
+            .pyramid-container { gap: 4px; }
+        }
+
+        /* --- Active Layer Atmosphere (Ambient Panel Tint) --- */
+        .info-panel {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            position: relative;
+        }
+        
+        .info-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            opacity: 0;
+            border-radius: inherit;
+            transition: opacity 0.6s ease-in-out;
+            z-index: 0;
+        }
+
+        #info-layer-1::before { background: radial-gradient(circle at top right, rgba(0, 199, 143, 0.05), transparent 70%); }
+        #info-layer-2::before { background: radial-gradient(circle at top right, rgba(79, 140, 255, 0.05), transparent 70%); }
+        #info-layer-3::before { background: radial-gradient(circle at top right, rgba(240, 185, 11, 0.04), transparent 70%); }
+        #info-layer-4::before { background: radial-gradient(circle at top right, rgba(155, 109, 255, 0.05), transparent 70%); }
+        #info-layer-5::before { background: radial-gradient(circle at center, rgba(255, 107, 107, 0.08), transparent 85%); } /* Hype layer caution tint */
+
+        .info-panel.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .info-panel.visible::before {
+            opacity: 1;
+        }
+
+        /* --- Staggered Content Reveal --- */
+        .visible .stagger-1 { animation: slideUpFade 0.4s ease-out forwards; opacity: 0; animation-delay: 0.05s; }
+        .visible .stagger-2 { animation: slideUpFade 0.4s ease-out forwards; opacity: 0; animation-delay: 0.15s; }
+        .visible .stagger-3 { animation: slideUpFade 0.4s ease-out forwards; opacity: 0; animation-delay: 0.25s; }
+        .visible .stagger-4 { animation: slideUpFade 0.4s ease-out forwards; opacity: 0; animation-delay: 0.35s; }
+        .visible .stagger-5 { animation: slideUpFade 0.4s ease-out forwards; opacity: 0; animation-delay: 0.45s; }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Static Supplement Chips --- */
+        .sup-tag {
+            display: inline-block;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 0.2rem;
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--tag-shadow);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: default;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Hover Feedback */
+        .sup-tag:hover {
+            border-color: var(--border-color);
+            background: var(--tag-hover);
+            box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+
+        /* Priority Subconscious Glow */
+        .dark .sup-tag[data-priority="high"] {
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: var(--tag-shadow), 0 0 10px rgba(255, 255, 255, 0.03);
+        }
+        .sup-tag[data-priority="high"] {
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        /* Hype Layer Psychology (Caution Vibe) */
+        .sup-tag[data-layer="hype"] {
+            background: rgba(255, 74, 74, 0.03);
+            border-color: rgba(255, 74, 74, 0.15);
+        }
+        .sup-tag[data-layer="hype"]:hover {
+            background: rgba(255, 74, 74, 0.06);
+            border-color: rgba(255, 74, 74, 0.25);
+            box-shadow: 0 4px 12px rgba(255, 74, 74, 0.05);
+        }
+
+        /* --- Layer Reminder Micro-Interaction --- */
+        @keyframes softPulse {
+            0% { opacity: 0.6; transform: scale(0.95); filter: drop-shadow(0 0 2px currentColor); }
+            50% { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 8px currentColor); }
+            100% { opacity: 0.6; transform: scale(0.95); filter: drop-shadow(0 0 2px currentColor); }
+        }
+        .layer-reminder-icon {
+            animation: softPulse 2.5s infinite ease-in-out;
+        }
+
+        /* --- Focus Mode Immersion --- */
+        body.has-active-layer .dim-on-focus {
+            opacity: 0.5;
+            transition: opacity 0.5s ease;
+        }
+        body.has-active-layer .dim-on-focus:hover {
+            opacity: 1;
+        }
+
+        /* Panel content positioning above ambient tint */
+        .panel-content-wrapper {
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body class="antialiased min-h-screen flex flex-col font-sans relative selection:bg-coral selection:text-white">
+
+    <!-- Theme Toggle Button -->
+    <button onclick="toggleTheme()" class="fixed top-4 right-4 md:top-6 md:right-6 w-11 h-11 rounded-full theme-card flex items-center justify-center text-textMuted hover:text-textMain hover:scale-105 transition-all z-50 shadow-sm" aria-label="Toggle Theme">
+        <i class="fa-solid fa-sun text-amber-400 text-lg transition-colors" id="themeIcon"></i>
+    </button>
+
+    <!-- Toned down ambient background glow -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-coral/5 dark:bg-coral/5 rounded-full blur-[140px] pointer-events-none -z-10 transition-colors"></div>
+
+    <!-- Header Section (Hierarchy updated: Logo and Title are identical in size, logo is bigger) -->
+    <header class="w-full pt-6 pb-2 md:pt-12 md:pb-6 flex flex-col items-center justify-center relative z-10 text-center px-4">
+        <p class="text-3xl md:text-5xl font-heading font-black text-coral uppercase tracking-[0.1em] logo-glow mb-2">
+            Reset Nation
+        </p>
+        <h1 class="text-3xl md:text-5xl font-heading font-black text-textMain uppercase tracking-tight">
+            SUPPLEMENT PYRAMID
+        </h1>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-4 md:py-8 max-w-6xl relative z-10">
+        
+        <!-- HERO SECTION: Pyramid & Interactive Panels -->
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start justify-center mb-12 md:mb-20">
+            
+            <!-- Left Side: The Interactive Pyramid -->
+            <div class="w-full lg:w-5/12 flex flex-col items-center select-none">
+                
+                <div class="pyramid-container" id="pyramid-interactive">
+                    <div class="pyramid-wrapper wrap-5" onclick="showLayer(5)" id="btn-layer-5">
+                        <div class="pyramid-layer layer-5">
+                            <span class="text-[0.65rem] md:text-xs">Hype</span>
+                        </div>
+                    </div>
+                    <div class="pyramid-wrapper wrap-4" onclick="showLayer(4)" id="btn-layer-4">
+                        <div class="pyramid-layer layer-4">Situational</div>
+                    </div>
+                    <div class="pyramid-wrapper wrap-3" onclick="showLayer(3)" id="btn-layer-3">
+                        <div class="pyramid-layer layer-3">Performance</div>
+                    </div>
+                    <div class="pyramid-wrapper wrap-2" onclick="showLayer(2)" id="btn-layer-2">
+                        <div class="pyramid-layer layer-2">Support</div>
+                    </div>
+                    <div class="pyramid-wrapper wrap-1" onclick="showLayer(1)" id="btn-layer-1">
+                        <div class="pyramid-layer layer-1">Foundation</div>
+                    </div>
+                </div>
+
+                <!-- Instruction -->
+                <p class="text-textSubtle text-[0.65rem] md:text-sm mt-1 mb-6 text-center font-bold uppercase tracking-[0.2em] bg-[var(--instruction-bg)] px-5 py-2 rounded-full border border-borderDark transition-colors">
+                    Tap a layer to view details
+                </p>
+
+                <!-- How to Use Block -->
+                <div class="w-full max-w-[380px] bg-inputBg border border-borderDark rounded-xl p-5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.01)] transition-colors">
+                    <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest mb-3 text-center">How to use this pyramid</h3>
+                    <ul class="text-textMuted text-sm space-y-2.5 font-medium leading-tight">
+                        <li class="flex gap-2.5"><span class="text-emeraldTone opacity-70">1.</span> Which layer does this belong to?</li>
+                        <li class="flex gap-2.5"><span class="text-emeraldTone opacity-70">2.</span> Is the lower layer already fixed?</li>
+                        <li class="flex gap-2.5"><span class="text-emeraldTone opacity-70">3.</span> Am I solving a real problem... or chasing a feeling?</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Right Side: Info Panels -->
+            <div class="w-full lg:w-7/12 min-h-[400px]" id="info-panels-container">
+                
+                <!-- Default State -->
+                <div id="default-panel" class="h-full flex flex-col justify-center theme-card p-8 md:p-12">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-1.5 h-6 bg-emeraldTone rounded-full shadow-[0_0_8px_rgba(0,184,124,0.3)]"></div>
+                        <h2 class="text-xl md:text-2xl font-heading font-bold text-textMain tracking-widest uppercase">Systems > Supplements</h2>
+                    </div>
+                    <p class="text-textSecondary text-base md:text-lg font-medium">
+                        Supplements often give the feeling of progress, not actual progress. <br><br>
+                        <span class="text-textMuted">Select a layer to see what works, what’s situational, and what’s hype.</span>
+                    </p>
+                </div>
+
+                <!-- Layer 1 Panel -->
+                <div id="info-layer-1" class="info-panel theme-card p-6 md:p-10 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#008f68] to-[#00c78f]"></div>
+                    <div class="panel-content-wrapper">
+                        <div class="stagger-1">
+                            <span class="text-layer1 font-bold tracking-widest text-xs uppercase mb-2 block">Layer 1</span>
+                            <h2 class="text-2xl md:text-3xl font-heading font-black text-textMain mb-4 uppercase">Foundation Layer</h2>
+                        </div>
+                        
+                        <div class="stagger-2">
+                            <p class="text-base md:text-lg text-textSecondary font-medium mb-8 border-l-2 border-layer1 pl-4 py-0.5">
+                                Food first. Powders only fill the gaps.
+                            </p>
+                        </div>
+
+                        <div class="mb-8 stagger-3">
+                            <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest mb-3">Core Supplements</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="sup-tag w-full" data-priority="high">
+                                    <span class="block font-bold text-layer1">Whey Protein</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Convenient way to complete protein intake.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer1">Mass Gainer</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Easy calorie increase for people struggling to eat enough.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer1">Casein Protein</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Slow digesting protein for long gaps between meals.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer1">Plant Protein</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Alternative option for lactose intolerance or vegan diets.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer1">Meal Replacement</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Convenience option when meals are inconsistent.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-inputBg rounded-xl p-5 border border-borderDark transition-colors stagger-4">
+                            <h3 class="text-textMain font-heading font-bold tracking-widest mb-3 flex items-center gap-2 text-xs md:text-sm uppercase">
+                                Key Idea
+                            </h3>
+                            <ul class="text-textMuted text-sm space-y-2.5 font-medium">
+                                <li class="flex gap-3"><span class="text-layer1 opacity-50">•</span> Hit daily protein targets first.</li>
+                                <li class="flex gap-3"><span class="text-layer1 opacity-50">•</span> Consistency beats powders.</li>
+                                <li class="flex gap-3"><span class="text-layer1 opacity-50">•</span> Don't out-supplement a bad diet.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Layer Reminder (Highlighted matching Layer 1 Theme) -->
+                        <div class="mt-4 flex items-start gap-3 p-4 rounded-xl border border-solid border-layer1/30 bg-layer1/[0.06] dark:bg-layer1/[0.04] transition-colors stagger-5 shadow-[0_4px_12px_rgba(0,199,143,0.05)]">
+                            <i class="fa-solid fa-triangle-exclamation text-layer1 mt-0.5 text-sm layer-reminder-icon"></i>
+                            <div>
+                                <span class="block text-[0.65rem] font-heading font-bold text-layer1 uppercase tracking-widest mb-1">Layer Reminder</span>
+                                <span class="block text-sm text-textMain font-semibold italic">"Supplements can’t replace poor nutrition."</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layer 2 Panel -->
+                <div id="info-layer-2" class="info-panel theme-card p-6 md:p-10 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#2563eb] to-[#4f8cff]"></div>
+                    <div class="panel-content-wrapper">
+                        <div class="stagger-1">
+                            <span class="text-layer2 font-bold tracking-widest text-xs uppercase mb-2 block">Layer 2</span>
+                            <h2 class="text-2xl md:text-3xl font-heading font-black text-textMain mb-4 uppercase">Support Layer</h2>
+                        </div>
+                        
+                        <div class="stagger-2">
+                            <p class="text-base md:text-lg text-textSecondary font-medium mb-8 border-l-2 border-layer2 pl-4 py-0.5">
+                                You can't perform on deficiencies.
+                            </p>
+                        </div>
+
+                        <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6 stagger-3">
+                            <div>
+                                <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest mb-4">Vitamins</h3>
+                                <div class="flex flex-col gap-2.5">
+                                    <div class="sup-tag w-full" data-priority="high">
+                                        <span class="block font-bold text-layer2">Vitamin D</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Supports recovery and overall body functioning.</span>
+                                    </div>
+                                    <div class="sup-tag w-full">
+                                        <span class="block font-bold text-layer2">Vitamin B12</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Useful for energy support and deficiency correction.</span>
+                                    </div>
+                                    <div class="sup-tag w-full">
+                                        <span class="block font-bold text-layer2">Multivitamin</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Basic nutritional backup. Not a replacement for food.</span>
+                                    </div>
+                                    <div class="sup-tag w-full">
+                                        <span class="block font-bold text-layer2">Vitamin C</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Supports recovery and immunity.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest mb-4">Minerals</h3>
+                                <div class="flex flex-col gap-2.5">
+                                    <div class="sup-tag w-full">
+                                        <span class="block font-bold text-layer2">Iron</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Important when deficiency affects energy and performance.</span>
+                                    </div>
+                                    <div class="sup-tag w-full">
+                                        <span class="block font-bold text-layer2">Magnesium</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Supports sleep, recovery, and muscle function.</span>
+                                    </div>
+                                    <div class="sup-tag w-full">
+                                        <span class="block font-bold text-layer2">Zinc</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Supports general recovery and body functions.</span>
+                                    </div>
+                                    <div class="sup-tag w-full">
+                                        <span class="block font-bold text-layer2">Calcium</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Supports bone health when intake is low.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest mb-4">Recovery Support</h3>
+                                <div class="flex flex-col gap-2.5">
+                                    <div class="sup-tag w-full">
+                                        <span class="block font-bold text-layer2">Omega 3</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Supports recovery and overall health.</span>
+                                    </div>
+                                    <div class="sup-tag w-full">
+                                        <span class="block font-bold text-layer2">Electrolytes</span>
+                                        <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Useful during dehydration and heavy sweating.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-inputBg rounded-xl p-5 border border-borderDark transition-colors stagger-4">
+                            <h3 class="text-textMain font-heading font-bold tracking-widest mb-3 flex items-center gap-2 text-xs md:text-sm uppercase">
+                                Key Idea
+                            </h3>
+                            <ul class="text-textMuted text-sm space-y-2.5 font-medium">
+                                <li class="flex gap-3"><span class="text-layer2 opacity-50">•</span> Support the system, don't just stimulate it.</li>
+                                <li class="flex gap-3"><span class="text-layer2 opacity-50">•</span> Get bloodwork to find true gaps.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Layer Reminder (Highlighted matching Layer 2 Theme) -->
+                        <div class="mt-4 flex items-start gap-3 p-4 rounded-xl border border-solid border-layer2/30 bg-layer2/[0.06] dark:bg-layer2/[0.04] transition-colors stagger-5 shadow-[0_4px_12px_rgba(79,140,255,0.05)]">
+                            <i class="fa-solid fa-triangle-exclamation text-layer2 mt-0.5 text-sm layer-reminder-icon"></i>
+                            <div>
+                                <span class="block text-[0.65rem] font-heading font-bold text-layer2 uppercase tracking-widest mb-1">Layer Reminder</span>
+                                <span class="block text-sm text-textMain font-semibold italic">"Foundation should already be stable before fixing support gaps."</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layer 3 Panel -->
+                <div id="info-layer-3" class="info-panel theme-card p-6 md:p-10 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#c58a00] to-[#f0b90b]"></div>
+                    <div class="panel-content-wrapper">
+                        <div class="stagger-1">
+                            <span class="text-layer3 font-bold tracking-widest text-xs uppercase mb-2 block">Layer 3</span>
+                            <h2 class="text-2xl md:text-3xl font-heading font-black text-textMain mb-4 uppercase">Performance Layer</h2>
+                        </div>
+                        
+                        <div class="stagger-2">
+                            <p class="text-base md:text-lg text-textSecondary font-medium mb-8 border-l-2 border-layer3 pl-4 py-0.5">
+                                These amplify performance. They don't create it.<br>
+                                Weak basics = weak results.
+                            </p>
+                        </div>
+
+                        <div class="mb-8 stagger-3">
+                            <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest mb-3">Core Supplements</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="sup-tag w-full" data-priority="high">
+                                    <span class="block font-bold text-layer3">Creatine Monohydrate</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Supports strength and training performance.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer3">Pre Workout</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Improves workout alertness and intensity feeling.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer3">Caffeine</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Temporary focus and stimulation support.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer3">Beta Alanine</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">May help reduce high-intensity workout fatigue.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer3">Citrulline Malate</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Supports blood flow and workout performance feel.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-inputBg rounded-xl p-5 border border-borderDark transition-colors stagger-4">
+                            <h3 class="text-textMain font-heading font-bold tracking-widest mb-3 flex items-center gap-2 text-xs md:text-sm uppercase">
+                                Key Idea
+                            </h3>
+                            <ul class="text-textMuted text-sm space-y-2.5 font-medium">
+                                <li class="flex gap-3"><span class="text-layer3 opacity-50">•</span> Wait until training is consistent.</li>
+                                <li class="flex gap-3"><span class="text-layer3 opacity-50">•</span> Don't use stimulants to mask bad sleep.</li>
+                                <li class="flex gap-3"><span class="text-layer3 opacity-50">•</span> Expect 5% improvement, not 50%.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Layer Reminder (Highlighted matching Layer 3 Theme) -->
+                        <div class="mt-4 flex items-start gap-3 p-4 rounded-xl border border-solid border-layer3/30 bg-layer3/[0.06] dark:bg-layer3/[0.04] transition-colors stagger-5 shadow-[0_4px_12px_rgba(240,185,11,0.05)]">
+                            <i class="fa-solid fa-triangle-exclamation text-layer3 mt-0.5 text-sm layer-reminder-icon"></i>
+                            <div>
+                                <span class="block text-[0.65rem] font-heading font-bold text-layer3 uppercase tracking-widest mb-1">Layer Reminder</span>
+                                <span class="block text-sm text-textMain font-semibold italic">"Fix Foundation and Support layers first."</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layer 4 Panel -->
+                <div id="info-layer-4" class="info-panel theme-card p-6 md:p-10 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#6d3df5] to-[#9b6dff]"></div>
+                    <div class="panel-content-wrapper">
+                        <div class="stagger-1">
+                            <span class="text-layer4 font-bold tracking-widest text-xs uppercase mb-2 block">Layer 4</span>
+                            <h2 class="text-2xl md:text-3xl font-heading font-black text-textMain mb-4 uppercase">Situational Layer</h2>
+                        </div>
+                        
+                        <div class="stagger-2">
+                            <p class="text-base md:text-lg text-textSecondary font-medium mb-8 border-l-2 border-layer4 pl-4 py-0.5">
+                                Highly specific tools for specific problems.<br>
+                                Not essential for the average lifter.
+                            </p>
+                        </div>
+
+                        <div class="mb-8 stagger-3">
+                            <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest mb-3">Core Supplements</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer4">BCAA</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Mostly useful when protein intake is low.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer4">EAA</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Amino acid support in low-protein situations.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer4">Glutamine</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">May help recovery and gut stress in high training volume.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer4">L-Carnitine</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Can slightly support fat metabolism. Not a shortcut.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer4">L-Arginine</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Supports temporary pump and blood flow.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer4">Intra Workout</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Useful during long or intense training sessions.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer4">Pump Products</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Improve temporary pump and workout feel.</span>
+                                </div>
+                                <div class="sup-tag w-full">
+                                    <span class="block font-bold text-layer4">Ashwagandha</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">May help stress and recovery in some people.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-inputBg rounded-xl p-5 border border-borderDark transition-colors stagger-4">
+                            <h3 class="text-textMain font-heading font-bold tracking-widest mb-3 flex items-center gap-2 text-xs md:text-sm uppercase">
+                                Key Idea
+                            </h3>
+                            <ul class="text-textMuted text-sm space-y-2.5 font-medium">
+                                <li class="flex gap-3"><span class="text-layer4 opacity-50">•</span> Only buy if solving a diagnosed issue.</li>
+                                <li class="flex gap-3"><span class="text-layer4 opacity-50">•</span> Don't buy just for the "advanced" feeling.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Layer Reminder (Highlighted matching Layer 4 Theme) -->
+                        <div class="mt-4 flex items-start gap-3 p-4 rounded-xl border border-solid border-layer4/30 bg-layer4/[0.06] dark:bg-layer4/[0.04] transition-colors stagger-5 shadow-[0_4px_12px_rgba(155,109,255,0.05)]">
+                            <i class="fa-solid fa-triangle-exclamation text-layer4 mt-0.5 text-sm layer-reminder-icon"></i>
+                            <div>
+                                <span class="block text-[0.65rem] font-heading font-bold text-layer4 uppercase tracking-widest mb-1">Layer Reminder</span>
+                                <span class="block text-sm text-textMain font-semibold italic">"Only consider these when lower layers are already consistent."</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layer 5 Panel -->
+                <div id="info-layer-5" class="info-panel theme-card p-6 md:p-10 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#ff4d5a] to-[#ff6b6b]"></div>
+                    <div class="panel-content-wrapper">
+                        <div class="stagger-1">
+                            <span class="text-layer5 font-bold tracking-widest text-xs uppercase mb-2 block">Layer 5</span>
+                            <h2 class="text-2xl md:text-3xl font-heading font-black text-textMain mb-4 uppercase">Hype Layer</h2>
+                        </div>
+                        
+                        <div class="stagger-2">
+                            <p class="text-base md:text-lg text-textSecondary font-medium mb-8 border-l-2 border-layer5 pl-4 py-0.5">
+                                Selling shortcuts to people with weak foundations.
+                            </p>
+                        </div>
+
+                        <div class="mb-8 stagger-3">
+                            <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest mb-3">Core Supplements</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="sup-tag w-full" data-layer="hype">
+                                    <span class="block font-bold text-layer5">Fat Burners</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Cannot replace calorie deficit.</span>
+                                </div>
+                                <div class="sup-tag w-full" data-layer="hype">
+                                    <span class="block font-bold text-layer5">Test Boosters</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Often marketed beyond realistic impact.</span>
+                                </div>
+                                <div class="sup-tag w-full" data-layer="hype">
+                                    <span class="block font-bold text-layer5">Detox Products</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Mostly marketing-driven cleansing claims.</span>
+                                </div>
+                                <div class="sup-tag w-full" data-layer="hype">
+                                    <span class="block font-bold text-layer5">Extreme Transformation Products</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Sell unrealistic shortcut expectations.</span>
+                                </div>
+                                <div class="sup-tag w-full" data-layer="hype">
+                                    <span class="block font-bold text-layer5">Anabolic Muscle Builders</span>
+                                    <span class="block text-[0.75rem] text-textMuted dark:text-textSecondary mt-1 font-normal leading-tight whitespace-normal">Marketing-heavy muscle gain positioning.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-inputBg rounded-xl p-5 border border-borderDark transition-colors stagger-4">
+                            <h3 class="text-textMain font-heading font-bold tracking-widest mb-3 flex items-center gap-2 text-xs md:text-sm uppercase">
+                                Key Idea
+                            </h3>
+                            <ul class="text-textMuted text-sm space-y-2.5 font-medium">
+                                <li class="flex gap-3"><span class="text-layer5 opacity-50">•</span> Names are designed to manipulate psychology.</li>
+                                <li class="flex gap-3"><span class="text-layer5 opacity-50">•</span> No pill outworks a bad diet.</li>
+                                <li class="flex gap-3"><span class="text-layer5 opacity-50">•</span> Save your money for Layer 1.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Layer Reminder (Highlighted matching Layer 5 Theme) -->
+                        <div class="mt-4 flex items-start gap-3 p-4 rounded-xl border border-solid border-layer5/30 bg-layer5/[0.06] dark:bg-layer5/[0.04] transition-colors stagger-5 shadow-[0_4px_12px_rgba(255,107,107,0.05)]">
+                            <i class="fa-solid fa-triangle-exclamation text-layer5 mt-0.5 text-sm layer-reminder-icon"></i>
+                            <div>
+                                <span class="block text-[0.65rem] font-heading font-bold text-layer5 uppercase tracking-widest mb-1">Layer Reminder</span>
+                                <span class="block text-sm text-textMain font-semibold italic">"If lower layers are broken, this layer becomes mostly marketing."</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Lower Section Checklists -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto dim-on-focus">
+            
+            <!-- The Pyramid Rule -->
+            <div class="theme-card p-6 md:p-8">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-1.5 h-4 bg-coral rounded-full shadow-[0_0_5px_rgba(255,74,74,0.3)]"></div>
+                    <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest">The Pyramid Rule</h3>
+                </div>
+                <h2 class="text-lg font-heading font-bold text-textMain mb-5 uppercase tracking-wide leading-snug">Never spend money on an upper layer while the lower is broken.</h2>
+                
+                <div class="space-y-3 text-textMuted font-medium text-sm">
+                    <div class="flex items-center gap-4 bg-inputBg p-3 rounded-lg border border-borderDark transition-colors">
+                        <i class="fa-solid fa-bed text-textSubtle w-5 text-center"></i>
+                        <span>Broken sleep &rarr; <span class="text-textMain">pre-workout won't fix it.</span></span>
+                    </div>
+                    <div class="flex items-center gap-4 bg-inputBg p-3 rounded-lg border border-borderDark transition-colors">
+                        <i class="fa-solid fa-drumstick-bite text-textSubtle w-5 text-center"></i>
+                        <span>Low protein &rarr; <span class="text-textMain">creatine won't save it.</span></span>
+                    </div>
+                    <div class="flex items-center gap-4 bg-inputBg p-3 rounded-lg border border-borderDark transition-colors">
+                        <i class="fa-solid fa-fire text-textSubtle w-5 text-center"></i>
+                        <span>No calorie deficit &rarr; <span class="text-textMain">fat burner won't help.</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Self Audit Checklist -->
+            <div class="theme-card p-6 md:p-8">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-1.5 h-4 bg-emeraldTone rounded-full shadow-[0_0_5px_rgba(0,184,124,0.3)]"></div>
+                    <h3 class="text-xs font-heading font-bold text-textSubtle uppercase tracking-widest">Self-Audit</h3>
+                </div>
+                <h2 class="text-lg font-heading font-bold text-textMain mb-5 uppercase tracking-wide leading-snug">Before Buying A Supplement</h2>
+                
+                <ul class="space-y-3.5 text-textSecondary font-medium text-sm">
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-square-check text-emeraldTone mt-0.5"></i>
+                        <span>Protein target hit?</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-square-check text-emeraldTone mt-0.5"></i>
+                        <span>Sleep schedule stable?</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-square-check text-emeraldTone mt-0.5"></i>
+                        <span>Training consistently?</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-square-check text-layer2 mt-0.5"></i>
+                        <span>Diagnosed deficiency?</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-square-check text-layer4 mt-0.5"></i>
+                        <span>Solving a real problem?</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa-regular fa-square text-textSubtle mt-0.5 opacity-80"></i>
+                        <span class="text-textSubtle">Or just chasing hype?</span>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 md:mt-24 pb-12 w-full flex flex-col items-center justify-center relative z-10 text-center gap-6 px-4">
+        <h4 class="text-[0.65rem] md:text-xs font-heading font-bold tracking-[0.25em] text-textMuted uppercase">
+            Join the Reset Nation Community
+        </h4>
+        <div class="flex gap-8">
+            <a href="https://www.instagram.com/resetnation.in/" target="_blank" class="text-coral hover:text-textMain transition-colors text-xs font-heading font-bold tracking-widest uppercase">
+                Instagram
+            </a>
+            <a href="https://www.youtube.com/@reset.nation" target="_blank" class="text-coral hover:text-textMain transition-colors text-xs font-heading font-bold tracking-widest uppercase">
+                YouTube
+            </a>
+        </div>
+        <p class="text-[0.55rem] md:text-[0.6rem] font-heading font-bold tracking-[0.2em] text-textSubtle opacity-80 uppercase mt-2">
+            &copy; <span id="year"></span> Reset Nation | Performance Systems
+        </p>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.classList.remove('fa-sun', 'text-amber-400');
+                icon.classList.add('fa-moon', 'text-indigo-500');
+            } else {
+                html.classList.add('dark');
+                icon.classList.remove('fa-moon', 'text-indigo-500');
+                icon.classList.add('fa-sun', 'text-amber-400');
+            }
+        }
+
+        // Layer Panel Interactive Visibility Logic
+        function showLayer(layerNumber) {
+            document.getElementById('default-panel').style.display = 'none';
+            document.body.classList.add('has-active-layer');
+
+            const panels = document.querySelectorAll('.info-panel');
+            panels.forEach(panel => {
+                panel.classList.remove('visible');
+            });
+
+            const layers = document.querySelectorAll('.pyramid-wrapper');
+            layers.forEach(layer => {
+                layer.classList.remove('active');
+            });
+
+            const selectedPanel = document.getElementById(`info-layer-${layerNumber}`);
+            if (selectedPanel) {
+                // Short timeout for seamless CSS transition
+                setTimeout(() => {
+                    selectedPanel.classList.add('visible');
+                }, 10);
+            }
+
+            const selectedLayer = document.getElementById(`btn-layer-${layerNumber}`);
+            if (selectedLayer) {
+                selectedLayer.classList.add('active');
+            }
+            
+            if(window.innerWidth < 1024) {
+               setTimeout(() => {
+                    const container = document.getElementById('pyramid-interactive');
+                    const yOffset = -20; 
+                    const y = container.getBoundingClientRect().top + window.scrollY + yOffset;
+                    
+                    window.scrollTo({
+                        top: y, 
+                        behavior: 'smooth'
+                    });
+               }, 100); 
+            }
+        }
+    </script>
+</body>
+</html>
